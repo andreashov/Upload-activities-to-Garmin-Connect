@@ -68,6 +68,11 @@ async def startup():
         logger.info("Restored saved Garmin session")
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 @app.post("/api/pin")
 async def verify_pin(pin: str = Form(...)):
     if not APP_PIN:
