@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garmin Treningsplanlegger</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #007CC3;
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    header h1 { font-size: 1.15rem; font-weight: 600; flex: 1; }
+
+    #user-info {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-logout {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.15s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.28); }
+
+    main {
+      max-width: 520px;
+      margin: 2.5rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 1.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 6px 16px rgba(0,0,0,0.05);
+      margin-bottom: 1.25rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+      color: #1a202c;
+    }
+    input:focus { border-color: #007CC3; }
+
+    .drop-zone {
+      border: 2px dashed #cbd5e0;
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f7fafc;
+      margin-bottom: 1rem;
+      user-select: none;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: #007CC3;
+      background: #ebf5fb;
+    }
+    .drop-zone .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .drop-zone .hint { color: #718096; font-size: 0.875rem; line-height: 1.5; }
+    .drop-zone .hint strong { color: #007CC3; }
+    .drop-zone .file-selected {
+      margin-top: 0.6rem;
+      color: #2f855a;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .field-group { margin-bottom: 1rem; }
+    .field-hint {
+      font-size: 0.75rem;
+      color: #a0aec0;
+      font-weight: normal;
+      text-transform: none;
+      letter-spacing: 0;
+      margin-left: 0.3rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: #007CC3;
+      color: white;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover:not(:disabled) { background: #0069a8; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .alert {
+      display: none;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .alert-success { background: #c6f6d5; color: #22543d; }
+    .alert-error   { background: #fed7d7; color: #742a2a; }
+    .alert-warning { background: #fefcbf; color: #744210; }
+
+    .spinner {
+      display: inline-block;
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      margin-right: 0.45rem;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #hidden-file { display: none; }
+    #upload-section { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+    <circle cx="20" cy="20" r="17" stroke="white" stroke-width="2.5"/>
+    <path d="M12 20.5 L17.5 26 L28 14" stroke="white" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h1>Garmin Treningsplanlegger</h1>
+  <div id="user-info">
+    <span id="display-name"></span>
+    <button class="btn-logout" onclick="logout()">Logg ut</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Login card -->
+  <div class="card" id="login-section">
+    <h2>Logg inn på Garmin Connect</h2>
+    <form id="login-form" onsubmit="doLogin(event)">
+      <label for="email">E-post</label>
+      <input type="email" id="email" placeholder="din@epost.no"
+             required autocomplete="email">
+
+      <label for="password">Passord</label>
+      <input type="password" id="password" placeholder="••••••••"
+             required autocomplete="current-password">
+
+      <button type="submit" class="btn-primary" id="login-btn">Logg inn</button>
+    </form>
+    <div class="alert" id="login-alert"></div>
+  </div>
+
+  <!-- Upload card -->
+  <div class="card" id="upload-section">
+    <h2>Last opp treningsøkt</h2>
+
+    <div class="drop-zone" id="drop-zone"
+         onclick="document.getElementById('hidden-file').click()"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)"
+         ondrop="onDrop(event)">
+      <div class="icon">📂</div>
+      <div class="hint">
+        Dra og slipp en <strong>FIT</strong>-, TCX- eller GPX-fil hit<br>
+        eller <strong>klikk for å velge fil</strong>
+      </div>
+      <div class="file-selected" id="file-label"></div>
+    </div>
+    <input type="file" id="hidden-file" accept=".fit,.tcx,.gpx"
+           onchange="onFileInput(this)">
+
+    <div class="field-group">
+      <label for="sched-date">
+        Planlegg til dato
+        <span class="field-hint">(valgfritt)</span>
+      </label>
+      <input type="date" id="sched-date">
+    </div>
+
+    <button class="btn-primary" id="upload-btn" onclick="doUpload()" disabled>
+      Last opp til Garmin
+    </button>
+    <div class="alert" id="upload-alert"></div>
+  </div>
+
+</main>
+
+<script>
+  let selectedFile = null;
+
+  // Restrict date picker to today and later
+  document.getElementById('sched-date').min = new Date().toISOString().slice(0, 10);
+
+  // --- Auth ---
+
+  async function checkStatus() {
+    const res = await fetch('/api/status');
+    const data = await res.json();
+    if (data.loggedIn) setLoggedIn(data.displayName);
+  }
+
+  function setLoggedIn(name) {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('upload-section').style.display = 'block';
+    document.getElementById('user-info').style.display = 'flex';
+    document.getElementById('display-name').textContent = name;
+  }
+
+  function setLoggedOut() {
+    document.getElementById('login-section').style.display = 'block';
+    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('user-info').style.display = 'none';
+    selectedFile = null;
+    document.getElementById('file-label').textContent = '';
+    document.getElementById('upload-btn').disabled = true;
+    document.getElementById('upload-alert').style.display = 'none';
+  }
+
+  async function doLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    setAlert('login-alert', '', '');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Logger inn…';
+
+    try {
+      const fd = new FormData();
+      fd.append('email', document.getElementById('email').value);
+      fd.append('password', document.getElementById('password').value);
+
+      const res = await fetch('/api/login', { method: 'POST', body: fd });
+      const data = await res.json();
+
+      if (res.ok) {
+        setLoggedIn(data.displayName);
+      } else {
+        setAlert('login-alert', data.detail || 'Innlogging feilet', 'error');
+      }
+    } catch {
+      setAlert('login-alert', 'Nettverksfeil – er serveren kjørende?', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Logg inn';
+    }
+  }
+
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' });
+    setLoggedOut();
+  }
+
+  // --- File handling ---
+
+  function onDragOver(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.add('drag-over');
+  }
+  function onDragLeave() {
+    document.getElementById('drop-zone').classList.remove('drag-over');
+  }
+  function onDrop(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) setFile(file);
+  }
+  function onFileInput(input) {
+    if (input.files[0]) setFile(input.files[0]);
+  }
+
+  function setFile(file) {
+    selectedFile = file;
+    document.getElementById('file-label').textContent = `✓ ${file.name}`;
+    document.getElementById('upload-btn').disabled = false;
+    setAlert('upload-alert', '', '');
+  }
+
+  // --- Upload ---
+
+  async function doUpload() {
+    if (!selectedFile) return;
+
+    const btn = document.getElementById('upload-btn');
+    const dateVal = document.getElementById('sched-date').value;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Laster opp…';
+    setAlert('upload-alert', '', '');
+
+    try {
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      if (dateVal) fd.append('scheduled_date', dateVal);
+
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+
+      if (res.ok) {
+        const type = data.scheduled ? 'success' : 'warning';
+        setAlert('upload-alert', data.message, type);
+        if (data.scheduled) resetForm();
+      } else {
+        setAlert('upload-alert', data.detail || 'Opplasting feilet', 'error');
+      }
+    } catch {
+      setAlert('upload-alert', 'Nettverksfeil', 'error');
+    } finally {
+      btn.disabled = !selectedFile;
+      btn.innerHTML = 'Last opp til Garmin';
+    }
+  }
+
+  function resetForm() {
+    selectedFile = null;
+    document.getElementById('file-label').textContent = '';
+    document.getElementById('hidden-file').value = '';
+    document.getElementById('sched-date').value = '';
+    document.getElementById('upload-btn').disabled = true;
+  }
+
+  // --- Helpers ---
+
+  function setAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!msg) { el.style.display = 'none'; return; }
+    el.textContent = msg;
+    el.className = `alert alert-${type}`;
+    el.style.display = 'block';
+  }
+
+  checkStatus();
+</script>
+</body>
+</html>
