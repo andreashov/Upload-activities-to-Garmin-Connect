@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 import shutil
@@ -7,7 +8,11 @@ import tempfile
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse as StarletteJSONResponse
 
 import garminconnect
 
@@ -16,8 +21,30 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Garmin Workout Scheduler")
 
-TOKEN_STORE = Path.home() / ".garmin_workout_tokens"
+# Token storage: /data for Railway (persistent volume), home dir for local
+TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path.home() / ".garmin_workout_tokens")))
+
+# Optional PIN protection — set APP_PIN environment variable to enable
+APP_PIN = os.getenv("APP_PIN", "")
+# Stable session secret derived from PIN so it survives server restarts
+_SESSION_SECRET = hashlib.sha256(f"garmin-session-{APP_PIN}".encode()).hexdigest()
+
 _client: garminconnect.Garmin | None = None
+
+
+class PinMiddleware(BaseHTTPMiddleware):
+    """Protect all /api/* routes (except /api/pin) when APP_PIN is set."""
+
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
+            session = request.cookies.get("session", "")
+            if session != _SESSION_SECRET:
+                return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
+        return await call_next(request)
+
+
+app.add_middleware(PinMiddleware)
 
 
 def _try_restore_session() -> garminconnect.Garmin | None:
@@ -38,6 +65,23 @@ async def startup():
     _client = _try_restore_session()
     if _client:
         logger.info("Restored saved Garmin session")
+
+
+@app.post("/api/pin")
+async def verify_pin(pin: str = Form(...)):
+    if not APP_PIN:
+        return {"status": "ok", "pinRequired": False}
+    if pin != APP_PIN:
+        raise HTTPException(status_code=401, detail="Feil PIN-kode")
+    response = JSONResponse({"status": "ok", "pinRequired": True})
+    response.set_cookie(
+        "session",
+        _SESSION_SECRET,
+        httponly=True,
+        samesite="strict",
+        max_age=60 * 60 * 24 * 30,  # 30 dager
+    )
+    return response
 
 
 @app.get("/api/status")
@@ -128,14 +172,14 @@ async def upload_workout(
             except Exception as exc:
                 logger.warning("Scheduling failed: %s", exc)
                 schedule_note = (
-                    " Merk: Planlegging til kalender feilet — sjekk at filen "
-                    "er en workout-fil (fremtidig økt), ikke en activity-fil (gjennomført økt)."
+                    " Merk: Planlegging feilet — filen ble trolig tolket som en "
+                    "gjennomført aktivitet, ikke en fremtidig treningsøkt."
                 )
 
         if scheduled:
-            message = f"Treningsøkt lastet opp og planlagt til {scheduled_date}!"
+            message = f"Lagt til i Garmin-kalenderen din: {scheduled_date} ✓"
         else:
-            message = f"Fil lastet opp til Garmin Connect (ID: {internal_id}).{schedule_note}"
+            message = f"Fil lastet opp (ID: {internal_id}).{schedule_note}"
 
         return {
             "status": "ok",
