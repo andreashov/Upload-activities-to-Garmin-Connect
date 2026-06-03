@@ -21,8 +21,9 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Garmin Workout Scheduler")
 
-# Token storage: /data for Railway (persistent volume), home dir for local
-TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path.home() / ".garmin_workout_tokens")))
+# Token storage: app-local ./data dir (survives requests, lost on redeploy)
+# Override with TOKEN_DIR env var if needed
+TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path(__file__).parent / "data" / "garmin_tokens")))
 
 # Optional PIN protection — set APP_PIN environment variable to enable
 APP_PIN = os.getenv("APP_PIN", "")

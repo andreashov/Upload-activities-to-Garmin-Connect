@@ -10,29 +10,26 @@ Last opp treningsøkter (FIT/TCX/GPX) til Garmin Connect og planlegg dem til en 
 Gå til [railway.app](https://railway.app) og logg inn med GitHub.
 
 ### 2. Opprett nytt prosjekt
+- Klikk **New Project**
 - Velg **Deploy from GitHub repo**
 - Velg `Upload-activities-to-Garmin-Connect`
 
-### 3. Legg til persistent volum
-I Railway-dashbordet for prosjektet:
-- Gå til **Settings → Volumes**
-- Legg til et volum montert på `/data`
-- Dette lagrer Garmin-tokens mellom deploys
-
-### 4. Sett miljøvariabler
-I **Settings → Variables**, legg til:
+### 3. Sett miljøvariabler
+Klikk på tjenesten din → fanen **Variables**, og legg til:
 
 | Variabel | Verdi | Beskrivelse |
 |----------|-------|-------------|
-| `APP_PIN` | f.eks. `1234` | PIN-kode for å beskytte appen |
-| `TOKEN_DIR` | `/data/garmin_tokens` | Hvor tokens lagres (i volumet) |
+| `APP_PIN` | f.eks. `2847` | PIN-kode for å beskytte appen |
 
-### 5. Deploy
-Railway deployer automatisk. Du får en URL som `ditt-prosjekt.up.railway.app`.
+### 4. Deploy
+Railway deployer automatisk og gir deg en URL som `ditt-prosjekt.up.railway.app`.
 
-### 6. Legg til på hjemskjermen (mobil)
+### 5. Legg til på hjemskjermen (mobil)
 - **iPhone**: Åpne URL i Safari → Del-knapp → «Legg til på Hjem-skjerm»
 - **Android**: Åpne URL i Chrome → meny → «Legg til på startskjerm»
+
+> **Merk om innlogging:** Garmin-tokens lagres i containeren og overlever vanlig drift.
+> Etter en ny deploy (når du oppdaterer koden) må du logge inn i Garmin én gang til.
 
 ---
 
@@ -54,8 +51,8 @@ uvicorn main:app --reload
 
 ## Bruk
 
-1. Åpne appen — skriv inn PIN (hvis satt)
-2. Logg inn med Garmin Connect e-post og passord (kun én gang)
+1. Åpne appen og skriv inn PIN-kode
+2. Logg inn med Garmin Connect e-post og passord (kun én gang per deploy)
 3. Trykk på filopplastingsfeltet og velg en treningsfil
 4. Velg dato du vil planlegge økten til
 5. Trykk **Last opp til Garmin**
@@ -78,5 +75,4 @@ korrekt til Garmin-klokken.
 ## Sikkerhet
 
 - Passordet ditt lagres **aldri** — kun OAuth-tokens som automatisk fornyes
-- Tokens lagres i Railway-volumet (privat, kun din instans)
 - PIN-koden beskytter appen mot uautorisert tilgang
