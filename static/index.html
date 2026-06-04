@@ -30,6 +30,9 @@
       overflow-x: hidden;
     }
 
+    /* Ensure aurora fills behind everything including safe-area */
+    html { background: #030810; }
+
     /* ── Aurora ──────────────────────────────────────────── */
     /* NOTE: No ::after overlay here — it was covering the blobs */
     #aurora {
@@ -87,6 +90,14 @@
       filter: blur(65px);
       animation: f5 13s ease-in-out infinite;
     }
+    /* Bottom-center: teal fill so there's no black gap */
+    .b6 {
+      width: min(90vw, 560px); height: min(90vw, 560px);
+      bottom: -30%; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(0,160,130,0.55) 0%, rgba(0,100,90,0.22) 45%, transparent 70%);
+      filter: blur(100px);
+      animation: f6 16s ease-in-out infinite;
+    }
 
     @keyframes f1 {
       0%,100% { transform: translate(0, 0) scale(1); }
@@ -113,6 +124,10 @@
       25%     { transform: translate(-22vw, -14vh);  opacity: 1; }
       50%     { transform: translate(-10vw, -30vh);  opacity: 0.55; }
       75%     { transform: translate(18vw,  -18vh);  opacity: 1; }
+    }
+    @keyframes f6 {
+      0%,100% { transform: translateX(-50%) translate(0, 0)    scale(1); }
+      50%     { transform: translateX(-50%) translate(8vw, -8vh) scale(1.15); }
     }
 
     /* ── Header ──────────────────────────────────────────── */
@@ -431,6 +446,7 @@
   <div class="blob b3"></div>
   <div class="blob b4"></div>
   <div class="blob b5"></div>
+  <div class="blob b6"></div>
 </div>
 
 <header>
@@ -448,13 +464,13 @@
       <div class="pin-grid">
         <input class="pin-box" id="p0" type="tel" inputmode="numeric"
                maxlength="2" pattern="[0-9]*" autocomplete="one-time-code"
-               placeholder="··">
+               placeholder="XX">
         <span class="pin-sep">:</span>
         <input class="pin-box" id="p1" type="tel" inputmode="numeric"
-               maxlength="2" pattern="[0-9]*" placeholder="··">
+               maxlength="2" pattern="[0-9]*" placeholder="XX">
         <span class="pin-sep">:</span>
         <input class="pin-box" id="p2" type="tel" inputmode="numeric"
-               maxlength="2" pattern="[0-9]*" placeholder="··">
+               maxlength="2" pattern="[0-9]*" placeholder="XX">
       </div>
     </form>
     <div class="alert" id="pin-alert"></div>
@@ -462,7 +478,7 @@
 
   <div class="card" id="login-section">
     <div class="card-title">Garmin Connect</div>
-    <div class="card-sub">Logg inn for å planlegge treningsøkter</div>
+    <div class="card-sub">Logg inn med din Garmin Connect konto</div>
     <form onsubmit="doLogin(event)">
       <div class="field">
         <label>E-post</label>
