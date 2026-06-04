@@ -382,7 +382,7 @@
 
     #file-input  { display: none; }
     #pin-section    { display: none; }
-    #login-section  { display: none; }
+    #login-section  { display: block; }
     #upload-section { display: none; }
   </style>
 </head>
@@ -518,7 +518,7 @@
       const d=await r.json();
       if(r.ok){ const s=await(await fetch('/api/status')).json(); s.loggedIn?setIn(s.displayName):show('login'); }
       else alert2('pin-alert',d.detail||'Feil PIN','error');
-    } catch{ alert2('pin-alert','Nettverksfeil','error'); }
+    } catch(e){ alert2('pin-alert','Nettverksfeil','error'); }
     finally{ b.disabled=false; b.innerHTML='Fortsett'; }
   }
 
@@ -534,7 +534,7 @@
       const r=await fetch('/api/login',{method:'POST',body:fd});
       const d=await r.json();
       r.ok ? setIn(d.displayName) : alert2('login-alert',d.detail||'Innlogging feilet','error');
-    } catch{ alert2('login-alert','Nettverksfeil','error'); }
+    } catch(e){ alert2('login-alert','Nettverksfeil','error'); }
     finally{ b.disabled=false; b.innerHTML='Logg inn'; }
   }
 
@@ -577,7 +577,7 @@
         alert2('upload-alert',d.message,d.scheduled?'success':'warning');
         if(d.scheduled) reset();
       } else alert2('upload-alert',d.detail||'Opplasting feilet','error');
-    } catch{ alert2('upload-alert','Nettverksfeil','error'); }
+    } catch(e){ alert2('upload-alert','Nettverksfeil','error'); }
     finally{ b.disabled=!sel; b.innerHTML='Last opp til Garmin'; }
   }
 
@@ -595,7 +595,7 @@
     el.textContent=msg; el.className='alert alert-'+type; el.style.display='block';
   }
 
-  init();
+  init().catch(() => show('login'));
 </script>
 </body>
 </html>
