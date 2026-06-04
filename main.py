@@ -63,41 +63,29 @@ def _try_restore_session() -> garminconnect.Garmin | None:
         return None
 
 
-def _garth_post(path: str, data: dict) -> dict:
+def _api_post(path: str, data: dict) -> dict:
     """Make an authenticated POST to the Garmin Connect API."""
-    client_attrs = [a for a in dir(_client) if not a.startswith("_")]
-    logger.info("garminconnect attrs: %s", client_attrs)
-
-    # 1. garth via client attribute (newer garminconnect)
-    if hasattr(_client, 'garth'):
-        for style, fn in [
-            ("garth.request(sub,path,method)", lambda: _client.garth.request("connectapi", path, method="POST", json=data).json()),
-            ("garth.request(method,sub,path)", lambda: _client.garth.request("POST", "connectapi", path, json=data).json()),
-            ("garth.post(sub,path)",           lambda: _client.garth.post("connectapi", path, json=data).json()),
+    # In newer garminconnect the inner client is at .client (not .garth)
+    inner = getattr(_client, 'client', None) or getattr(_client, 'garth', None)
+    if inner:
+        for desc, fn in [
+            ("inner.request(sub,path,method=POST)", lambda: inner.request("connectapi", path, method="POST", json=data).json()),
+            ("inner.request(POST,sub,path)",        lambda: inner.request("POST", "connectapi", path, json=data).json()),
+            ("inner.post(sub,path)",                lambda: inner.post("connectapi", path, json=data).json()),
         ]:
             try:
                 return fn()
             except Exception as e:
-                logger.warning("%s failed: %s", style, e)
+                logger.warning("%s: %s", desc, e)
 
-    # 2. garth as module (configured globally by garminconnect login)
+    # garth as standalone module (configured globally on login)
     try:
         import garth as _garth
         return _garth.request("POST", "connectapi", path, json=data).json()
     except Exception as e:
-        logger.warning("garth module POST failed: %s", e)
+        logger.warning("garth module: %s", e)
 
-    # 3. Direct requests.Session (old garminconnect 0.1.x)
-    session = getattr(_client, 'session', None)
-    if session is None:
-        session = getattr(_client, 'req_session', None)
-    if session is not None:
-        url = f"https://connectapi.garmin.com{path}"
-        response = session.post(url, json=data, headers={"NK": "NT", "X-app-ver": "4.70.0.0"})
-        response.raise_for_status()
-        return response.json()
-
-    raise RuntimeError(f"Ingen API-klient tilgjengelig. garminconnect-attributter: {client_attrs}")
+    raise RuntimeError("Ingen POST-klient tilgjengelig")
 
 
 @app.on_event("startup")
@@ -193,24 +181,45 @@ async def _upload_json_workout(content: bytes, scheduled_date: str | None):
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
 
+    # 1. Try native garminconnect method (exists in newer versions)
+    workout_id = None
     try:
-        result = _garth_post("/workout-service/workout", workout_def)
-        logger.info("Workout created: %s", result)
-        workout_id = result.get("workoutId")
-        if not workout_id:
-            raise HTTPException(status_code=400, detail=f"Garmin svarte uten workout ID: {result}")
-    except HTTPException:
-        raise
+        result = _client.upload_workout(workout_def)
+        logger.info("upload_workout result: %s", result)
+        if isinstance(result, dict):
+            workout_id = result.get("workoutId")
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Kunne ikke opprette økt: {exc}")
+        logger.warning("upload_workout() failed: %s", exc)
 
+    # 2. Fall back to direct API POST
+    if not workout_id:
+        try:
+            result = _api_post("/workout-service/workout", workout_def)
+            logger.info("direct POST result: %s", result)
+            workout_id = result.get("workoutId")
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Kunne ikke opprette økt: {exc}")
+
+    if not workout_id:
+        raise HTTPException(status_code=400, detail="Garmin returnerte ingen workout ID")
+
+    # Schedule to date
     scheduled = False
     if scheduled_date:
+        # 1. Try native schedule_workout method
         try:
-            _garth_post(f"/workout-service/schedule/{workout_id}", {"date": scheduled_date})
+            _client.schedule_workout(workout_id, scheduled_date)
             scheduled = True
         except Exception as exc:
-            logger.warning("Schedule failed: %s", exc)
+            logger.warning("schedule_workout() failed: %s", exc)
+
+        # 2. Fall back to direct API POST
+        if not scheduled:
+            try:
+                _api_post(f"/workout-service/schedule/{workout_id}", {"date": scheduled_date})
+                scheduled = True
+            except Exception as exc:
+                logger.warning("direct schedule failed: %s", exc)
 
     if scheduled:
         message = f"Treningsøkt lagt til i Garmin-kalenderen din: {scheduled_date} ✓"
