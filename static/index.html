@@ -316,6 +316,10 @@
       box-shadow: 0 0 0 3px rgba(0,212,170,0.09);
     }
     input::placeholder { color: var(--t3); }
+    /* Date input wrapper with overlay placeholder */
+    .date-wrap {
+      position: relative;
+    }
     input[type="date"] {
       min-height: 54px;
       padding: 16px 14px;
@@ -323,13 +327,32 @@
     input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(.5); cursor: pointer; padding: 2px;
     }
+    .date-ph {
+      position: absolute;
+      left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: var(--t3);
+      pointer-events: none;
+      transition: opacity .15s;
+    }
+    .date-wrap.has-date .date-ph { opacity: 0; }
 
     /* ── Date quick-select ───────────────────────────────── */
     .date-pills {
+      margin-top: 10px;
+    }
+    .dp-label {
+      font-size: 10.5px; font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      margin-bottom: 8px;
+    }
+    .dp-label span {
+      text-transform: none; letter-spacing: 0; font-weight: 400; opacity: 0.65;
+    }
+    .dp-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 10px;
     }
     .dp {
       padding: 15px 8px;
@@ -623,14 +646,16 @@
 
     <!-- Date picker -->
     <div class="field">
-      <label>
-        Planlegg til dato
-        <span style="opacity:.38;font-weight:400;text-transform:none;letter-spacing:0"> — valgfritt</span>
-      </label>
-      <input type="date" id="sched-date">
+      <div class="date-wrap" id="date-wrap">
+        <input type="date" id="sched-date">
+        <span class="date-ph">Velg dato</span>
+      </div>
       <div class="date-pills">
-        <button type="button" class="dp" onclick="setDate(0,this)">I dag<span id="date-today"></span></button>
-        <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span id="date-tomorrow"></span></button>
+        <div class="dp-label">Planlegg til dato <span>— valgfritt</span></div>
+        <div class="dp-row">
+          <button type="button" class="dp" onclick="setDate(0,this)">I dag<span id="date-today"></span></button>
+          <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span id="date-tomorrow"></span></button>
+        </div>
       </div>
     </div>
 
@@ -661,8 +686,10 @@
   const dateInput = document.getElementById('sched-date');
   const today = new Date();
   dateInput.min = today.toISOString().slice(0,10);
+  const dateWrap = document.getElementById('date-wrap');
   dateInput.addEventListener('change', () => {
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
+    dateWrap.classList.toggle('has-date', !!dateInput.value);
   });
 
   // Fill date labels in quick-select buttons
@@ -677,6 +704,7 @@
     dateInput.value = d.toISOString().slice(0,10);
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     btn.classList.add('sel');
+    dateWrap.classList.add('has-date');
   }
 
   async function init() {
@@ -945,6 +973,7 @@
     document.getElementById('file-label').textContent = '';
     document.getElementById('file-input').value = '';
     dateInput.value = '';
+    dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     document.getElementById('upload-btn').disabled = true;
   }
