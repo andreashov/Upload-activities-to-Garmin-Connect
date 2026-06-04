@@ -65,27 +65,35 @@ def _try_restore_session() -> garminconnect.Garmin | None:
 
 def _garth_post(path: str, data: dict) -> dict:
     """Make an authenticated POST to the Garmin Connect API."""
-    errors = []
+    # Newer garminconnect (0.2.x) — uses garth
+    if hasattr(_client, 'garth'):
+        errors = []
+        try:
+            return _client.garth.request("connectapi", path, method="POST", json=data).json()
+        except Exception as e:
+            errors.append(str(e))
+        try:
+            return _client.garth.request("POST", "connectapi", path, json=data).json()
+        except Exception as e:
+            errors.append(str(e))
+        try:
+            return _client.garth.post("connectapi", path, json=data).json()
+        except Exception as e:
+            errors.append(str(e))
+        logger.warning("garth POST failed: %s", errors)
 
-    # Style A: newer garth — request(subdomain, path, method=..., json=...)
-    try:
-        return _client.garth.request("connectapi", path, method="POST", json=data).json()
-    except Exception as e:
-        errors.append(f"A: {e}")
+    # Older garminconnect (0.1.x) — uses requests.Session directly
+    if hasattr(_client, 'session'):
+        url = f"https://connectapi.garmin.com{path}"
+        response = _client.session.post(
+            url,
+            json=data,
+            headers={"NK": "NT", "X-app-ver": "4.70.0.0"},
+        )
+        response.raise_for_status()
+        return response.json()
 
-    # Style B: older garth — request(method, subdomain, path, json=...)
-    try:
-        return _client.garth.request("POST", "connectapi", path, json=data).json()
-    except Exception as e:
-        errors.append(f"B: {e}")
-
-    # Style C: convenience post() method
-    try:
-        return _client.garth.post("connectapi", path, json=data).json()
-    except Exception as e:
-        errors.append(f"C: {e}")
-
-    raise RuntimeError(f"Alle forsøk på Garmin API POST feilet: {errors}")
+    raise RuntimeError("Fant ingen HTTP-klient i garminconnect-objektet")
 
 
 @app.on_event("startup")
