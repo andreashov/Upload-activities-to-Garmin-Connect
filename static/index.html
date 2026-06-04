@@ -76,8 +76,13 @@
       position: absolute;
       left: 0; right: 0;
       bottom: 0;
-      height: 40%;
-      background: linear-gradient(180deg, transparent 0%, #0f2e20 60%);
+      height: 55%;
+      background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(0,160,120,0.45) 40%,
+        rgba(0,130,100,0.7)  70%,
+        #0a2318 100%
+      );
       z-index: 1;
       pointer-events: none;
     }
@@ -129,13 +134,13 @@
       filter: blur(70px);
       animation: f5 13s ease-in-out infinite;
     }
-    /* Bottom-center: covers lower half on all screen sizes */
+    /* Bottom-center large glow */
     .b6 {
-      width: min(220vw, 1400px); height: min(220vw, 1400px);
-      bottom: -55%; left: 50%;
+      width: min(160vw, 900px); height: min(160vw, 900px);
+      bottom: -38%; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,190,155,0.88) 0%, rgba(0,150,120,0.52) 38%, transparent 64%);
-      filter: blur(90px);
+      background: radial-gradient(circle, rgba(0,210,160,0.9) 0%, rgba(0,170,130,0.55) 38%, transparent 64%);
+      filter: blur(80px);
       animation: f6 16s ease-in-out infinite;
     }
     /* Bottom-right blue accent */
@@ -145,6 +150,19 @@
       background: radial-gradient(circle, rgba(60,100,255,0.72) 0%, rgba(30,60,200,0.32) 45%, transparent 68%);
       filter: blur(90px);
       animation: f4 14s ease-in-out infinite reverse;
+    }
+    /* Anchored bottom glow — always covers the very bottom of the viewport */
+    .b8 {
+      position: fixed;
+      width: 100vw; height: 50vh;
+      bottom: 0; left: 0;
+      background: radial-gradient(ellipse at 50% 100%,
+        rgba(0,200,150,0.55) 0%,
+        rgba(0,160,120,0.28) 45%,
+        transparent 70%
+      );
+      filter: blur(40px);
+      pointer-events: none;
     }
 
     @keyframes f1 {
@@ -647,6 +665,7 @@
   <div class="blob b5"></div>
   <div class="blob b6"></div>
   <div class="blob b7"></div>
+  <div class="b8"></div>
 </div>
 
 <header>
