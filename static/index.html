@@ -36,14 +36,14 @@
       overflow-x: hidden;
     }
 
-    /* Body gradient: dark teal at bottom so safe-area/overscroll never looks black */
-    html { background: #030810; }
+    /* Body gradient: visible dark teal so thin-coverage areas never show black */
+    html { background: #071c16; }
     body {
       background: linear-gradient(to bottom,
-        #030810 0%,
-        #030c10 45%,
-        #071a14 75%,
-        #0d2419 100%
+        #040c14 0%,
+        #061618 30%,
+        #0a2019 60%,
+        #0f2e20 100%
       );
     }
 
@@ -95,27 +95,27 @@
       filter: blur(85px);
       animation: f4 10s ease-in-out infinite;
     }
-    /* Drifting accent: magenta */
+    /* Mid-center accent: magenta — enlarged to bridge top/bottom blob gap */
     .b5 {
-      width: min(48vw, 300px); height: min(48vw, 300px);
-      top: 44%; left: 22%;
-      background: radial-gradient(circle, rgba(255,40,120,0.7) 0%, rgba(200,0,90,0.28) 45%, transparent 72%);
-      filter: blur(65px);
+      width: min(80vw, 500px); height: min(80vw, 500px);
+      top: 36%; left: 10%;
+      background: radial-gradient(circle, rgba(255,40,120,0.65) 0%, rgba(200,0,90,0.24) 45%, transparent 72%);
+      filter: blur(70px);
       animation: f5 13s ease-in-out infinite;
     }
-    /* Bottom-center: bottom:-30% puts gradient center ~100px above viewport edge */
+    /* Bottom-center: very large blob covers lower half of tall iPhone screens */
     .b6 {
-      width: min(110vw, 700px); height: min(110vw, 700px);
-      bottom: -30%; left: 50%;
+      width: min(180vw, 1100px); height: min(180vw, 1100px);
+      bottom: -42%; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,200,160,0.92) 0%, rgba(0,155,120,0.55) 38%, transparent 65%);
-      filter: blur(70px);
+      background: radial-gradient(circle, rgba(0,190,155,0.82) 0%, rgba(0,150,120,0.42) 38%, transparent 64%);
+      filter: blur(90px);
       animation: f6 16s ease-in-out infinite;
     }
-    /* Bottom-right blue accent: same principle */
+    /* Bottom-right blue accent */
     .b7 {
-      width: min(80vw, 500px); height: min(80vw, 500px);
-      bottom: -25%; right: -10%;
+      width: min(90vw, 560px); height: min(90vw, 560px);
+      bottom: -22%; right: -12%;
       background: radial-gradient(circle, rgba(60,100,255,0.72) 0%, rgba(30,60,200,0.32) 45%, transparent 68%);
       filter: blur(90px);
       animation: f4 14s ease-in-out infinite reverse;
