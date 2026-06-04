@@ -199,7 +199,9 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         client.login()
         _save_tokens(sid, client)
         _sessions[sid] = client
-        return {"status": "ok", "displayName": client.get_full_name()}
+        # Skip get_full_name() extra round-trip; derive display name from email
+        display_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
+        return {"status": "ok", "displayName": display_name}
     except garminconnect.GarminConnectAuthenticationError:
         raise HTTPException(status_code=401, detail="Feil e-post eller passord")
     except Exception as exc:
