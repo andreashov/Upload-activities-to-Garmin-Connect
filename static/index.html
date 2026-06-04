@@ -118,43 +118,33 @@
     /* ── Header ──────────────────────────────────────────── */
     header {
       position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; gap: 10px;
-      padding: 13px 18px;
-      padding-top: max(13px, env(safe-area-inset-top));
-      background: rgba(3,8,16,0.75);
-      backdrop-filter: blur(22px) saturate(140%);
-      -webkit-backdrop-filter: blur(22px) saturate(140%);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .logo {
-      flex-shrink: 0; width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--teal), var(--blue));
-      border-radius: 9px;
-      display: grid; place-items: center;
-      box-shadow: 0 0 18px rgba(0,212,170,0.5), 0 0 6px rgba(0,212,170,0.3);
-    }
-
-    header h1 {
-      flex: 1; font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
-      color: rgba(255,255,255,0.9);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 16px 20px;
+      padding-top: max(16px, env(safe-area-inset-top));
+      background: transparent;
+      pointer-events: none;
     }
 
     #user-info {
-      display: none; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--t2);
+      display: none; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 600;
+      color: rgba(255,255,255,0.88);
+      pointer-events: all;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.6);
     }
 
     .pill {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.11);
-      color: rgba(255,255,255,0.72);
-      padding: 5px 13px; border-radius: 100px;
-      font-size: 12px; font-weight: 500; cursor: pointer;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+      color: rgba(255,255,255,0.8);
+      padding: 6px 15px; border-radius: 100px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: background .15s;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-    .pill:active { background: rgba(255,255,255,0.14); }
+    .pill:active { background: rgba(255,255,255,0.18); }
 
     /* ── Layout ──────────────────────────────────────────── */
     main {
@@ -209,14 +199,16 @@
     }
 
     .card-title {
-      font-size: 26px; font-weight: 700; letter-spacing: -0.6px;
-      margin-bottom: 4px;
-      background: linear-gradient(135deg, #fff 55%, rgba(255,255,255,0.6));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 28px; font-weight: 800; letter-spacing: -0.7px;
+      line-height: 1.15;
+      margin-bottom: 22px;
     }
-    .card-sub {
-      font-size: 13.5px; color: var(--t2); margin-bottom: 24px; line-height: 1.4;
+    .card-title em {
+      display: block;
+      font-style: normal;
+      font-size: 19px; font-weight: 600; letter-spacing: -0.3px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 1px;
     }
 
     /* ── Form ────────────────────────────────────────────── */
@@ -257,28 +249,29 @@
     /* ── Date quick-select ───────────────────────────────── */
     .date-pills {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-      margin-top: 8px;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
     }
     .dp {
-      padding: 9px 4px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 10px;
-      font-size: 12px; font-weight: 600;
-      color: var(--t2);
+      padding: 15px 8px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      font-size: 15px; font-weight: 700;
+      color: var(--t1);
       cursor: pointer; text-align: center;
       -webkit-tap-highlight-color: transparent;
       transition: all .15s;
       line-height: 1.2;
     }
-    .dp span { display: block; font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 1px; }
+    .dp span { display: block; font-size: 12px; font-weight: 400; color: var(--t2); margin-top: 3px; }
     .dp:active, .dp.sel {
-      background: rgba(0,212,170,0.12);
-      border-color: rgba(0,212,170,0.38);
+      background: rgba(0,212,170,0.13);
+      border-color: rgba(0,212,170,0.42);
       color: var(--teal);
     }
+    .dp.sel span { color: rgba(0,212,170,0.7); }
 
     /* ── Drop zone ───────────────────────────────────────── */
     .dz {
@@ -404,14 +397,6 @@
 </div>
 
 <header>
-  <div class="logo" aria-hidden="true">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/>
-      <path d="M8 12.5L11 15.5L16 9" stroke="white" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </div>
-  <h1>Garmin Treningsplanlegger</h1>
   <div id="user-info">
     <span id="display-name"></span>
     <button class="pill" onclick="logout()">Logg ut</button>
@@ -454,8 +439,7 @@
   </div>
 
   <div class="card" id="upload-section">
-    <div class="card-title">Last opp økt</div>
-    <div class="card-sub">Velg treningsfil og planlegg til en dato</div>
+    <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
 
     <!-- File picker -->
     <div class="dz" id="dz"
@@ -487,10 +471,8 @@
       </label>
       <input type="date" id="sched-date">
       <div class="date-pills">
-        <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span>+1 dag</span></button>
-        <button type="button" class="dp" onclick="setDate(3,this)">3 dager<span>+3 dager</span></button>
-        <button type="button" class="dp" onclick="setDate(7,this)">1 uke<span>+7 dager</span></button>
-        <button type="button" class="dp" onclick="setDate(14,this)">2 uker<span>+14 dager</span></button>
+        <button type="button" class="dp" onclick="setDate(0,this)">I dag<span id="date-today"></span></button>
+        <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span id="date-tomorrow"></span></button>
       </div>
     </div>
 
@@ -506,10 +488,17 @@
   let sel = null;
 
   const dateInput = document.getElementById('sched-date');
-  dateInput.min = new Date().toISOString().slice(0,10);
+  const today = new Date();
+  dateInput.min = today.toISOString().slice(0,10);
   dateInput.addEventListener('change', () => {
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
   });
+
+  // Fill date labels in quick-select buttons
+  const fmt = d => d.toLocaleDateString('no-NO', { day: 'numeric', month: 'short' });
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  document.getElementById('date-today').textContent    = fmt(today);
+  document.getElementById('date-tomorrow').textContent = fmt(tomorrow);
 
   function setDate(days, btn) {
     const d = new Date();
