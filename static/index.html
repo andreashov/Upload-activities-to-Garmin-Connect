@@ -226,6 +226,57 @@
       margin-top: 1px;
     }
 
+    /* Login card: everything centered + polished */
+    #login-section {
+      padding-top: 36px;
+    }
+    #login-section .card-title,
+    #login-section .card-sub { text-align: center; }
+    #login-section label { text-align: center; }
+    #login-section input  { text-align: center; }
+
+    .login-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(0,212,170,0.18) 0%, rgba(123,47,255,0.18) 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 30px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 8px 24px rgba(0,0,0,0.3),
+        0 0 40px rgba(0,212,170,0.08);
+    }
+
+    #login-section .card-title {
+      font-size: 26px;
+      background: linear-gradient(135deg, #00d4aa 0%, #7b2fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.38);
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    #login-section .field { margin-bottom: 16px; }
+
+    #login-section .btn {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #00d4aa 0%, #7b2fff 100%);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.22) inset,
+        0 6px 32px rgba(0,212,170,0.32),
+        0 0 0 0.5px rgba(0,212,170,0.3);
+    }
+
     /* ── Form ────────────────────────────────────────────── */
     .field { margin-bottom: 14px; }
 
@@ -514,8 +565,9 @@
   </div>
 
   <div class="card" id="login-section">
+    <div class="login-icon">🏃</div>
     <div class="card-title">Garmin Connect</div>
-    <div class="card-sub">Logg inn med din Garmin Connect konto</div>
+    <div class="card-sub">Logg inn med din Garmin Connect-konto</div>
     <div class="quote" id="kipchoge-quote"></div>
     <form onsubmit="doLogin(event)">
       <div class="field">
@@ -657,7 +709,7 @@
     const q = QUOTES[_quoteIdx];
     el.innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
     setTimeout(() => el.classList.add('visible'), 80);
-    _quoteTimer = setInterval(showNextQuote, 5000);
+    _quoteTimer = setInterval(showNextQuote, 11000);
   }
 
   function stopQuotes() {
