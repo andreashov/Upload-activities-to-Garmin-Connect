@@ -267,10 +267,11 @@
     #login-section input,
     #upload-section input[type="date"] { text-align: center; }
 
-    /* Force date input text to center — text-align alone is unreliable on date inputs */
+    /* Hide native date text; the .date-ph overlay renders it centered */
     #sched-date {
-      text-align: center;
-      text-align-last: center;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      caret-color: transparent;
     }
 
     .login-icon {
@@ -361,16 +362,15 @@
     }
     .date-ph {
       position: absolute;
-      left: 14px; right: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 14px; color: var(--t3);
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px; color: var(--t3);
       pointer-events: none;
-      transition: opacity .15s;
       white-space: nowrap;
     }
-    .date-wrap.has-date .date-ph { opacity: 0; }
-    .date-wrap:focus-within .date-ph { opacity: 0; }
-    /* Desktop: native date picker already shows format hint, hide overlay */
-    @media (pointer: fine) { .date-ph { display: none; } }
+    .date-wrap.has-date .date-ph { color: var(--t1); }
 
     /* ── Date quick-select ───────────────────────────────── */
     .date-pills {
@@ -741,9 +741,21 @@
   const today = new Date();
   dateInput.min = today.toISOString().slice(0,10);
   const dateWrap = document.getElementById('date-wrap');
+  function refreshDateDisplay() {
+    const ph = document.querySelector('.date-ph');
+    if (!ph) return;
+    if (dateInput.value) {
+      const [y, m, d] = dateInput.value.split('-').map(Number);
+      ph.textContent = new Date(y, m - 1, d).toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+    } else {
+      ph.textContent = 'Planlegg til dato — valgfritt';
+    }
+  }
+
   dateInput.addEventListener('change', () => {
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     dateWrap.classList.toggle('has-date', !!dateInput.value);
+    refreshDateDisplay();
   });
 
   // Fill date labels in quick-select buttons
@@ -759,6 +771,7 @@
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     btn.classList.add('sel');
     dateWrap.classList.add('has-date');
+    refreshDateDisplay();
   }
 
   async function init() {
@@ -1033,6 +1046,7 @@
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     document.getElementById('upload-btn').disabled = true;
+    refreshDateDisplay();
   }
 
   function alert2(id, msg, type) {
