@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#0f2e20">
+  <meta name="theme-color" content="#030810">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -28,31 +28,30 @@
     html {
       -webkit-text-size-adjust: 100%;
       overflow-x: hidden;
-      /* Layer 1: html gradient — the deepest fallback, covers overscroll,
-         safe-area chrome, and every pixel iOS Safari can ever expose */
-      min-height: 100%;
-      background: linear-gradient(to bottom, #040c14 0%, #0f2e20 100%);
+      /* CSS spec guarantees html background covers the ENTIRE canvas —
+         behind the status bar, behind Safari's toolbar, overscroll areas,
+         home indicator — every pixel the browser can ever show. */
+      background: linear-gradient(180deg, #040c14 0%, #061618 30%, #0a2019 60%, #0f2e20 100%);
+      background-attachment: scroll;
+      height: 100%;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
       background: transparent;
       color: var(--t1);
-      /* 100svh = small viewport = full screen with all Safari chrome visible */
-      min-height: 100vh;
-      min-height: 100svh;
+      min-height: 100%;
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
+    /* Covers the visual viewport and blends aurora colours on top of
+       the html gradient. html handles anything outside this area. */
     #aurora {
       position: fixed;
-      top: 0; left: 0; right: 0;
-      /* JS sets --screen-h = screen.height (full physical screen in CSS px).
-         This is independent of browser chrome, so it always covers everything. */
-      height: var(--screen-h, 100vh);
+      inset: 0;
       z-index: 0;
       pointer-events: none;
-      background: linear-gradient(to bottom,
+      background: linear-gradient(180deg,
         #040c14 0%,
         #061618 30%,
         #0a2019 60%,
@@ -740,15 +739,6 @@
 
 <script>
   // screen.height = full physical screen height in CSS px, browser-chrome-independent.
-  // Must run before first paint so #aurora is sized correctly from the start.
-  (function () {
-    function setScreenH() {
-      document.documentElement.style.setProperty('--screen-h', screen.height + 'px');
-    }
-    setScreenH();
-    window.addEventListener('orientationchange', setScreenH);
-  })();
-
   let sel = null;
 
   const dateInput = document.getElementById('sched-date');
