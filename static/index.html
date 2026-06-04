@@ -36,16 +36,10 @@
       overflow-x: hidden;
     }
 
-    /* Body gradient: visible dark teal so thin-coverage areas never show black */
-    html { background: #071c16; }
-    body {
-      background: linear-gradient(to bottom,
-        #040c14 0%,
-        #061618 30%,
-        #0a2019 60%,
-        #0f2e20 100%
-      );
-    }
+    /* html covers iOS overscroll bounce area */
+    html { background: #040c14; }
+    /* body is transparent — #aurora (position:fixed) owns the background */
+    body { background: transparent; }
 
     /* ── Aurora ──────────────────────────────────────────── */
     #aurora {
@@ -54,6 +48,13 @@
       z-index: 0;
       overflow: hidden;
       pointer-events: none;
+      /* Base gradient — always covers the full visual viewport */
+      background: linear-gradient(to bottom,
+        #040c14 0%,
+        #061618 30%,
+        #0a2019 60%,
+        #0f2e20 100%
+      );
     }
 
     .blob {
