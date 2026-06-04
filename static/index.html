@@ -267,6 +267,12 @@
     #login-section input,
     #upload-section input[type="date"] { text-align: center; }
 
+    /* Force date input text to center — text-align alone is unreliable on date inputs */
+    #sched-date {
+      text-align: center;
+      text-align-last: center;
+    }
+
     .login-icon {
       display: block;
       width: 72px; height: 72px;
