@@ -27,26 +27,33 @@
 
     html {
       -webkit-text-size-adjust: 100%;
-      overflow-x: hidden; /* must be on html, not body — overflow on body breaks position:fixed on iOS Safari */
-      background: #040c14; /* covers iOS overscroll bounce area */
+      overflow-x: hidden;
+      /* Layer 1: html gradient — the deepest fallback, covers overscroll,
+         safe-area chrome, and every pixel iOS Safari can ever expose */
+      min-height: 100%;
+      background: linear-gradient(to bottom, #040c14 0%, #0f2e20 100%);
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-      background: transparent; /* #aurora (position:fixed) owns the background */
+      background: transparent;
       color: var(--t1);
+      /* 100svh = small viewport = full screen with all Safari chrome visible */
       min-height: 100vh;
-      min-height: 100dvh;
+      min-height: 100svh;
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
     #aurora {
       position: fixed;
-      inset: 0;
+      top: 0; left: 0; right: 0;
+      /* Layer 2: extend 120px below visual viewport so the gradient
+         covers the area behind Safari's bottom toolbar (≤88px) */
+      bottom: -120px;
       z-index: 0;
-      overflow: hidden;
+      /* No overflow:hidden — that can cause iOS to clip the fixed element
+         to a smaller painted box, producing the black strip */
       pointer-events: none;
-      /* Base gradient — always covers the full visual viewport */
       background: linear-gradient(to bottom,
         #040c14 0%,
         #061618 30%,
