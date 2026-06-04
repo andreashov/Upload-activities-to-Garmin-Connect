@@ -257,6 +257,10 @@
       box-shadow: 0 0 0 3px rgba(0,212,170,0.09);
     }
     input::placeholder { color: var(--t3); }
+    input[type="date"] {
+      min-height: 54px;
+      padding: 16px 14px;
+    }
     input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(.5); cursor: pointer; padding: 2px;
     }
@@ -432,6 +436,39 @@
       margin-bottom: 2px;
     }
 
+    /* ── Kipchoge quote ─────────────────────────────────── */
+    .quote {
+      min-height: 52px;
+      margin-bottom: 20px;
+      font-size: 13px; line-height: 1.6;
+      color: rgba(255,255,255,0.38);
+      font-style: italic; text-align: center;
+      opacity: 0;
+      transition: opacity .7s ease;
+    }
+    .quote.visible { opacity: 1; }
+    .quote cite {
+      display: block;
+      font-style: normal; font-size: 11px;
+      color: rgba(0,212,170,0.6);
+      margin-top: 5px; letter-spacing: 0.05em;
+    }
+
+    /* ── ECG heartbeat ───────────────────────────────────── */
+    .ecg {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      width: 100%; height: 52px;
+      overflow: visible;
+      opacity: 0.22;
+      pointer-events: none;
+    }
+    .ecg-g { animation: ecg-scroll 3.4s linear infinite; }
+    @keyframes ecg-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-80px); }
+    }
+
     #file-input     { display: none; }
     #pin-section    { display: none; }
     #login-section  { display: block; }
@@ -479,6 +516,7 @@
   <div class="card" id="login-section">
     <div class="card-title">Garmin Connect</div>
     <div class="card-sub">Logg inn med din Garmin Connect konto</div>
+    <div class="quote" id="kipchoge-quote"></div>
     <form onsubmit="doLogin(event)">
       <div class="field">
         <label>E-post</label>
@@ -496,6 +534,19 @@
   </div>
 
   <div class="card" id="upload-section">
+    <!-- ECG heartbeat line (decorative background) -->
+    <svg class="ecg" viewBox="0 0 400 52" preserveAspectRatio="none" aria-hidden="true">
+      <g class="ecg-g">
+        <path fill="none" stroke="#00d4aa" stroke-width="1.5"
+          d="M-80,26 L-60,26 Q-57,20 -55,26 L-52,26 L-50,4 L-48,48 L-46,26 Q-38,34 -26,26 L0,26
+             L20,26 Q23,20 25,26 L28,26 L30,4 L32,48 L34,26 Q42,34 54,26 L80,26
+             L100,26 Q103,20 105,26 L108,26 L110,4 L112,48 L114,26 Q122,34 134,26 L160,26
+             L180,26 Q183,20 185,26 L188,26 L190,4 L192,48 L194,26 Q202,34 214,26 L240,26
+             L260,26 Q263,20 265,26 L268,26 L270,4 L272,48 L274,26 Q282,34 294,26 L320,26
+             L340,26 Q343,20 345,26 L348,26 L350,4 L352,48 L354,26 Q362,34 374,26 L400,26
+             L420,26 Q423,20 425,26 L428,26 L430,4 L432,48 L434,26 Q442,34 454,26 L480,26"/>
+      </g>
+    </svg>
     <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
 
     <!-- File picker -->
@@ -573,12 +624,102 @@
     d.loggedIn ? setIn(d.displayName) : show('login');
   }
 
+  // ── Kipchoge quotes ───────────────────────────────────────
+  const QUOTES = [
+    { text: "No human is limited.", who: "Eliud Kipchoge" },
+    { text: "Only the disciplined ones in life are free.", who: "Eliud Kipchoge" },
+    { text: "It's not about the legs; it's about the heart and mind.", who: "Eliud Kipchoge" },
+    { text: "To win a race, the feet must follow the head.", who: "Eliud Kipchoge" },
+    { text: "In athletics, you learn that if you quit once, it becomes a habit.", who: "Eliud Kipchoge" },
+    { text: "You can only run a marathon if you practice daily.", who: "Eliud Kipchoge" },
+    { text: "Winning is about being mentally prepared.", who: "Eliud Kipchoge" },
+    { text: "I run to make history.", who: "Eliud Kipchoge" },
+  ];
+  let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
+  let _quoteTimer = null;
+
+  function showNextQuote() {
+    const el = document.getElementById('kipchoge-quote');
+    if (!el) return;
+    el.classList.remove('visible');
+    setTimeout(() => {
+      _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
+      const q = QUOTES[_quoteIdx];
+      el.innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
+      el.classList.add('visible');
+    }, 700);
+  }
+
+  function startQuotes() {
+    const el = document.getElementById('kipchoge-quote');
+    if (!el) return;
+    clearInterval(_quoteTimer);
+    const q = QUOTES[_quoteIdx];
+    el.innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
+    setTimeout(() => el.classList.add('visible'), 80);
+    _quoteTimer = setInterval(showNextQuote, 5000);
+  }
+
+  function stopQuotes() {
+    clearInterval(_quoteTimer);
+    const el = document.getElementById('kipchoge-quote');
+    if (el) el.classList.remove('visible');
+  }
+
+  // ── Confetti ──────────────────────────────────────────────
+  function launchConfetti() {
+    const W = window.innerWidth, H = window.innerHeight;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    Object.assign(canvas.style, {
+      position: 'fixed', top: 0, left: 0,
+      width: '100%', height: '100%',
+      zIndex: 9999, pointerEvents: 'none',
+    });
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const COLORS = ['#00d4aa','#7b2fff','#3a86ff','#06ffa5','#ff006e','#ffbe00','#ffffff'];
+
+    const pieces = Array.from({ length: 100 }, () => ({
+      x: W * 0.2 + Math.random() * W * 0.6,
+      y: H * 0.55,
+      vx: (Math.random() - 0.5) * 16,
+      vy: -(Math.random() * 20 + 8),
+      g: 0.55,
+      rot: Math.random() * 360,
+      rs: (Math.random() - 0.5) * 9,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 5 + 3,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    }));
+
+    const start = performance.now();
+    const dur = 2600;
+
+    (function frame(now) {
+      const t = (now - start) / dur;
+      ctx.clearRect(0, 0, W, H);
+      pieces.forEach(p => {
+        p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.rs;
+        const alpha = Math.max(0, 1 - Math.max(0, t - 0.45) * 2.2);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot * Math.PI / 180);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      t < 1 ? requestAnimationFrame(frame) : canvas.remove();
+    })(start);
+  }
+
   function show(n) {
     ['pin','login','upload'].forEach(s =>
       document.getElementById(s + '-section').style.display = s === n ? 'block' : 'none');
-    if (n === 'pin') {
-      setTimeout(() => document.getElementById('p0').focus(), 60);
-    }
+    if (n === 'pin') setTimeout(() => document.getElementById('p0').focus(), 60);
+    if (n === 'login') startQuotes();
+    else stopQuotes();
   }
 
   function setIn(name) {
@@ -726,7 +867,8 @@
       const d = await r.json();
       if (r.ok) {
         alert2('upload-alert', d.message, d.scheduled ? 'success' : 'warning');
-        if (d.scheduled) reset();
+        if (d.scheduled) { launchConfetti(); reset(); }
+        else launchConfetti();
       } else {
         alert2('upload-alert', d.detail || 'Opplasting feilet', 'error');
       }
