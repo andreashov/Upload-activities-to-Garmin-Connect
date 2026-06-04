@@ -4,210 +4,383 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Garmin">
   <title>Garmin Treningsplanlegger</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue: #007CC3;
-      --blue-dark: #0069a8;
-      --green: #2f855a;
-      --green-bg: #c6f6d5;
-      --red: #9b2c2c;
-      --red-bg: #fed7d7;
-      --yellow: #744210;
-      --yellow-bg: #fefcbf;
-      --gray-50: #f7fafc;
-      --gray-100: #f0f4f8;
-      --gray-200: #e2e8f0;
-      --gray-400: #a0aec0;
-      --gray-600: #718096;
-      --gray-800: #2d3748;
-      --text: #1a202c;
+      --c1: #00d4aa;
+      --c2: #7b2fff;
+      --c3: #00b4d8;
+      --c4: #06ffa5;
+      --c5: #3a86ff;
+      --c6: #ff006e;
+      --text:    rgba(255,255,255,0.92);
+      --text-2:  rgba(255,255,255,0.5);
+      --text-3:  rgba(255,255,255,0.28);
     }
 
     html { -webkit-text-size-adjust: 100%; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--gray-100);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: #04060f;
       color: var(--text);
       min-height: 100vh;
       min-height: 100dvh;
+      overflow-x: hidden;
     }
 
+    /* ── Aurora background ─────────────────────────────── */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .aurora::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 100% 50% at 50% 110%, rgba(4,6,15,0.98) 0%, transparent 80%),
+        radial-gradient(ellipse 120% 30% at 50% 0%, rgba(4,6,15,0.6) 0%, transparent 60%);
+      z-index: 2;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      will-change: transform;
+      mix-blend-mode: screen;
+    }
+    .b1 {
+      width: 680px; height: 680px; left: -18%; top: -12%;
+      background: radial-gradient(circle, rgba(0,212,170,.55) 0%, transparent 65%);
+      animation: d1 20s ease-in-out infinite;
+    }
+    .b2 {
+      width: 750px; height: 750px; right: -22%; top: 5%;
+      background: radial-gradient(circle, rgba(123,47,255,.5) 0%, transparent 65%);
+      animation: d2 26s ease-in-out infinite;
+    }
+    .b3 {
+      width: 520px; height: 520px; left: 28%; top: 18%;
+      background: radial-gradient(circle, rgba(0,180,216,.45) 0%, transparent 65%);
+      animation: d3 18s ease-in-out infinite;
+    }
+    .b4 {
+      width: 480px; height: 480px; left: 5%; bottom: 8%;
+      background: radial-gradient(circle, rgba(6,255,165,.38) 0%, transparent 65%);
+      animation: d4 23s ease-in-out infinite;
+    }
+    .b5 {
+      width: 400px; height: 400px; right: 8%; bottom: 15%;
+      background: radial-gradient(circle, rgba(58,134,255,.42) 0%, transparent 65%);
+      animation: d5 17s ease-in-out infinite;
+    }
+    .b6 {
+      width: 340px; height: 340px; left: 52%; top: 55%;
+      background: radial-gradient(circle, rgba(255,0,110,.3) 0%, transparent 65%);
+      animation: d6 29s ease-in-out infinite;
+    }
+    .b7 {
+      width: 300px; height: 300px; left: 20%; top: 50%;
+      background: radial-gradient(circle, rgba(0,212,170,.28) 0%, transparent 65%);
+      animation: d7 22s ease-in-out infinite;
+    }
+
+    @keyframes d1 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      25%{transform:translate(90px,70px) scale(1.08)}
+      50%{transform:translate(50px,130px) scale(.94)}
+      75%{transform:translate(-70px,45px) scale(1.06)}
+    }
+    @keyframes d2 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      30%{transform:translate(-110px,90px) scale(1.11)}
+      65%{transform:translate(-60px,160px) scale(.9)}
+    }
+    @keyframes d3 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      20%{transform:translate(70px,-90px) scale(1.13)}
+      55%{transform:translate(-90px,70px) scale(.87)}
+      80%{transform:translate(50px,110px) scale(1.07)}
+    }
+    @keyframes d4 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      35%{transform:translate(110px,-70px) scale(1.1)}
+      70%{transform:translate(-70px,-90px) scale(.91)}
+    }
+    @keyframes d5 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      40%{transform:translate(-90px,-110px) scale(1.12)}
+      80%{transform:translate(70px,-60px) scale(.93)}
+    }
+    @keyframes d6 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      30%{transform:translate(-130px,-90px) scale(1.16)}
+      65%{transform:translate(90px,-130px) scale(.89)}
+    }
+    @keyframes d7 {
+      0%,100%{transform:translate(0,0) scale(1)}
+      45%{transform:translate(80px,100px) scale(1.14)}
+      80%{transform:translate(-60px,60px) scale(.92)}
+    }
+
+    /* ── Liquid Glass card ─────────────────────────────── */
+    .glass {
+      position: relative;
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.075) 0%,
+        rgba(255,255,255,0.038) 50%,
+        rgba(255,255,255,0.06) 100%
+      );
+      backdrop-filter: blur(36px) saturate(200%) brightness(1.06) hue-rotate(2deg);
+      -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.06) hue-rotate(2deg);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-top-color: rgba(255,255,255,0.22);
+      border-bottom-color: rgba(0,0,0,0.15);
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.12) inset,
+        0 -1px 0 rgba(0,0,0,0.18) inset,
+        1px 0 0 rgba(255,255,255,0.06) inset,
+        0 32px 80px rgba(0,0,0,0.55),
+        0 0 0 0.5px rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+
+    /* Top specular line */
+    .glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 12%; right: 12%; height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.45) 35%,
+        rgba(255,255,255,0.55) 50%,
+        rgba(255,255,255,0.45) 65%,
+        transparent 100%);
+      border-radius: 100%;
+      z-index: 1;
+    }
+    /* Prismatic side edge */
+    .glass::after {
+      content: '';
+      position: absolute;
+      top: 5%; bottom: 5%; left: 0; width: 1px;
+      background: linear-gradient(180deg,
+        transparent,
+        rgba(0,212,170,0.3),
+        rgba(123,47,255,0.2),
+        rgba(0,180,216,0.3),
+        transparent);
+      z-index: 1;
+    }
+
+    /* ── Header ───────────────────────────────────────── */
     header {
-      background: var(--blue);
-      color: white;
-      padding: 0.9rem 1.25rem;
-      padding-top: max(0.9rem, env(safe-area-inset-top));
+      position: relative;
+      z-index: 20;
       display: flex;
       align-items: center;
-      gap: 0.7rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      gap: 0.8rem;
+      padding: 0.9rem 1.4rem;
+      padding-top: max(0.9rem, env(safe-area-inset-top));
+      background: rgba(4,6,15,0.65);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
     }
 
-    header h1 { font-size: 1.05rem; font-weight: 700; flex: 1; letter-spacing: -0.01em; }
+    .hdr-logo {
+      width: 30px; height: 30px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--c1) 0%, var(--c5) 100%);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      box-shadow: 0 0 18px rgba(0,212,170,0.35);
+    }
+
+    header h1 {
+      flex: 1;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(120deg, #fff 55%, rgba(255,255,255,.55));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
     #user-info {
-      display: none;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.8rem;
+      display: none; align-items: center;
+      gap: 0.55rem; font-size: 0.78rem; color: var(--text-2);
     }
 
-    .btn-sm {
-      background: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.35);
-      color: white;
-      padding: 0.35rem 0.8rem;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 600;
+    .pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      padding: 0.3rem 0.85rem;
+      border-radius: 20px; cursor: pointer;
+      font-size: 0.75rem; font-weight: 500;
+      transition: background .18s;
       -webkit-tap-highlight-color: transparent;
-      transition: background 0.15s;
     }
-    .btn-sm:active { background: rgba(255,255,255,0.3); }
+    .pill:active { background: rgba(255,255,255,.14); }
 
+    /* ── Layout ──────────────────────────────────────── */
     main {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 1.25rem 1rem;
-      padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+      position: relative; z-index: 10;
+      max-width: 480px; margin: 0 auto;
+      padding: 1.5rem 1rem;
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
     }
 
     .card {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.04);
+      padding: 1.8rem;
       margin-bottom: 1rem;
     }
 
-    .card h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: 1.1rem;
-      letter-spacing: -0.01em;
+    .card-title {
+      font-size: 1.4rem; font-weight: 700;
+      letter-spacing: -0.035em;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(130deg, #fff 60%, rgba(255,255,255,.6));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+    .card-sub {
+      font-size: 0.8rem; color: var(--text-2);
+      font-weight: 400; margin-bottom: 1.5rem;
+    }
+
+    /* ── Form ─────────────────────────────────────────── */
+    .field { margin-bottom: 0.9rem; }
 
     label {
       display: block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--gray-600);
-      margin-bottom: 0.3rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 0.67rem; font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      margin-bottom: 0.38rem;
     }
 
     input[type="email"],
     input[type="password"],
     input[type="date"],
-    input[type="text"],
     input[type="number"] {
       width: 100%;
-      padding: 0.75rem 0.9rem;
-      border: 1.5px solid var(--gray-200);
-      border-radius: 10px;
-      font-size: 1rem;
-      margin-bottom: 0.85rem;
-      outline: none;
-      transition: border-color 0.15s;
-      color: var(--text);
-      -webkit-appearance: none;
-      appearance: none;
-      background: white;
-    }
-    input:focus { border-color: var(--blue); }
-
-    .drop-zone {
-      border: 2px dashed var(--gray-200);
+      padding: 0.72rem 0.95rem;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
       border-radius: 12px;
-      padding: 1.75rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: var(--gray-50);
+      font-size: 0.95rem; color: var(--text);
+      outline: none;
+      transition: all .2s;
+      -webkit-appearance: none; appearance: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    input:focus {
+      border-color: rgba(0,212,170,0.6);
+      background: rgba(0,212,170,0.05);
+      box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+    }
+    input::placeholder { color: var(--text-3); }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(.55); cursor: pointer; }
+
+    /* ── Drop zone ────────────────────────────────────── */
+    .dz {
+      border: 1.5px dashed rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 1.9rem 1.2rem;
+      text-align: center; cursor: pointer;
+      transition: all .25s;
+      background: rgba(255,255,255,0.02);
       margin-bottom: 1rem;
       -webkit-tap-highlight-color: transparent;
+      position: relative; overflow: hidden;
     }
-    .drop-zone:active, .drop-zone.drag-over {
-      border-color: var(--blue);
-      background: #ebf5fb;
+    .dz::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,212,170,0.06) 0%, transparent 70%);
+      opacity: 0; transition: opacity .25s;
     }
-    .drop-zone .icon { font-size: 2.25rem; margin-bottom: 0.45rem; }
-    .drop-zone .hint { color: var(--gray-600); font-size: 0.875rem; line-height: 1.5; }
-    .drop-zone .hint strong { color: var(--blue); }
-    .drop-zone .file-ok {
-      margin-top: 0.6rem;
-      color: var(--green);
-      font-size: 0.875rem;
-      font-weight: 700;
+    .dz:active, .dz.over {
+      border-color: rgba(0,212,170,0.5);
+      box-shadow: 0 0 40px rgba(0,212,170,0.08);
     }
+    .dz:active::before, .dz.over::before { opacity: 1; }
 
-    .field-row { margin-bottom: 1rem; }
-    .field-hint {
-      font-size: 0.7rem;
-      color: var(--gray-400);
-      font-weight: normal;
-      text-transform: none;
-      letter-spacing: 0;
-      margin-left: 0.25rem;
+    .dz-icon { font-size: 2.4rem; display: block; margin-bottom: 0.55rem; }
+    .dz-main { font-size: 0.88rem; color: rgba(255,255,255,0.65); font-weight: 500; margin-bottom: 0.3rem; }
+    .dz-hint { font-size: 0.73rem; color: var(--text-3); }
+    .dz-hint b { color: var(--c1); font-weight: 600; }
+    .dz-file {
+      margin-top: 0.7rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-size: 0.875rem; font-weight: 600;
+      color: var(--c4);
     }
+    .dz-file::before { content: '✦'; font-size: 0.7rem; }
 
-    .btn-primary {
-      width: 100%;
-      background: var(--blue);
-      color: white;
-      border: none;
-      padding: 0.85rem;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
+    /* ── Button ───────────────────────────────────────── */
+    .btn {
+      width: 100%; border: none; border-radius: 14px;
+      font-size: 0.95rem; font-weight: 700;
       letter-spacing: -0.01em;
+      cursor: pointer; min-height: 52px;
       -webkit-tap-highlight-color: transparent;
-      min-height: 52px;
+      position: relative; overflow: hidden;
+      color: #fff;
+      background: linear-gradient(135deg, var(--c1) 0%, var(--c5) 100%);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.22) inset,
+        0 4px 28px rgba(0,212,170,0.28),
+        0 0 0 0.5px rgba(0,212,170,0.3);
+      transition: transform .15s, box-shadow .15s;
     }
-    .btn-primary:active:not(:disabled) { background: var(--blue-dark); }
-    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn::after {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left .45s;
+    }
+    .btn:active::after { left: 100%; }
+    .btn:active:not(:disabled) {
+      transform: scale(0.975);
+      box-shadow: 0 2px 14px rgba(0,212,170,0.18);
+    }
+    .btn:disabled { opacity: .3; cursor: not-allowed; box-shadow: none; }
 
+    /* ── Alerts ───────────────────────────────────────── */
     .alert {
       display: none;
-      padding: 0.85rem 1rem;
-      border-radius: 10px;
+      padding: 0.8rem 0.95rem;
+      border-radius: 12px;
       margin-top: 0.85rem;
-      font-size: 0.875rem;
-      line-height: 1.55;
+      font-size: 0.83rem; line-height: 1.55;
+      border: 1px solid; backdrop-filter: blur(8px);
     }
-    .alert-success { background: var(--green-bg); color: var(--green); }
-    .alert-error   { background: var(--red-bg);   color: var(--red); }
-    .alert-warning { background: var(--yellow-bg); color: var(--yellow); }
+    .alert-success { background: rgba(6,255,165,.07); border-color: rgba(6,255,165,.22); color: #06ffa5; }
+    .alert-error   { background: rgba(255,0,110,.07); border-color: rgba(255,0,110,.22); color: #ff4d8d; }
+    .alert-warning { background: rgba(255,190,0,.07); border-color: rgba(255,190,0,.22); color: #ffbe00; }
 
     .spinner {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2.5px solid rgba(255,255,255,0.35);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.65s linear infinite;
-      margin-right: 0.5rem;
-      vertical-align: middle;
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,.2); border-top-color: #fff;
+      border-radius: 50%; animation: spin .65s linear infinite;
+      margin-right: .45rem; vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #file-input { display: none; }
-
-    /* Screen visibility */
+    #file-input  { display: none; }
     #pin-section    { display: none; }
     #login-section  { display: none; }
     #upload-section { display: none; }
@@ -215,78 +388,95 @@
 </head>
 <body>
 
+<div class="aurora" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+  <div class="blob b5"></div>
+  <div class="blob b6"></div>
+  <div class="blob b7"></div>
+</div>
+
 <header>
-  <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-    <circle cx="20" cy="20" r="17" stroke="white" stroke-width="2.5"/>
-    <path d="M12 20.5 L17.5 26 L28 14" stroke="white" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
+  <div class="hdr-logo" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.6"/>
+      <path d="M8 12.5L11 15.5L16 9" stroke="white" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
   <h1>Garmin Treningsplanlegger</h1>
   <div id="user-info">
     <span id="display-name"></span>
-    <button class="btn-sm" onclick="logout()">Logg ut</button>
+    <button class="pill" onclick="logout()">Logg ut</button>
   </div>
 </header>
 
 <main>
 
-  <!-- PIN screen -->
-  <div class="card" id="pin-section">
-    <h2>Skriv inn PIN-kode</h2>
+  <div class="glass card" id="pin-section">
+    <div class="card-title">Lås opp</div>
+    <div class="card-sub">Skriv inn PIN-koden din for å fortsette</div>
     <form onsubmit="doPin(event)">
-      <label for="pin-input">PIN</label>
-      <input type="number" id="pin-input" placeholder="••••"
-             inputmode="numeric" autocomplete="one-time-code" required>
-      <button type="submit" class="btn-primary" id="pin-btn">Bekreft</button>
+      <div class="field">
+        <label>PIN</label>
+        <input type="number" id="pin-input" placeholder="••••"
+               inputmode="numeric" autocomplete="one-time-code" required>
+      </div>
+      <button type="submit" class="btn" id="pin-btn">Fortsett</button>
     </form>
     <div class="alert" id="pin-alert"></div>
   </div>
 
-  <!-- Garmin login -->
-  <div class="card" id="login-section">
-    <h2>Logg inn på Garmin Connect</h2>
+  <div class="glass card" id="login-section">
+    <div class="card-title">Garmin Connect</div>
+    <div class="card-sub">Logg inn for å planlegge treningsøkter</div>
     <form onsubmit="doLogin(event)">
-      <label for="email">E-post</label>
-      <input type="email" id="email" placeholder="din@epost.no"
-             required autocomplete="email">
-
-      <label for="password">Passord</label>
-      <input type="password" id="password" placeholder="••••••••"
-             required autocomplete="current-password">
-
-      <button type="submit" class="btn-primary" id="login-btn">Logg inn</button>
+      <div class="field">
+        <label>E-post</label>
+        <input type="email" id="email" placeholder="din@epost.no"
+               required autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Passord</label>
+        <input type="password" id="password" placeholder="••••••••"
+               required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn" id="login-btn">Logg inn</button>
     </form>
     <div class="alert" id="login-alert"></div>
   </div>
 
-  <!-- Upload -->
-  <div class="card" id="upload-section">
-    <h2>Last opp treningsøkt</h2>
+  <div class="glass card" id="upload-section">
+    <div class="card-title">Last opp økt</div>
+    <div class="card-sub">Velg treningsfil og planlegg til en dato</div>
 
-    <div class="drop-zone" id="drop-zone"
+    <div class="dz" id="dz"
          onclick="document.getElementById('file-input').click()"
          ondragover="onDragOver(event)"
          ondragleave="onDragLeave(event)"
          ondrop="onDrop(event)">
-      <div class="icon">📂</div>
-      <div class="hint">
-        Trykk for å velge en treningsfil<br>
-        <span style="font-size:0.8rem;color:var(--gray-400)"><strong style="color:var(--blue)">JSON</strong> for planlagte fremtidige økter &nbsp;·&nbsp; FIT/TCX/GPX for aktiviteter</span>
+      <span class="dz-icon">📂</span>
+      <div class="dz-main">Trykk for å velge fil</div>
+      <div class="dz-hint">
+        <b>JSON</b> for planlagte fremtidige økter
+        &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
       </div>
-      <div class="file-ok" id="file-label"></div>
+      <div class="dz-file" id="file-label"></div>
     </div>
     <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
            onchange="onFileInput(this)">
 
-    <div class="field-row">
-      <label for="sched-date">
+    <div class="field">
+      <label>
         Planlegg til dato
-        <span class="field-hint">(valgfritt)</span>
+        <span style="opacity:.38;font-weight:400;text-transform:none;letter-spacing:0"> — valgfritt</span>
       </label>
       <input type="date" id="sched-date">
     </div>
 
-    <button class="btn-primary" id="upload-btn" onclick="doUpload()" disabled>
+    <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
       Last opp til Garmin
     </button>
     <div class="alert" id="upload-alert"></div>
@@ -295,187 +485,114 @@
 </main>
 
 <script>
-  let selectedFile = null;
-  document.getElementById('sched-date').min = new Date().toISOString().slice(0, 10);
-
-  // ── Init ──────────────────────────────────────────────────────────────
+  let sel = null;
+  document.getElementById('sched-date').min = new Date().toISOString().slice(0,10);
 
   async function init() {
-    const res = await fetch('/api/status').catch(() => null);
-    if (!res) { showSection('login'); return; }
-
-    if (res.status === 401) {
-      // PIN required
-      showSection('pin');
-      return;
-    }
-
-    const data = await res.json();
-    if (data.loggedIn) {
-      setLoggedIn(data.displayName);
-    } else {
-      showSection('login');
-    }
+    const r = await fetch('/api/status').catch(()=>null);
+    if (!r) { show('login'); return; }
+    if (r.status===401) { show('pin'); return; }
+    const d = await r.json();
+    d.loggedIn ? setIn(d.displayName) : show('login');
   }
 
-  // ── Sections ──────────────────────────────────────────────────────────
-
-  function showSection(name) {
-    ['pin', 'login', 'upload'].forEach(s => {
-      document.getElementById(`${s}-section`).style.display =
-        s === name ? 'block' : 'none';
-    });
+  function show(n) {
+    ['pin','login','upload'].forEach(s =>
+      document.getElementById(s+'-section').style.display = s===n?'block':'none');
   }
 
-  function setLoggedIn(name) {
-    showSection('upload');
+  function setIn(name) {
+    show('upload');
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('display-name').textContent = name;
   }
 
-  // ── PIN ───────────────────────────────────────────────────────────────
-
   async function doPin(e) {
     e.preventDefault();
-    const btn = document.getElementById('pin-btn');
-    setAlert('pin-alert', '', '');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Sjekker…';
-
+    const b = document.getElementById('pin-btn');
+    alert2('pin-alert','','');
+    b.disabled=true; b.innerHTML='<span class="spinner"></span>Sjekker…';
     try {
-      const fd = new FormData();
-      fd.append('pin', document.getElementById('pin-input').value);
-      const res = await fetch('/api/pin', { method: 'POST', body: fd });
-      const data = await res.json();
-
-      if (res.ok) {
-        // Re-check status now that we have a session cookie
-        const st = await fetch('/api/status');
-        const sd = await st.json();
-        if (sd.loggedIn) setLoggedIn(sd.displayName);
-        else showSection('login');
-      } else {
-        setAlert('pin-alert', data.detail || 'Feil PIN', 'error');
-      }
-    } catch {
-      setAlert('pin-alert', 'Nettverksfeil', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = 'Bekreft';
-    }
+      const fd=new FormData(); fd.append('pin',document.getElementById('pin-input').value);
+      const r=await fetch('/api/pin',{method:'POST',body:fd});
+      const d=await r.json();
+      if(r.ok){ const s=await(await fetch('/api/status')).json(); s.loggedIn?setIn(s.displayName):show('login'); }
+      else alert2('pin-alert',d.detail||'Feil PIN','error');
+    } catch{ alert2('pin-alert','Nettverksfeil','error'); }
+    finally{ b.disabled=false; b.innerHTML='Fortsett'; }
   }
-
-  // ── Garmin login ──────────────────────────────────────────────────────
 
   async function doLogin(e) {
     e.preventDefault();
-    const btn = document.getElementById('login-btn');
-    setAlert('login-alert', '', '');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Logger inn…';
-
+    const b=document.getElementById('login-btn');
+    alert2('login-alert','','');
+    b.disabled=true; b.innerHTML='<span class="spinner"></span>Logger inn…';
     try {
-      const fd = new FormData();
-      fd.append('email', document.getElementById('email').value);
-      fd.append('password', document.getElementById('password').value);
-
-      const res = await fetch('/api/login', { method: 'POST', body: fd });
-      const data = await res.json();
-
-      if (res.ok) setLoggedIn(data.displayName);
-      else setAlert('login-alert', data.detail || 'Innlogging feilet', 'error');
-    } catch {
-      setAlert('login-alert', 'Nettverksfeil', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = 'Logg inn';
-    }
+      const fd=new FormData();
+      fd.append('email',document.getElementById('email').value);
+      fd.append('password',document.getElementById('password').value);
+      const r=await fetch('/api/login',{method:'POST',body:fd});
+      const d=await r.json();
+      r.ok ? setIn(d.displayName) : alert2('login-alert',d.detail||'Innlogging feilet','error');
+    } catch{ alert2('login-alert','Nettverksfeil','error'); }
+    finally{ b.disabled=false; b.innerHTML='Logg inn'; }
   }
 
   async function logout() {
-    await fetch('/api/logout', { method: 'POST' });
-    selectedFile = null;
-    document.getElementById('file-label').textContent = '';
-    document.getElementById('upload-btn').disabled = true;
-    setAlert('upload-alert', '', '');
-    document.getElementById('user-info').style.display = 'none';
-    showSection('login');
+    await fetch('/api/logout',{method:'POST'});
+    sel=null;
+    document.getElementById('file-label').textContent='';
+    document.getElementById('upload-btn').disabled=true;
+    alert2('upload-alert','','');
+    document.getElementById('user-info').style.display='none';
+    show('login');
   }
 
-  // ── File handling ─────────────────────────────────────────────────────
-
-  function onDragOver(e) {
-    e.preventDefault();
-    document.getElementById('drop-zone').classList.add('drag-over');
+  function onDragOver(e){ e.preventDefault(); document.getElementById('dz').classList.add('over'); }
+  function onDragLeave(){ document.getElementById('dz').classList.remove('over'); }
+  function onDrop(e){
+    e.preventDefault(); document.getElementById('dz').classList.remove('over');
+    const f=e.dataTransfer.files[0]; if(f) setFile(f);
   }
-  function onDragLeave() {
-    document.getElementById('drop-zone').classList.remove('drag-over');
-  }
-  function onDrop(e) {
-    e.preventDefault();
-    document.getElementById('drop-zone').classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f) setFile(f);
-  }
-  function onFileInput(input) {
-    if (input.files[0]) setFile(input.files[0]);
-  }
-  function setFile(f) {
-    selectedFile = f;
-    document.getElementById('file-label').textContent = `✓ ${f.name}`;
-    document.getElementById('upload-btn').disabled = false;
-    setAlert('upload-alert', '', '');
+  function onFileInput(i){ if(i.files[0]) setFile(i.files[0]); }
+  function setFile(f){
+    sel=f;
+    document.getElementById('file-label').textContent=f.name;
+    document.getElementById('upload-btn').disabled=false;
+    alert2('upload-alert','','');
   }
 
-  // ── Upload ────────────────────────────────────────────────────────────
-
-  async function doUpload() {
-    if (!selectedFile) return;
-    const btn = document.getElementById('upload-btn');
-    const dateVal = document.getElementById('sched-date').value;
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Laster opp…';
-    setAlert('upload-alert', '', '');
-
-    try {
-      const fd = new FormData();
-      fd.append('file', selectedFile);
-      if (dateVal) fd.append('scheduled_date', dateVal);
-
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      const data = await res.json();
-
-      if (res.ok) {
-        setAlert('upload-alert', data.message, data.scheduled ? 'success' : 'warning');
-        if (data.scheduled) resetUploadForm();
-      } else {
-        setAlert('upload-alert', data.detail || 'Opplasting feilet', 'error');
-      }
-    } catch {
-      setAlert('upload-alert', 'Nettverksfeil', 'error');
-    } finally {
-      btn.disabled = !selectedFile;
-      btn.innerHTML = 'Last opp til Garmin';
-    }
+  async function doUpload(){
+    if(!sel) return;
+    const b=document.getElementById('upload-btn');
+    const dv=document.getElementById('sched-date').value;
+    b.disabled=true; b.innerHTML='<span class="spinner"></span>Laster opp…';
+    alert2('upload-alert','','');
+    try{
+      const fd=new FormData(); fd.append('file',sel);
+      if(dv) fd.append('scheduled_date',dv);
+      const r=await fetch('/api/upload',{method:'POST',body:fd});
+      const d=await r.json();
+      if(r.ok){
+        alert2('upload-alert',d.message,d.scheduled?'success':'warning');
+        if(d.scheduled) reset();
+      } else alert2('upload-alert',d.detail||'Opplasting feilet','error');
+    } catch{ alert2('upload-alert','Nettverksfeil','error'); }
+    finally{ b.disabled=!sel; b.innerHTML='Last opp til Garmin'; }
   }
 
-  function resetUploadForm() {
-    selectedFile = null;
-    document.getElementById('file-label').textContent = '';
-    document.getElementById('file-input').value = '';
-    document.getElementById('sched-date').value = '';
-    document.getElementById('upload-btn').disabled = true;
+  function reset(){
+    sel=null;
+    document.getElementById('file-label').textContent='';
+    document.getElementById('file-input').value='';
+    document.getElementById('sched-date').value='';
+    document.getElementById('upload-btn').disabled=true;
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────
-
-  function setAlert(id, msg, type) {
-    const el = document.getElementById(id);
-    if (!msg) { el.style.display = 'none'; return; }
-    el.textContent = msg;
-    el.className = `alert alert-${type}`;
-    el.style.display = 'block';
+  function alert2(id,msg,type){
+    const el=document.getElementById(id);
+    if(!msg){ el.style.display='none'; return; }
+    el.textContent=msg; el.className='alert alert-'+type; el.style.display='block';
   }
 
   init();
