@@ -25,21 +25,19 @@
       --t3: rgba(255,255,255,0.28);
     }
 
-    html { -webkit-text-size-adjust: 100%; }
+    html {
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden; /* must be on html, not body — overflow on body breaks position:fixed on iOS Safari */
+      background: #040c14; /* covers iOS overscroll bounce area */
+    }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-      background: #030810;
+      background: transparent; /* #aurora (position:fixed) owns the background */
       color: var(--t1);
       min-height: 100vh;
       min-height: 100dvh;
-      overflow-x: hidden;
     }
-
-    /* html covers iOS overscroll bounce area */
-    html { background: #040c14; }
-    /* body is transparent — #aurora (position:fixed) owns the background */
-    body { background: transparent; }
 
     /* ── Aurora ──────────────────────────────────────────── */
     #aurora {
