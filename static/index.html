@@ -6,6 +6,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Garmin Treningsplanlegger</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#030810">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -331,10 +337,11 @@
     }
     .date-ph {
       position: absolute;
-      left: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 16px; color: var(--t3);
+      left: 14px; right: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; color: var(--t3);
       pointer-events: none;
       transition: opacity .15s;
+      white-space: nowrap;
     }
     .date-wrap.has-date .date-ph { opacity: 0; }
 
@@ -658,10 +665,9 @@
     <div class="field">
       <div class="date-wrap" id="date-wrap">
         <input type="date" id="sched-date">
-        <span class="date-ph">Velg dato</span>
+        <span class="date-ph">Planlegg til dato — valgfritt</span>
       </div>
       <div class="date-pills">
-        <div class="dp-label">Planlegg til dato <span>— valgfritt</span></div>
         <div class="dp-row">
           <button type="button" class="dp" onclick="setDate(0,this)">I dag<span id="date-today"></span></button>
           <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span id="date-tomorrow"></span></button>
