@@ -36,14 +36,15 @@
       overflow-x: hidden;
     }
 
-    /* Ensure aurora fills behind everything including safe-area */
-    html { background: #030810; }
+    /* Dark teal matches the bottom blobs so safe-area never shows pure black */
+    html, body { background: #030f0d; }
 
     /* ── Aurora ──────────────────────────────────────────── */
-    /* NOTE: No ::after overlay here — it was covering the blobs */
     #aurora {
       position: fixed;
-      inset: 0;
+      top: 0; left: 0; right: 0;
+      /* extend past the iOS safe-area / home-indicator strip */
+      bottom: calc(-1 * env(safe-area-inset-bottom, 40px) - 40px);
       z-index: 0;
       overflow: hidden;
       pointer-events: none;
@@ -96,21 +97,21 @@
       filter: blur(65px);
       animation: f5 13s ease-in-out infinite;
     }
-    /* Bottom-center: center sits AT the bottom edge so light spills up */
+    /* Bottom-center: bottom:0 + translateY(50%) → center exactly at viewport bottom */
     .b6 {
       width: min(110vw, 700px); height: min(110vw, 700px);
-      bottom: -50%; left: 50%;
+      bottom: 0; left: 50%;
       transform: translateX(-50%) translateY(50%);
-      background: radial-gradient(circle, rgba(0,200,160,0.85) 0%, rgba(0,150,120,0.45) 38%, transparent 65%);
+      background: radial-gradient(circle, rgba(0,200,160,0.9) 0%, rgba(0,150,120,0.5) 38%, transparent 65%);
       filter: blur(80px);
       animation: f6 16s ease-in-out infinite;
     }
     /* Bottom-right blue accent */
     .b7 {
       width: min(80vw, 500px); height: min(80vw, 500px);
-      bottom: -50%; right: -10%;
+      bottom: 0; right: -10%;
       transform: translateY(50%);
-      background: radial-gradient(circle, rgba(60,100,255,0.65) 0%, rgba(30,60,200,0.28) 45%, transparent 68%);
+      background: radial-gradient(circle, rgba(60,100,255,0.7) 0%, rgba(30,60,200,0.32) 45%, transparent 68%);
       filter: blur(110px);
       animation: f4 14s ease-in-out infinite reverse;
     }
