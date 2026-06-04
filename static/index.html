@@ -15,8 +15,8 @@
       --blue:   #3a86ff;
       --green:  #06ffa5;
       --t1: rgba(255,255,255,0.92);
-      --t2: rgba(255,255,255,0.48);
-      --t3: rgba(255,255,255,0.26);
+      --t2: rgba(255,255,255,0.50);
+      --t3: rgba(255,255,255,0.28);
     }
 
     html { -webkit-text-size-adjust: 100%; }
@@ -30,7 +30,8 @@
       overflow-x: hidden;
     }
 
-    /* ── Aurora background ─────────────────────────── */
+    /* ── Aurora ──────────────────────────────────────────── */
+    /* NOTE: No ::after overlay here — it was covering the blobs */
     #aurora {
       position: fixed;
       inset: 0;
@@ -46,109 +47,102 @@
       will-change: transform;
     }
 
-    /* Top-left: teal glow */
+    /* Top-left: teal */
     .b1 {
-      width: min(75vw, 480px); height: min(75vw, 480px);
-      top: -18%; left: -18%;
-      background: radial-gradient(circle, rgba(0,210,160,0.72) 0%, rgba(0,180,140,0.3) 40%, transparent 70%);
-      filter: blur(90px);
-      animation: f1 20s ease-in-out infinite alternate;
-    }
-    /* Top-right: deep violet */
-    .b2 {
-      width: min(85vw, 560px); height: min(85vw, 560px);
-      top: -22%; right: -22%;
-      background: radial-gradient(circle, rgba(130,60,255,0.68) 0%, rgba(100,40,220,0.28) 40%, transparent 70%);
-      filter: blur(100px);
-      animation: f2 26s ease-in-out infinite alternate;
-    }
-    /* Mid-left: cool blue */
-    .b3 {
-      width: min(60vw, 380px); height: min(60vw, 380px);
-      top: 35%; left: -12%;
-      background: radial-gradient(circle, rgba(40,130,255,0.55) 0%, rgba(20,90,220,0.22) 40%, transparent 70%);
+      width: min(80vw, 520px); height: min(80vw, 520px);
+      top: -22%; left: -22%;
+      background: radial-gradient(circle, rgba(0,220,160,0.92) 0%, rgba(0,180,140,0.42) 45%, transparent 72%);
       filter: blur(80px);
-      animation: f3 22s ease-in-out infinite alternate;
+      animation: f1 9s ease-in-out infinite;
     }
-    /* Bottom-right: green aurora */
-    .b4 {
-      width: min(65vw, 420px); height: min(65vw, 420px);
-      bottom: -12%; right: -12%;
-      background: radial-gradient(circle, rgba(6,255,150,0.48) 0%, rgba(0,200,120,0.2) 40%, transparent 70%);
+    /* Top-right: violet */
+    .b2 {
+      width: min(90vw, 580px); height: min(90vw, 580px);
+      top: -26%; right: -26%;
+      background: radial-gradient(circle, rgba(140,55,255,0.88) 0%, rgba(100,35,220,0.38) 45%, transparent 72%);
       filter: blur(90px);
-      animation: f4 19s ease-in-out infinite alternate;
+      animation: f2 11s ease-in-out infinite;
     }
-    /* Center accent: magenta drift */
+    /* Mid-left: blue */
+    .b3 {
+      width: min(65vw, 420px); height: min(65vw, 420px);
+      top: 38%; left: -16%;
+      background: radial-gradient(circle, rgba(40,140,255,0.8) 0%, rgba(20,90,220,0.32) 45%, transparent 72%);
+      filter: blur(75px);
+      animation: f3 8s ease-in-out infinite;
+    }
+    /* Bottom-right: green */
+    .b4 {
+      width: min(72vw, 460px); height: min(72vw, 460px);
+      bottom: -18%; right: -18%;
+      background: radial-gradient(circle, rgba(6,255,150,0.75) 0%, rgba(0,200,120,0.32) 45%, transparent 72%);
+      filter: blur(85px);
+      animation: f4 10s ease-in-out infinite;
+    }
+    /* Drifting accent: magenta */
     .b5 {
-      width: min(45vw, 260px); height: min(45vw, 260px);
-      top: 42%; left: 28%;
-      background: radial-gradient(circle, rgba(255,30,120,0.38) 0%, rgba(200,0,90,0.15) 40%, transparent 70%);
-      filter: blur(70px);
-      animation: f5 30s ease-in-out infinite alternate;
+      width: min(48vw, 300px); height: min(48vw, 300px);
+      top: 44%; left: 22%;
+      background: radial-gradient(circle, rgba(255,40,120,0.7) 0%, rgba(200,0,90,0.28) 45%, transparent 72%);
+      filter: blur(65px);
+      animation: f5 13s ease-in-out infinite;
     }
 
     @keyframes f1 {
-      0%   { transform: translate(0,    0)    scale(1); }
-      100% { transform: translate(10vw, 14vh) scale(1.18); }
+      0%,100% { transform: translate(0, 0) scale(1); }
+      33%     { transform: translate(22vw, 16vh) scale(1.22); }
+      66%     { transform: translate(10vw, 32vh) scale(0.84); }
     }
     @keyframes f2 {
-      0%   { transform: translate(0,     0)    scale(1); }
-      100% { transform: translate(-12vw, 16vh) scale(0.88); }
+      0%,100% { transform: translate(0, 0) scale(1); }
+      40%     { transform: translate(-24vw, 18vh) scale(0.86); }
+      70%     { transform: translate(-12vw, 38vh) scale(1.18); }
     }
     @keyframes f3 {
-      0%   { transform: translate(0,    0)     scale(1); }
-      100% { transform: translate(14vw, -10vh) scale(1.12); }
+      0%,100% { transform: translate(0, 0) scale(1); }
+      30%     { transform: translate(20vw, -14vh) scale(1.16); }
+      65%     { transform: translate(30vw,  8vh) scale(0.88); }
     }
     @keyframes f4 {
-      0%   { transform: translate(0,     0)     scale(1); }
-      100% { transform: translate(-10vw, -14vh) scale(1.14); }
+      0%,100% { transform: translate(0, 0) scale(1); }
+      35%     { transform: translate(-18vw, -22vh) scale(1.2); }
+      70%     { transform: translate(-28vw,  -8vh) scale(0.86); }
     }
     @keyframes f5 {
-      0%   { transform: translate(0,     0)    scale(1);    opacity: 0.8; }
-      40%  { transform: translate(-18vw, -8vh) scale(1.25); opacity: 1; }
-      100% { transform: translate(12vw,  18vh) scale(0.8);  opacity: 0.5; }
+      0%,100% { transform: translate(0, 0);         opacity: 0.85; }
+      25%     { transform: translate(-22vw, -14vh);  opacity: 1; }
+      50%     { transform: translate(-10vw, -30vh);  opacity: 0.55; }
+      75%     { transform: translate(18vw,  -18vh);  opacity: 1; }
     }
 
-    /* Darken edges so center card pops */
-    #aurora::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 100% 55% at 50% 115%, rgba(3,8,16,0.98) 0%, transparent 65%),
-        radial-gradient(ellipse 100% 40% at 50% -10%, rgba(3,8,16,0.75) 0%, transparent 60%);
-    }
-
-    /* ── Header ──────────────────────────────────────── */
+    /* ── Header ──────────────────────────────────────────── */
     header {
       position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; gap: 10px;
       padding: 13px 18px;
       padding-top: max(13px, env(safe-area-inset-top));
-      background: rgba(3,8,16,0.72);
+      background: rgba(3,8,16,0.75);
       backdrop-filter: blur(22px) saturate(140%);
       -webkit-backdrop-filter: blur(22px) saturate(140%);
-      border-bottom: 1px solid rgba(255,255,255,0.055);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
     .logo {
-      flex-shrink: 0;
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+      flex-shrink: 0; width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
       border-radius: 9px;
       display: grid; place-items: center;
-      box-shadow: 0 0 18px rgba(0,212,170,0.45), 0 0 6px rgba(0,212,170,0.25);
+      box-shadow: 0 0 18px rgba(0,212,170,0.5), 0 0 6px rgba(0,212,170,0.3);
     }
 
     header h1 {
-      flex: 1;
-      font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+      flex: 1; font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
       color: rgba(255,255,255,0.9);
     }
 
     #user-info {
-      display: none; align-items: center;
-      gap: 8px; font-size: 13px; color: var(--t2);
+      display: none; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--t2);
     }
 
     .pill {
@@ -162,7 +156,7 @@
     }
     .pill:active { background: rgba(255,255,255,0.14); }
 
-    /* ── Layout ──────────────────────────────────────── */
+    /* ── Layout ──────────────────────────────────────────── */
     main {
       position: relative; z-index: 10;
       max-width: 440px; margin: 0 auto;
@@ -170,42 +164,38 @@
       padding-bottom: max(24px, env(safe-area-inset-bottom));
     }
 
-    /* ── Glass card ──────────────────────────────────── */
+    /* ── Glass card ──────────────────────────────────────── */
     .card {
       position: relative;
       background: linear-gradient(160deg,
-        rgba(255,255,255,0.065) 0%,
-        rgba(255,255,255,0.028) 55%,
-        rgba(255,255,255,0.048) 100%
+        rgba(255,255,255,0.07) 0%,
+        rgba(255,255,255,0.03) 55%,
+        rgba(255,255,255,0.05) 100%
       );
-      backdrop-filter: blur(32px) saturate(145%) brightness(1.05);
-      -webkit-backdrop-filter: blur(32px) saturate(145%) brightness(1.05);
+      backdrop-filter: blur(32px) saturate(140%) brightness(1.04);
+      -webkit-backdrop-filter: blur(32px) saturate(140%) brightness(1.04);
       border-radius: 24px;
       border: 1px solid rgba(255,255,255,0.1);
       border-top-color: rgba(255,255,255,0.18);
       border-bottom-color: rgba(0,0,0,0.1);
-      padding: 28px 24px;
+      padding: 28px 22px;
       overflow: hidden;
       box-shadow:
         0 2px 0 rgba(255,255,255,0.1) inset,
-        0 30px 70px rgba(0,0,0,0.5),
+        0 30px 70px rgba(0,0,0,0.55),
         0 0 0 0.5px rgba(255,255,255,0.06);
     }
-
-    /* Top specular highlight */
     .card::before {
       content: '';
       position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
       background: linear-gradient(90deg,
-        transparent 0%,
+        transparent,
         rgba(255,255,255,0.38) 35%,
-        rgba(255,255,255,0.5) 50%,
+        rgba(255,255,255,0.52) 50%,
         rgba(255,255,255,0.38) 65%,
-        transparent 100%
+        transparent
       );
     }
-
-    /* Prismatic left edge */
     .card::after {
       content: '';
       position: absolute; top: 6%; bottom: 6%; left: 0; width: 1px;
@@ -220,18 +210,16 @@
 
     .card-title {
       font-size: 26px; font-weight: 700; letter-spacing: -0.6px;
-      margin-bottom: 5px;
-      background: linear-gradient(135deg, #fff 55%, rgba(255,255,255,0.62));
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #fff 55%, rgba(255,255,255,0.6));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
     .card-sub {
-      font-size: 13.5px; color: var(--t2);
-      margin-bottom: 26px; line-height: 1.4;
+      font-size: 13.5px; color: var(--t2); margin-bottom: 24px; line-height: 1.4;
     }
 
-    /* ── Form ────────────────────────────────────────── */
+    /* ── Form ────────────────────────────────────────────── */
     .field { margin-bottom: 14px; }
 
     label {
@@ -239,7 +227,7 @@
       font-size: 10.5px; font-weight: 700;
       color: var(--t3);
       text-transform: uppercase; letter-spacing: 0.09em;
-      margin-bottom: 6px;
+      margin-bottom: 7px;
     }
 
     input[type="email"],
@@ -262,35 +250,95 @@
       box-shadow: 0 0 0 3px rgba(0,212,170,0.09);
     }
     input::placeholder { color: var(--t3); }
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(.5); cursor: pointer; }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(.5); cursor: pointer; padding: 2px;
+    }
 
-    /* ── Drop zone ───────────────────────────────────── */
+    /* ── Date quick-select ───────────────────────────────── */
+    .date-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-top: 8px;
+    }
+    .dp {
+      padding: 9px 4px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px;
+      font-size: 12px; font-weight: 600;
+      color: var(--t2);
+      cursor: pointer; text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: all .15s;
+      line-height: 1.2;
+    }
+    .dp span { display: block; font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 1px; }
+    .dp:active, .dp.sel {
+      background: rgba(0,212,170,0.12);
+      border-color: rgba(0,212,170,0.38);
+      color: var(--teal);
+    }
+
+    /* ── Drop zone ───────────────────────────────────────── */
     .dz {
-      border: 1.5px dashed rgba(255,255,255,0.13);
+      border: 1.5px dashed rgba(255,255,255,0.14);
       border-radius: 16px;
-      padding: 30px 16px;
+      padding: 28px 16px;
       text-align: center; cursor: pointer;
       background: rgba(255,255,255,0.022);
       margin-bottom: 14px;
-      transition: border-color .22s, background .22s;
+      transition: all .22s;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
     .dz:active, .dz.over {
-      border-color: rgba(0,212,170,0.48);
-      background: rgba(0,212,170,0.035);
+      border-color: rgba(0,212,170,0.5);
+      background: rgba(0,212,170,0.04);
     }
-    .dz-icon { font-size: 38px; display: block; margin-bottom: 9px; }
-    .dz-main { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 500; margin-bottom: 4px; }
-    .dz-hint { font-size: 12px; color: var(--t3); line-height: 1.6; }
-    .dz-hint b { color: var(--teal); }
-    .dz-file {
-      margin-top: 10px;
-      font-size: 13.5px; font-weight: 600; color: var(--green);
-      display: flex; align-items: center; justify-content: center; gap: 5px;
+    .dz.has-file {
+      border-style: solid;
+      border-color: rgba(6,255,165,0.35);
+      background: rgba(6,255,165,0.04);
+      padding: 20px 16px;
     }
-    .dz-file:not(:empty)::before { content: '✓'; opacity: 0.7; }
 
-    /* ── Button ──────────────────────────────────────── */
+    .dz-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+    .dz.has-file .dz-icon { display: none; }
+
+    .dz-main { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 500; margin-bottom: 4px; }
+    .dz.has-file .dz-main { display: none; }
+
+    .dz-hint { font-size: 12px; color: var(--t3); line-height: 1.6; }
+    .dz.has-file .dz-hint { display: none; }
+
+    /* File selected state */
+    .dz-selected { display: none; align-items: center; gap: 12px; }
+    .dz.has-file .dz-selected { display: flex; }
+    .dz-badge {
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(6,255,165,0.15);
+      color: var(--green);
+      border: 1px solid rgba(6,255,165,0.25);
+    }
+    .dz-badge.type-json { background: rgba(0,212,170,0.15); color: var(--teal); border-color: rgba(0,212,170,0.28); }
+    .dz-badge.type-fit  { background: rgba(58,134,255,0.15); color: #7cb9ff; border-color: rgba(58,134,255,0.28); }
+    .dz-fname {
+      flex: 1; text-align: left; min-width: 0;
+      font-size: 13.5px; font-weight: 600; color: var(--t1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dz-change {
+      flex-shrink: 0;
+      font-size: 12px; color: var(--t2);
+      text-decoration: underline; text-underline-offset: 2px;
+    }
+
+    /* ── Button ──────────────────────────────────────────── */
     .btn {
       width: 100%; min-height: 52px;
       border: none; border-radius: 14px;
@@ -319,11 +367,10 @@
     }
     .btn:disabled { opacity: .28; cursor: not-allowed; box-shadow: none; }
 
-    /* ── Alerts ──────────────────────────────────────── */
+    /* ── Alerts ──────────────────────────────────────────── */
     .alert {
       display: none;
-      padding: 12px 14px;
-      border-radius: 11px;
+      padding: 12px 14px; border-radius: 11px;
       margin-top: 12px;
       font-size: 13px; line-height: 1.5;
       border: 1px solid;
@@ -410,6 +457,7 @@
     <div class="card-title">Last opp økt</div>
     <div class="card-sub">Velg treningsfil og planlegg til en dato</div>
 
+    <!-- File picker -->
     <div class="dz" id="dz"
          onclick="document.getElementById('file-input').click()"
          ondragover="onDragOver(event)"
@@ -421,17 +469,29 @@
         <b>JSON</b> for planlagte fremtidige økter
         &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
       </div>
-      <div class="dz-file" id="file-label"></div>
+      <!-- Selected state -->
+      <div class="dz-selected">
+        <div class="dz-badge" id="file-badge">JSON</div>
+        <div class="dz-fname" id="file-label"></div>
+        <div class="dz-change">Bytt</div>
+      </div>
     </div>
     <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
            onchange="onFileInput(this)">
 
+    <!-- Date picker -->
     <div class="field">
       <label>
         Planlegg til dato
         <span style="opacity:.38;font-weight:400;text-transform:none;letter-spacing:0"> — valgfritt</span>
       </label>
       <input type="date" id="sched-date">
+      <div class="date-pills">
+        <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span>+1 dag</span></button>
+        <button type="button" class="dp" onclick="setDate(3,this)">3 dager<span>+3 dager</span></button>
+        <button type="button" class="dp" onclick="setDate(7,this)">1 uke<span>+7 dager</span></button>
+        <button type="button" class="dp" onclick="setDate(14,this)">2 uker<span>+14 dager</span></button>
+      </div>
     </div>
 
     <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
@@ -444,7 +504,20 @@
 
 <script>
   let sel = null;
-  document.getElementById('sched-date').min = new Date().toISOString().slice(0,10);
+
+  const dateInput = document.getElementById('sched-date');
+  dateInput.min = new Date().toISOString().slice(0,10);
+  dateInput.addEventListener('change', () => {
+    document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
+  });
+
+  function setDate(days, btn) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    dateInput.value = d.toISOString().slice(0,10);
+    document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
 
   async function init() {
     const r = await fetch('/api/status').catch(() => null);
@@ -504,6 +577,7 @@
   async function logout() {
     await fetch('/api/logout', { method: 'POST' });
     sel = null;
+    document.getElementById('dz').classList.remove('has-file');
     document.getElementById('file-label').textContent = '';
     document.getElementById('upload-btn').disabled = true;
     alert2('upload-alert', '', '');
@@ -519,9 +593,15 @@
     const f = e.dataTransfer.files[0]; if (f) setFile(f);
   }
   function onFileInput(i) { if (i.files[0]) setFile(i.files[0]); }
+
   function setFile(f) {
     sel = f;
+    const ext = f.name.split('.').pop().toLowerCase();
+    const badge = document.getElementById('file-badge');
+    badge.textContent = ext.toUpperCase();
+    badge.className = 'dz-badge type-' + (ext === 'json' ? 'json' : 'fit');
     document.getElementById('file-label').textContent = f.name;
+    document.getElementById('dz').classList.add('has-file');
     document.getElementById('upload-btn').disabled = false;
     alert2('upload-alert', '', '');
   }
@@ -529,7 +609,7 @@
   async function doUpload() {
     if (!sel) return;
     const b = document.getElementById('upload-btn');
-    const dv = document.getElementById('sched-date').value;
+    const dv = dateInput.value;
     b.disabled = true; b.innerHTML = '<span class="spinner"></span>Laster opp…';
     alert2('upload-alert', '', '');
     try {
@@ -550,9 +630,11 @@
 
   function reset() {
     sel = null;
+    document.getElementById('dz').classList.remove('has-file');
     document.getElementById('file-label').textContent = '';
     document.getElementById('file-input').value = '';
-    document.getElementById('sched-date').value = '';
+    dateInput.value = '';
+    document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     document.getElementById('upload-btn').disabled = true;
   }
 
