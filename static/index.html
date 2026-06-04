@@ -92,11 +92,19 @@
     }
     /* Bottom-center: teal fill so there's no black gap */
     .b6 {
-      width: min(90vw, 560px); height: min(90vw, 560px);
-      bottom: -30%; left: 50%; transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,160,130,0.55) 0%, rgba(0,100,90,0.22) 45%, transparent 70%);
-      filter: blur(100px);
+      width: min(110vw, 680px); height: min(110vw, 680px);
+      bottom: -40%; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(0,180,145,0.72) 0%, rgba(0,130,110,0.38) 40%, transparent 68%);
+      filter: blur(90px);
       animation: f6 16s ease-in-out infinite;
+    }
+    /* Extra bottom fill blob */
+    .b7 {
+      width: min(80vw, 500px); height: min(80vw, 500px);
+      bottom: -20%; right: -10%;
+      background: radial-gradient(circle, rgba(40,80,200,0.52) 0%, rgba(20,50,160,0.22) 45%, transparent 70%);
+      filter: blur(110px);
+      animation: f4 14s ease-in-out infinite reverse;
     }
 
     @keyframes f1 {
@@ -495,7 +503,7 @@
       color: rgba(255,255,255,0.38);
       font-style: italic; text-align: center;
       opacity: 0;
-      transition: opacity .7s ease;
+      transition: opacity .35s ease;
     }
     .quote.visible { opacity: 1; }
     .quote cite {
@@ -507,11 +515,13 @@
 
     /* ── ECG heartbeat ───────────────────────────────────── */
     .ecg {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      width: 100%; height: 52px;
-      overflow: visible;
-      opacity: 0.22;
+      display: block;
+      width: calc(100% + 44px);
+      margin-left: -22px; margin-right: -22px;
+      height: 44px;
+      margin-top: 18px;
+      overflow: hidden;
+      opacity: 0.28;
       pointer-events: none;
     }
     .ecg-g { animation: ecg-scroll 3.4s linear infinite; }
@@ -535,6 +545,7 @@
   <div class="blob b4"></div>
   <div class="blob b5"></div>
   <div class="blob b6"></div>
+  <div class="blob b7"></div>
 </div>
 
 <header>
@@ -586,19 +597,6 @@
   </div>
 
   <div class="card" id="upload-section">
-    <!-- ECG heartbeat line (decorative background) -->
-    <svg class="ecg" viewBox="0 0 400 52" preserveAspectRatio="none" aria-hidden="true">
-      <g class="ecg-g">
-        <path fill="none" stroke="#00d4aa" stroke-width="1.5"
-          d="M-80,26 L-60,26 Q-57,20 -55,26 L-52,26 L-50,4 L-48,48 L-46,26 Q-38,34 -26,26 L0,26
-             L20,26 Q23,20 25,26 L28,26 L30,4 L32,48 L34,26 Q42,34 54,26 L80,26
-             L100,26 Q103,20 105,26 L108,26 L110,4 L112,48 L114,26 Q122,34 134,26 L160,26
-             L180,26 Q183,20 185,26 L188,26 L190,4 L192,48 L194,26 Q202,34 214,26 L240,26
-             L260,26 Q263,20 265,26 L268,26 L270,4 L272,48 L274,26 Q282,34 294,26 L320,26
-             L340,26 Q343,20 345,26 L348,26 L350,4 L352,48 L354,26 Q362,34 374,26 L400,26
-             L420,26 Q423,20 425,26 L428,26 L430,4 L432,48 L434,26 Q442,34 454,26 L480,26"/>
-      </g>
-    </svg>
     <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
 
     <!-- File picker -->
@@ -640,6 +638,19 @@
       Last opp til Garmin
     </button>
     <div class="alert" id="upload-alert"></div>
+    <!-- ECG heartbeat line — decorative footer -->
+    <svg class="ecg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true">
+      <g class="ecg-g">
+        <path fill="none" stroke="#00d4aa" stroke-width="1.5"
+          d="M-80,22 L-60,22 Q-57,17 -55,22 L-52,22 L-50,3 L-48,41 L-46,22 Q-38,30 -26,22 L0,22
+             L20,22 Q23,17 25,22 L28,22 L30,3 L32,41 L34,22 Q42,30 54,22 L80,22
+             L100,22 Q103,17 105,22 L108,22 L110,3 L112,41 L114,22 Q122,30 134,22 L160,22
+             L180,22 Q183,17 185,22 L188,22 L190,3 L192,41 L194,22 Q202,30 214,22 L240,22
+             L260,22 Q263,17 265,22 L268,22 L270,3 L272,41 L274,22 Q282,30 294,22 L320,22
+             L340,22 Q343,17 345,22 L348,22 L350,3 L352,41 L354,22 Q362,30 374,22 L400,22
+             L420,22 Q423,17 425,22 L428,22 L430,3 L432,41 L434,22 Q442,30 454,22 L480,22"/>
+      </g>
+    </svg>
   </div>
 
 </main>
@@ -699,7 +710,7 @@
       const q = QUOTES[_quoteIdx];
       el.innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
       el.classList.add('visible');
-    }, 700);
+    }, 370);
   }
 
   function startQuotes() {
