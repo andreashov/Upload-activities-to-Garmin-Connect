@@ -28,7 +28,7 @@
     html {
       -webkit-text-size-adjust: 100%;
       overflow-x: hidden;
-      background: #0f2e20 linear-gradient(180deg, #040c14 0%, #061618 30%, #0a2019 60%, #0f2e20 100%);
+      background: #000 linear-gradient(180deg, #000 0%, #040c14 12%, #061618 35%, #0a2019 65%, #0f2e20 100%);
       background-attachment: scroll;
       min-height: 100%;
       min-height: -webkit-fill-available;
@@ -40,8 +40,6 @@
       color: var(--t1);
       min-height: 100%;
       min-height: -webkit-fill-available;
-      display: flex;
-      flex-direction: column;
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
@@ -235,13 +233,9 @@
     main {
       position: relative; z-index: 10;
       max-width: 440px; width: 100%; margin: 0 auto;
-      padding: 24px 16px;
-      padding-top: max(24px, env(safe-area-inset-top));
-      padding-bottom: max(24px, env(safe-area-inset-bottom));
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      /* padding-top centres the card visually without locking the page
+         height — this allows Safari's address bar to collapse on scroll */
+      padding: 12vh 16px max(32px, env(safe-area-inset-bottom));
     }
 
     /* ── Glass card ──────────────────────────────────────── */
