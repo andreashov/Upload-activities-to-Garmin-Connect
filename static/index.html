@@ -380,6 +380,43 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── PIN grid ────────────────────────────────────────── */
+    .pin-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 8px 0 24px;
+    }
+    .pin-box {
+      width: 88px; height: 76px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      font-size: 30px; font-weight: 700; letter-spacing: 6px;
+      color: #fff; text-align: center;
+      -webkit-appearance: none; appearance: none;
+      outline: none;
+      caret-color: transparent;
+      transition: border-color .18s, background .18s, box-shadow .18s;
+      padding: 0 0 0 6px;
+    }
+    .pin-box:focus {
+      border-color: rgba(0,212,170,0.65);
+      background: rgba(0,212,170,0.06);
+      box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+    }
+    .pin-box.filled {
+      border-color: rgba(0,212,170,0.35);
+      background: rgba(0,212,170,0.04);
+    }
+    .pin-sep {
+      font-size: 26px; font-weight: 300;
+      color: rgba(255,255,255,0.3);
+      user-select: none; pointer-events: none;
+      margin-bottom: 2px;
+    }
+
     #file-input     { display: none; }
     #pin-section    { display: none; }
     #login-section  { display: block; }
@@ -407,14 +444,18 @@
 
   <div class="card" id="pin-section">
     <div class="card-title">Lås opp</div>
-    <div class="card-sub">Skriv inn PIN-koden din for å fortsette</div>
-    <form onsubmit="doPin(event)">
-      <div class="field">
-        <label>PIN</label>
-        <input type="number" id="pin-input" placeholder="••••"
-               inputmode="numeric" autocomplete="one-time-code" required>
+    <form id="pin-form" onsubmit="doPin(event)">
+      <div class="pin-grid">
+        <input class="pin-box" id="p0" type="tel" inputmode="numeric"
+               maxlength="2" pattern="[0-9]*" autocomplete="one-time-code"
+               placeholder="··">
+        <span class="pin-sep">:</span>
+        <input class="pin-box" id="p1" type="tel" inputmode="numeric"
+               maxlength="2" pattern="[0-9]*" placeholder="··">
+        <span class="pin-sep">:</span>
+        <input class="pin-box" id="p2" type="tel" inputmode="numeric"
+               maxlength="2" pattern="[0-9]*" placeholder="··">
       </div>
-      <button type="submit" class="btn" id="pin-btn">Fortsett</button>
     </form>
     <div class="alert" id="pin-alert"></div>
   </div>
@@ -519,6 +560,9 @@
   function show(n) {
     ['pin','login','upload'].forEach(s =>
       document.getElementById(s + '-section').style.display = s === n ? 'block' : 'none');
+    if (n === 'pin') {
+      setTimeout(() => document.getElementById('p0').focus(), 60);
+    }
   }
 
   function setIn(name) {
@@ -527,14 +571,67 @@
     document.getElementById('display-name').textContent = name;
   }
 
+  // ── PIN boxes ─────────────────────────────────────────────
+  const pinBoxes = [
+    document.getElementById('p0'),
+    document.getElementById('p1'),
+    document.getElementById('p2'),
+  ];
+
+  pinBoxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+      // strip non-digits, enforce max 2
+      box.value = box.value.replace(/\D/g, '').slice(0, 2);
+      box.classList.toggle('filled', box.value.length > 0);
+      if (box.value.length === 2) {
+        if (i < 2) {
+          pinBoxes[i + 1].focus();
+        } else {
+          // last box filled — auto-submit
+          document.getElementById('pin-form').requestSubmit();
+        }
+      }
+    });
+
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && box.value === '' && i > 0) {
+        e.preventDefault();
+        const prev = pinBoxes[i - 1];
+        prev.value = prev.value.slice(0, -1);
+        prev.classList.toggle('filled', prev.value.length > 0);
+        prev.focus();
+      }
+    });
+
+    // handle paste across all boxes (e.g. from SMS OTP)
+    box.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      pinBoxes.forEach((b, j) => {
+        b.value = digits.slice(j * 2, j * 2 + 2);
+        b.classList.toggle('filled', b.value.length > 0);
+      });
+      if (digits.length === 6) {
+        document.getElementById('pin-form').requestSubmit();
+      } else {
+        const next = pinBoxes[Math.min(Math.floor(digits.length / 2), 2)];
+        next.focus();
+      }
+    });
+  });
+
   async function doPin(e) {
-    e.preventDefault();
-    const b = document.getElementById('pin-btn');
+    if (e) e.preventDefault();
+    const pin = pinBoxes.map(b => b.value).join('');
+    if (pin.length < 6) {
+      alert2('pin-alert', 'Skriv inn alle 6 sifrene', 'error');
+      return;
+    }
     alert2('pin-alert', '', '');
-    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Sjekker…';
+    pinBoxes.forEach(b => { b.disabled = true; });
     try {
       const fd = new FormData();
-      fd.append('pin', document.getElementById('pin-input').value);
+      fd.append('pin', pin);
       const r = await fetch('/api/pin', { method: 'POST', body: fd });
       const d = await r.json();
       if (r.ok) {
@@ -542,9 +639,13 @@
         s.loggedIn ? setIn(s.displayName) : show('login');
       } else {
         alert2('pin-alert', d.detail || 'Feil PIN', 'error');
+        pinBoxes.forEach(b => { b.value = ''; b.classList.remove('filled'); b.disabled = false; });
+        pinBoxes[0].focus();
       }
-    } catch(e) { alert2('pin-alert', 'Nettverksfeil', 'error'); }
-    finally { b.disabled = false; b.innerHTML = 'Fortsett'; }
+    } catch(e) {
+      alert2('pin-alert', 'Nettverksfeil', 'error');
+      pinBoxes.forEach(b => { b.disabled = false; });
+    }
   }
 
   async function doLogin(e) {
