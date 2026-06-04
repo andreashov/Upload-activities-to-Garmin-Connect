@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json as json_module
 import logging
 import os
 import shutil
@@ -29,12 +30,25 @@ _SESSION_SECRET = hashlib.sha256(f"garmin-session-{APP_PIN}".encode()).hexdigest
 _client: garminconnect.Garmin | None = None
 
 
+class PinMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
+            session = request.cookies.get("session", "")
+            if session != _SESSION_SECRET:
+                return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
+        return await call_next(request)
+
+
+app.add_middleware(PinMiddleware)
+
+
 def _save_tokens(client: garminconnect.Garmin) -> None:
     try:
         TOKEN_STORE.mkdir(parents=True, exist_ok=True)
         client.garth.dump(str(TOKEN_STORE))
     except Exception:
-        logger.warning("Could not save tokens — session won't persist across restarts")
+        logger.warning("Kunne ikke lagre tokens — må logge inn på nytt ved neste omstart")
 
 
 def _try_restore_session() -> garminconnect.Garmin | None:
@@ -49,44 +63,13 @@ def _try_restore_session() -> garminconnect.Garmin | None:
         return None
 
 
-def _schedule_workout(client: garminconnect.Garmin, workout_id: int, date: str) -> bool:
-    """Return True if scheduling succeeded."""
+def _garth_post(path: str, data: dict) -> dict:
+    """Make an authenticated POST to the Garmin Connect API."""
     try:
-        client.garth.request(
-            "POST",
-            "connectapi",
-            f"/workout-service/schedule/{workout_id}",
-            json={"date": date},
-        )
-        return True
-    except Exception as exc:
-        logger.warning("garth.request scheduling failed: %s", exc)
-
-    # Fallback: try via connectapi method if available
-    try:
-        client.connectapi(
-            f"/workout-service/schedule/{workout_id}",
-            method="POST",
-            json={"date": date},
-        )
-        return True
-    except Exception as exc:
-        logger.warning("connectapi scheduling failed: %s", exc)
-
-    return False
-
-
-class PinMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        path = request.url.path
-        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
-            session = request.cookies.get("session", "")
-            if session != _SESSION_SECRET:
-                return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
-        return await call_next(request)
-
-
-app.add_middleware(PinMiddleware)
+        return _client.garth.request("POST", "connectapi", path, json=data).json()
+    except Exception:
+        # Fallback via connectapi method
+        return _client.connectapi(path, method="POST", json=data)
 
 
 @app.on_event("startup")
@@ -110,10 +93,8 @@ async def verify_pin(pin: str = Form(...)):
         raise HTTPException(status_code=401, detail="Feil PIN-kode")
     response = JSONResponse({"status": "ok", "pinRequired": True})
     response.set_cookie(
-        "session",
-        _SESSION_SECRET,
-        httponly=True,
-        samesite="strict",
+        "session", _SESSION_SECRET,
+        httponly=True, samesite="strict",
         max_age=60 * 60 * 24 * 30,
     )
     return response
@@ -140,7 +121,7 @@ async def login(email: str = Form(...), password: str = Form(...)):
     try:
         client = garminconnect.Garmin(email=email, password=password)
         client.login()
-        _save_tokens(client)  # non-critical — won't fail login if it errors
+        _save_tokens(client)
         _client = client
         return {"status": "ok", "displayName": client.get_full_name()}
     except garminconnect.GarminConnectAuthenticationError:
@@ -168,9 +149,52 @@ async def upload_workout(
         raise HTTPException(status_code=401, detail="Ikke innlogget")
 
     content = await file.read()
-    suffix = Path(file.filename or "workout.fit").suffix.lower() or ".fit"
+    filename = file.filename or "workout"
+    suffix = Path(filename).suffix.lower()
 
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+    if suffix == ".json":
+        return await _upload_json_workout(content, scheduled_date)
+    else:
+        return await _upload_activity_file(content, suffix, scheduled_date)
+
+
+async def _upload_json_workout(content: bytes, scheduled_date: str | None):
+    """Create a structured workout via the Garmin workout-service API."""
+    try:
+        workout_def = json_module.loads(content)
+    except json_module.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
+
+    try:
+        result = _garth_post("/workout-service/workout", workout_def)
+        logger.info("Workout created: %s", result)
+        workout_id = result.get("workoutId")
+        if not workout_id:
+            raise HTTPException(status_code=400, detail=f"Garmin svarte uten workout ID: {result}")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Kunne ikke opprette økt: {exc}")
+
+    scheduled = False
+    if scheduled_date:
+        try:
+            _garth_post(f"/workout-service/schedule/{workout_id}", {"date": scheduled_date})
+            scheduled = True
+        except Exception as exc:
+            logger.warning("Schedule failed: %s", exc)
+
+    if scheduled:
+        message = f"Treningsøkt lagt til i Garmin-kalenderen din: {scheduled_date} ✓"
+    else:
+        message = f"Treningsøkt opprettet i Garmin Connect (ID: {workout_id})"
+
+    return {"status": "ok", "message": message, "workoutId": workout_id, "scheduled": scheduled}
+
+
+async def _upload_activity_file(content: bytes, suffix: str, scheduled_date: str | None):
+    """Upload a FIT/TCX/GPX activity file via the upload-service."""
+    with tempfile.NamedTemporaryFile(suffix=suffix or ".fit", delete=False) as tmp:
         tmp.write(content)
         tmp_path = tmp.name
 
@@ -183,7 +207,7 @@ async def upload_workout(
         failures = detailed.get("failures", [])
 
         if not successes:
-            err_msg = "Ukjent feil"
+            err_msg = "Filen ble ikke gjenkjent"
             if failures:
                 msgs = failures[0].get("messages", [])
                 if msgs:
@@ -191,27 +215,11 @@ async def upload_workout(
             raise HTTPException(status_code=400, detail=f"Opplasting feilet: {err_msg}")
 
         internal_id = successes[0].get("internalId")
-        scheduled = False
-        schedule_note = ""
-
-        if scheduled_date and internal_id:
-            scheduled = _schedule_workout(_client, internal_id, scheduled_date)
-            if not scheduled:
-                schedule_note = (
-                    " Merk: Planlegging feilet — filen kan ha blitt tolket som "
-                    "en gjennomført aktivitet, ikke en fremtidig treningsøkt."
-                )
-
-        if scheduled:
-            message = f"Lagt til i Garmin-kalenderen din: {scheduled_date} ✓"
-        else:
-            message = f"Fil lastet opp (ID: {internal_id}).{schedule_note}"
-
         return {
             "status": "ok",
-            "message": message,
+            "message": f"Aktivitetsfil lastet opp til Garmin Connect (ID: {internal_id}). Merk: FIT/TCX/GPX-filer lastes opp som gjennomførte aktiviteter, ikke som planlagte fremtidige treningsøkter. Bruk JSON-format for planlegging.",
             "internalId": internal_id,
-            "scheduled": scheduled,
+            "scheduled": False,
         }
 
     except HTTPException:

@@ -270,12 +270,12 @@
          ondrop="onDrop(event)">
       <div class="icon">📂</div>
       <div class="hint">
-        Trykk for å velge en <strong>FIT</strong>-fil<br>
-        <span style="font-size:0.8rem;color:var(--gray-400)">Støtter også TCX og GPX</span>
+        Trykk for å velge en treningsfil<br>
+        <span style="font-size:0.8rem;color:var(--gray-400)"><strong style="color:var(--blue)">JSON</strong> for planlagte fremtidige økter &nbsp;·&nbsp; FIT/TCX/GPX for aktiviteter</span>
       </div>
       <div class="file-ok" id="file-label"></div>
     </div>
-    <input type="file" id="file-input" accept=".fit,.tcx,.gpx"
+    <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
            onchange="onFileInput(this)">
 
     <div class="field-row">
