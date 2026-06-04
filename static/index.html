@@ -248,14 +248,24 @@
       margin-top: 1px;
     }
 
-    /* Login card: everything centered + polished */
-    #login-section {
-      padding-top: 36px;
-    }
+    /* All three cards: icon + centered text */
+    #pin-section,
+    #login-section,
+    #upload-section { padding-top: 36px; }
+
+    #pin-section .card-title,
     #login-section .card-title,
-    #login-section .card-sub { text-align: center; }
-    #login-section label { text-align: center; }
-    #login-section input  { text-align: center; }
+    #login-section .card-sub,
+    #upload-section .card-title,
+    #upload-section .card-title em { text-align: center; }
+
+    #pin-section label,
+    #login-section label,
+    #upload-section label { text-align: center; }
+
+    #pin-section input,
+    #login-section input,
+    #upload-section input[type="date"] { text-align: center; }
 
     .login-icon {
       display: block;
@@ -603,6 +613,7 @@
 <main>
 
   <div class="card" id="pin-section">
+    <div class="login-icon"><img src="/apple-touch-icon.png" alt=""></div>
     <div class="card-title">Lås opp</div>
     <form id="pin-form" onsubmit="doPin(event)">
       <div class="pin-grid">
@@ -645,6 +656,7 @@
   </div>
 
   <div class="card" id="upload-section">
+    <div class="login-icon"><img src="/apple-touch-icon.png" alt=""></div>
     <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
 
     <!-- File picker -->
