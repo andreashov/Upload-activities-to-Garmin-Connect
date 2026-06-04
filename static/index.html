@@ -30,16 +30,18 @@
       overflow-x: hidden;
       background: #000 linear-gradient(180deg, #000 0%, #040c14 12%, #061618 35%, #0a2019 65%, #0f2e20 100%);
       background-attachment: scroll;
-      min-height: 100%;
-      min-height: -webkit-fill-available;
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
       background: transparent;
       color: var(--t1);
-      min-height: 100%;
-      min-height: -webkit-fill-available;
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
@@ -233,9 +235,10 @@
     main {
       position: relative; z-index: 10;
       max-width: 440px; width: 100%; margin: 0 auto;
-      /* 12vh top centres the card; bottom padding clears Safari toolbar (~83px)
-         plus the safe area inset so nothing is hidden behind browser chrome */
-      padding: 12vh 16px calc(env(safe-area-inset-bottom) + 90px);
+      box-sizing: border-box;
+      min-height: 100dvh;
+      padding: 12vh 16px env(safe-area-inset-bottom, 16px);
+      padding-bottom: max(env(safe-area-inset-bottom), 16px);
     }
 
     /* ── Glass card ──────────────────────────────────────── */
