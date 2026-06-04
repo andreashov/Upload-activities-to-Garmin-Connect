@@ -38,7 +38,7 @@ class PinMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
-        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
+        if APP_PIN and path.startswith("/api/") and path not in ("/api/pin", "/api/status"):
             session = request.cookies.get("session", "")
             if session != _SESSION_SECRET:
                 return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
