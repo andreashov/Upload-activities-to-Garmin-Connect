@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import hashlib
 import json as json_module
 import logging
 import os
 import shutil
 import tempfile
+import uuid
 from pathlib import Path
+from typing import Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
 from starlette.responses import JSONResponse as StarletteJSONResponse
 
 import garminconnect
@@ -23,19 +23,83 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Garmin Workout Scheduler")
 
 TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path(__file__).parent / "data" / "garmin_tokens")))
-
 APP_PIN = os.getenv("APP_PIN", "")
-_SESSION_SECRET = hashlib.sha256(f"garmin-session-{APP_PIN}".encode()).hexdigest()
 
-_client: garminconnect.Garmin | None = None
+# session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
+_sessions: dict[str, Optional[garminconnect.Garmin]] = {}
 
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def _sid(request: Request) -> str:
+    return request.cookies.get("sid", "")
+
+
+def _get_client(request: Request) -> Optional[garminconnect.Garmin]:
+    return _sessions.get(_sid(request))
+
+
+def _set_cookie(response, sid: str) -> None:
+    response.set_cookie(
+        "sid", sid,
+        httponly=True, samesite="strict",
+        max_age=60 * 60 * 24 * 30,
+    )
+
+
+def _token_dir(sid: str) -> Path:
+    return TOKEN_STORE / sid
+
+
+def _save_tokens(sid: str, client: garminconnect.Garmin) -> None:
+    try:
+        d = _token_dir(sid)
+        d.mkdir(parents=True, exist_ok=True)
+        client.garth.dump(str(d))
+    except Exception:
+        logger.warning("Kunne ikke lagre tokens for session %s", sid[:8])
+
+
+def _restore_client(sid: str) -> Optional[garminconnect.Garmin]:
+    d = _token_dir(sid)
+    if not d.exists():
+        return None
+    try:
+        client = garminconnect.Garmin()
+        client.garth.load(str(d))
+        client.get_full_name()
+        return client
+    except Exception:
+        return None
+
+
+def _api_post(client: garminconnect.Garmin, path: str, data: dict) -> dict:
+    inner = getattr(client, "client", None) or getattr(client, "garth", None)
+    if inner:
+        for desc, fn in [
+            ("inner.request(connectapi,POST)", lambda: inner.request("connectapi", path, method="POST", json=data).json()),
+            ("inner.request(POST,connectapi)", lambda: inner.request("POST", "connectapi", path, json=data).json()),
+            ("inner.post(connectapi)",         lambda: inner.post("connectapi", path, json=data).json()),
+        ]:
+            try:
+                return fn()
+            except Exception as e:
+                logger.warning("%s: %s", desc, e)
+    try:
+        import garth as _garth
+        return _garth.request("POST", "connectapi", path, json=data).json()
+    except Exception as e:
+        logger.warning("garth module: %s", e)
+    raise RuntimeError("Ingen POST-klient tilgjengelig")
+
+
+# ── Middleware ────────────────────────────────────────────────────────────────
 
 class PinMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
         if APP_PIN and path.startswith("/api/") and path != "/api/pin":
-            session = request.cookies.get("session", "")
-            if session != _SESSION_SECRET:
+            if _sid(request) not in _sessions:
                 return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
         return await call_next(request)
 
@@ -43,102 +107,98 @@ class PinMiddleware(BaseHTTPMiddleware):
 app.add_middleware(PinMiddleware)
 
 
-def _save_tokens(client: garminconnect.Garmin) -> None:
-    try:
-        TOKEN_STORE.mkdir(parents=True, exist_ok=True)
-        client.garth.dump(str(TOKEN_STORE))
-    except Exception:
-        logger.warning("Kunne ikke lagre tokens — må logge inn på nytt ved neste omstart")
-
-
-def _try_restore_session() -> garminconnect.Garmin | None:
-    if not TOKEN_STORE.exists():
-        return None
-    try:
-        client = garminconnect.Garmin()
-        client.garth.load(str(TOKEN_STORE))
-        client.get_full_name()
-        return client
-    except Exception:
-        return None
-
-
-def _api_post(path: str, data: dict) -> dict:
-    """Make an authenticated POST to the Garmin Connect API."""
-    # In newer garminconnect the inner client is at .client (not .garth)
-    inner = getattr(_client, 'client', None) or getattr(_client, 'garth', None)
-    if inner:
-        for desc, fn in [
-            ("inner.request(sub,path,method=POST)", lambda: inner.request("connectapi", path, method="POST", json=data).json()),
-            ("inner.request(POST,sub,path)",        lambda: inner.request("POST", "connectapi", path, json=data).json()),
-            ("inner.post(sub,path)",                lambda: inner.post("connectapi", path, json=data).json()),
-        ]:
-            try:
-                return fn()
-            except Exception as e:
-                logger.warning("%s: %s", desc, e)
-
-    # garth as standalone module (configured globally on login)
-    try:
-        import garth as _garth
-        return _garth.request("POST", "connectapi", path, json=data).json()
-    except Exception as e:
-        logger.warning("garth module: %s", e)
-
-    raise RuntimeError("Ingen POST-klient tilgjengelig")
-
+# ── Startup ───────────────────────────────────────────────────────────────────
 
 @app.on_event("startup")
 async def startup():
-    global _client
-    _client = _try_restore_session()
-    if _client:
-        logger.info("Restored saved Garmin session")
+    if not TOKEN_STORE.exists():
+        return
+    for d in TOKEN_STORE.iterdir():
+        if d.is_dir():
+            sid = d.name
+            client = _restore_client(sid)
+            if client:
+                _sessions[sid] = client
+                logger.info("Restored session %s…", sid[:8])
 
+
+# ── Public ────────────────────────────────────────────────────────────────────
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
 
+# ── PIN ───────────────────────────────────────────────────────────────────────
+
 @app.post("/api/pin")
 async def verify_pin(pin: str = Form(...)):
     if not APP_PIN:
-        return {"status": "ok", "pinRequired": False}
+        sid = uuid.uuid4().hex
+        _sessions[sid] = None
+        r = JSONResponse({"status": "ok", "pinRequired": False})
+        _set_cookie(r, sid)
+        return r
     if pin != APP_PIN:
         raise HTTPException(status_code=401, detail="Feil PIN-kode")
-    response = JSONResponse({"status": "ok", "pinRequired": True})
-    response.set_cookie(
-        "session", _SESSION_SECRET,
-        httponly=True, samesite="strict",
-        max_age=60 * 60 * 24 * 30,
-    )
-    return response
+    sid = uuid.uuid4().hex
+    _sessions[sid] = None
+    r = JSONResponse({"status": "ok", "pinRequired": True})
+    _set_cookie(r, sid)
+    return r
 
+
+# ── Status ────────────────────────────────────────────────────────────────────
 
 @app.get("/api/status")
-async def get_status():
-    global _client
-    if _client is None:
-        _client = _try_restore_session()
-    if _client is None:
-        return {"loggedIn": False}
-    try:
-        name = _client.get_full_name()
-        return {"loggedIn": True, "displayName": name}
-    except Exception:
-        _client = None
-        return {"loggedIn": False}
+async def get_status(request: Request):
+    sid = _sid(request)
 
+    # No-PIN mode: transparently create a session for new visitors
+    if not APP_PIN and sid not in _sessions:
+        sid = uuid.uuid4().hex
+        _sessions[sid] = None
+
+    if sid not in _sessions:
+        return JSONResponse({"loggedIn": False})
+
+    client = _sessions[sid]
+
+    # Lazy token restore (e.g. after server restart)
+    if client is None:
+        client = _restore_client(sid)
+        if client:
+            _sessions[sid] = client
+
+    if client is None:
+        r = JSONResponse({"loggedIn": False})
+        if not APP_PIN:
+            _set_cookie(r, sid)
+        return r
+
+    try:
+        name = client.get_full_name()
+        r = JSONResponse({"loggedIn": True, "displayName": name})
+        if not APP_PIN:
+            _set_cookie(r, sid)
+        return r
+    except Exception:
+        _sessions[sid] = None
+        return JSONResponse({"loggedIn": False})
+
+
+# ── Login / Logout ────────────────────────────────────────────────────────────
 
 @app.post("/api/login")
-async def login(email: str = Form(...), password: str = Form(...)):
-    global _client
+async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+    sid = _sid(request)
+    if sid not in _sessions:
+        raise HTTPException(status_code=401, detail="Ikke autentisert")
     try:
         client = garminconnect.Garmin(email=email, password=password)
         client.login()
-        _save_tokens(client)
-        _client = client
+        _save_tokens(sid, client)
+        _sessions[sid] = client
         return {"status": "ok", "displayName": client.get_full_name()}
     except garminconnect.GarminConnectAuthenticationError:
         raise HTTPException(status_code=401, detail="Feil e-post eller passord")
@@ -148,53 +208,57 @@ async def login(email: str = Form(...), password: str = Form(...)):
 
 
 @app.post("/api/logout")
-async def logout():
-    global _client
-    _client = None
-    shutil.rmtree(TOKEN_STORE, ignore_errors=True)
+async def logout(request: Request):
+    sid = _sid(request)
+    if sid in _sessions:
+        _sessions[sid] = None
+        shutil.rmtree(_token_dir(sid), ignore_errors=True)
     return {"status": "ok"}
 
 
+# ── Upload ────────────────────────────────────────────────────────────────────
+
 @app.post("/api/upload")
 async def upload_workout(
+    request: Request,
     file: UploadFile = File(...),
     scheduled_date: str = Form(default=None),
 ):
-    global _client
-    if _client is None:
+    client = _get_client(request)
+    if client is None:
         raise HTTPException(status_code=401, detail="Ikke innlogget")
 
     content = await file.read()
-    filename = file.filename or "workout"
-    suffix = Path(filename).suffix.lower()
+    suffix = Path(file.filename or "workout").suffix.lower()
 
     if suffix == ".json":
-        return await _upload_json_workout(content, scheduled_date)
+        return await _upload_json_workout(client, content, scheduled_date)
     else:
-        return await _upload_activity_file(content, suffix, scheduled_date)
+        return await _upload_activity_file(client, content, suffix, scheduled_date)
 
 
-async def _upload_json_workout(content: bytes, scheduled_date: str | None):
-    """Create a structured workout via the Garmin workout-service API."""
+async def _upload_json_workout(
+    client: garminconnect.Garmin,
+    content: bytes,
+    scheduled_date: str | None,
+):
     try:
         workout_def = json_module.loads(content)
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
 
-    # 1. Try native garminconnect method (exists in newer versions)
     workout_id = None
     try:
-        result = _client.upload_workout(workout_def)
+        result = client.upload_workout(workout_def)
         logger.info("upload_workout result: %s", result)
         if isinstance(result, dict):
             workout_id = result.get("workoutId")
     except Exception as exc:
         logger.warning("upload_workout() failed: %s", exc)
 
-    # 2. Fall back to direct API POST
     if not workout_id:
         try:
-            result = _api_post("/workout-service/workout", workout_def)
+            result = _api_post(client, "/workout-service/workout", workout_def)
             logger.info("direct POST result: %s", result)
             workout_id = result.get("workoutId")
         except Exception as exc:
@@ -203,20 +267,17 @@ async def _upload_json_workout(content: bytes, scheduled_date: str | None):
     if not workout_id:
         raise HTTPException(status_code=400, detail="Garmin returnerte ingen workout ID")
 
-    # Schedule to date
     scheduled = False
     if scheduled_date:
-        # 1. Try native schedule_workout method
         try:
-            _client.schedule_workout(workout_id, scheduled_date)
+            client.schedule_workout(workout_id, scheduled_date)
             scheduled = True
         except Exception as exc:
             logger.warning("schedule_workout() failed: %s", exc)
 
-        # 2. Fall back to direct API POST
         if not scheduled:
             try:
-                _api_post(f"/workout-service/schedule/{workout_id}", {"date": scheduled_date})
+                _api_post(client, f"/workout-service/schedule/{workout_id}", {"date": scheduled_date})
                 scheduled = True
             except Exception as exc:
                 logger.warning("direct schedule failed: %s", exc)
@@ -229,14 +290,17 @@ async def _upload_json_workout(content: bytes, scheduled_date: str | None):
     return {"status": "ok", "message": message, "workoutId": workout_id, "scheduled": scheduled}
 
 
-async def _upload_activity_file(content: bytes, suffix: str, scheduled_date: str | None):
-    """Upload a FIT/TCX/GPX activity file via the upload-service."""
+async def _upload_activity_file(
+    client: garminconnect.Garmin,
+    content: bytes,
+    suffix: str,
+    scheduled_date: str | None,
+):
     with tempfile.NamedTemporaryFile(suffix=suffix or ".fit", delete=False) as tmp:
         tmp.write(content)
         tmp_path = tmp.name
-
     try:
-        result = _client.upload_activity(tmp_path)
+        result = client.upload_activity(tmp_path)
         logger.info("Upload result: %s", result)
 
         detailed = result.get("detailedImportResult", {})
@@ -254,11 +318,10 @@ async def _upload_activity_file(content: bytes, suffix: str, scheduled_date: str
         internal_id = successes[0].get("internalId")
         return {
             "status": "ok",
-            "message": f"Aktivitetsfil lastet opp til Garmin Connect (ID: {internal_id}). Merk: FIT/TCX/GPX-filer lastes opp som gjennomførte aktiviteter, ikke som planlagte fremtidige treningsøkter. Bruk JSON-format for planlegging.",
+            "message": f"Aktivitetsfil lastet opp til Garmin Connect (ID: {internal_id}). Merk: FIT/TCX/GPX lastes opp som gjennomførte aktiviteter. Bruk JSON for planlagte økter.",
             "internalId": internal_id,
             "scheduled": False,
         }
-
     except HTTPException:
         raise
     except Exception as exc:
