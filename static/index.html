@@ -47,8 +47,6 @@
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
-    /* Covers the visual viewport and blends aurora colours on top of
-       the html gradient. html handles anything outside this area. */
     #aurora {
       position: fixed;
       inset: 0;
@@ -60,6 +58,28 @@
         #0a2019 60%,
         #0f2e20 100%
       );
+    }
+
+    /* Top fade to black */
+    #aurora::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #000 0%, transparent 18%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Bottom fill — solid colour that always reaches the very bottom */
+    #aurora::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 0;
+      height: 40%;
+      background: linear-gradient(180deg, transparent 0%, #0f2e20 60%);
+      z-index: 1;
+      pointer-events: none;
     }
 
     .blob {
@@ -109,19 +129,19 @@
       filter: blur(70px);
       animation: f5 13s ease-in-out infinite;
     }
-    /* Bottom-center: very large blob covers lower half of tall iPhone screens */
+    /* Bottom-center: covers lower half on all screen sizes */
     .b6 {
-      width: min(180vw, 1100px); height: min(180vw, 1100px);
-      bottom: -42%; left: 50%;
+      width: min(220vw, 1400px); height: min(220vw, 1400px);
+      bottom: -55%; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,190,155,0.82) 0%, rgba(0,150,120,0.42) 38%, transparent 64%);
+      background: radial-gradient(circle, rgba(0,190,155,0.88) 0%, rgba(0,150,120,0.52) 38%, transparent 64%);
       filter: blur(90px);
       animation: f6 16s ease-in-out infinite;
     }
     /* Bottom-right blue accent */
     .b7 {
-      width: min(90vw, 560px); height: min(90vw, 560px);
-      bottom: -22%; right: -12%;
+      width: min(110vw, 680px); height: min(110vw, 680px);
+      bottom: -30%; right: -14%;
       background: radial-gradient(circle, rgba(60,100,255,0.72) 0%, rgba(30,60,200,0.32) 45%, transparent 68%);
       filter: blur(90px);
       animation: f4 14s ease-in-out infinite reverse;
