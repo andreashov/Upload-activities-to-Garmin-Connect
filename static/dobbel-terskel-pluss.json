@@ -1,0 +1,221 @@
+{
+  "workoutName": "Norsk Dobbelterskøkt+",
+  "description": "Oppvarming · 4× strides · 3×6min LT (sone 4) · 4×3min over-LT · 5×1min VO2max · 3×30sek ALL OUT · Nedvarming",
+  "sportType": {
+    "sportTypeId": 1,
+    "sportTypeKey": "running"
+  },
+  "workoutSegments": [
+    {
+      "segmentOrder": 1,
+      "sportType": {
+        "sportTypeId": 1,
+        "sportTypeKey": "running"
+      },
+      "workoutSteps": [
+
+        {
+          "stepOrder": 1,
+          "type": "ExecutableStepDTO",
+          "stepType": { "stepTypeId": 3, "stepTypeKey": "warmup" },
+          "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+          "endConditionValue": 720,
+          "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+          "description": "Lett oppvarming — sone 1-2, puls under 140"
+        },
+
+        {
+          "stepOrder": 2,
+          "type": "RepeatGroupDTO",
+          "numberOfIterations": 4,
+          "smartRepeat": false,
+          "endCondition": { "conditionTypeId": 7, "conditionTypeKey": "iterations" },
+          "endConditionValue": 4,
+          "workoutSteps": [
+            {
+              "stepOrder": 1,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 1, "stepTypeKey": "interval" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 20,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "Stride — bygg farten gradvis, ikke sprint"
+            },
+            {
+              "stepOrder": 2,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 40,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "Gå/jogg lett"
+            }
+          ]
+        },
+
+        {
+          "stepOrder": 3,
+          "type": "ExecutableStepDTO",
+          "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+          "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+          "endConditionValue": 120,
+          "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+          "description": "Overgang — lett jogg, senk pulsen"
+        },
+
+        {
+          "stepOrder": 4,
+          "type": "RepeatGroupDTO",
+          "numberOfIterations": 3,
+          "smartRepeat": false,
+          "endCondition": { "conditionTypeId": 7, "conditionTypeKey": "iterations" },
+          "endConditionValue": 3,
+          "workoutSteps": [
+            {
+              "stepOrder": 1,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 1, "stepTypeKey": "interval" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 360,
+              "targetType": { "workoutTargetTypeId": 4, "workoutTargetTypeKey": "heart.rate.zone" },
+              "targetValueOne": 155,
+              "targetValueTwo": 168,
+              "description": "Terskel A — anaerob terskel, kontrollert og jevn fart"
+            },
+            {
+              "stepOrder": 2,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 90,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "Aktiv pause — lett jogg"
+            }
+          ]
+        },
+
+        {
+          "stepOrder": 5,
+          "type": "ExecutableStepDTO",
+          "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+          "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+          "endConditionValue": 240,
+          "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+          "description": "Aktiv hvile — senk pulsen til under 140"
+        },
+
+        {
+          "stepOrder": 6,
+          "type": "RepeatGroupDTO",
+          "numberOfIterations": 4,
+          "smartRepeat": false,
+          "endCondition": { "conditionTypeId": 7, "conditionTypeKey": "iterations" },
+          "endConditionValue": 4,
+          "workoutSteps": [
+            {
+              "stepOrder": 1,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 1, "stepTypeKey": "interval" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 180,
+              "targetType": { "workoutTargetTypeId": 4, "workoutTargetTypeKey": "heart.rate.zone" },
+              "targetValueOne": 162,
+              "targetValueTwo": 172,
+              "description": "Terskel B — over-terskel, hardere enn blokk A"
+            },
+            {
+              "stepOrder": 2,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 120,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "Aktiv pause"
+            }
+          ]
+        },
+
+        {
+          "stepOrder": 7,
+          "type": "ExecutableStepDTO",
+          "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+          "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+          "endConditionValue": 180,
+          "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+          "description": "Aktiv hvile — gjør deg klar for VO2max"
+        },
+
+        {
+          "stepOrder": 8,
+          "type": "RepeatGroupDTO",
+          "numberOfIterations": 5,
+          "smartRepeat": false,
+          "endCondition": { "conditionTypeId": 7, "conditionTypeKey": "iterations" },
+          "endConditionValue": 5,
+          "workoutSteps": [
+            {
+              "stepOrder": 1,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 1, "stepTypeKey": "interval" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 60,
+              "targetType": { "workoutTargetTypeId": 4, "workoutTargetTypeKey": "heart.rate.zone" },
+              "targetValueOne": 170,
+              "targetValueTwo": 182,
+              "description": "VO2max — 3-5K-fart, ubehagelig men kontrollerbar"
+            },
+            {
+              "stepOrder": 2,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 120,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "Aktiv pause"
+            }
+          ]
+        },
+
+        {
+          "stepOrder": 9,
+          "type": "RepeatGroupDTO",
+          "numberOfIterations": 3,
+          "smartRepeat": false,
+          "endCondition": { "conditionTypeId": 7, "conditionTypeKey": "iterations" },
+          "endConditionValue": 3,
+          "workoutSteps": [
+            {
+              "stepOrder": 1,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 1, "stepTypeKey": "interval" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 30,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "ALL OUT — absolutt maksimal sprint, ingenting igjen"
+            },
+            {
+              "stepOrder": 2,
+              "type": "ExecutableStepDTO",
+              "stepType": { "stepTypeId": 2, "stepTypeKey": "recovery" },
+              "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+              "endConditionValue": 120,
+              "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+              "description": "Full hvile — gå om nødvendig"
+            }
+          ]
+        },
+
+        {
+          "stepOrder": 10,
+          "type": "ExecutableStepDTO",
+          "stepType": { "stepTypeId": 4, "stepTypeKey": "cooldown" },
+          "endCondition": { "conditionTypeId": 2, "conditionTypeKey": "time" },
+          "endConditionValue": 600,
+          "targetType": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target" },
+          "description": "Nedvarming — sone 1, puls ned mot 120"
+        }
+
+      ]
+    }
+  ]
+}
