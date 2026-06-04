@@ -1,4 +1,5 @@
 fastapi>=0.100.0
 uvicorn[standard]>=0.23.0
 python-multipart>=0.0.6
-garminconnect>=0.2.19
+garth>=0.4.0
+garminconnect>=0.2.0

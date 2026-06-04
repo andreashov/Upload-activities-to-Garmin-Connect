@@ -21,31 +21,20 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Garmin Workout Scheduler")
 
-# Token storage: app-local ./data dir (survives requests, lost on redeploy)
-# Override with TOKEN_DIR env var if needed
 TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path(__file__).parent / "data" / "garmin_tokens")))
 
-# Optional PIN protection — set APP_PIN environment variable to enable
 APP_PIN = os.getenv("APP_PIN", "")
-# Stable session secret derived from PIN so it survives server restarts
 _SESSION_SECRET = hashlib.sha256(f"garmin-session-{APP_PIN}".encode()).hexdigest()
 
 _client: garminconnect.Garmin | None = None
 
 
-class PinMiddleware(BaseHTTPMiddleware):
-    """Protect all /api/* routes (except /api/pin) when APP_PIN is set."""
-
-    async def dispatch(self, request: Request, call_next):
-        path = request.url.path
-        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
-            session = request.cookies.get("session", "")
-            if session != _SESSION_SECRET:
-                return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
-        return await call_next(request)
-
-
-app.add_middleware(PinMiddleware)
+def _save_tokens(client: garminconnect.Garmin) -> None:
+    try:
+        TOKEN_STORE.mkdir(parents=True, exist_ok=True)
+        client.garth.dump(str(TOKEN_STORE))
+    except Exception:
+        logger.warning("Could not save tokens — session won't persist across restarts")
 
 
 def _try_restore_session() -> garminconnect.Garmin | None:
@@ -58,6 +47,46 @@ def _try_restore_session() -> garminconnect.Garmin | None:
         return client
     except Exception:
         return None
+
+
+def _schedule_workout(client: garminconnect.Garmin, workout_id: int, date: str) -> bool:
+    """Return True if scheduling succeeded."""
+    try:
+        client.garth.request(
+            "POST",
+            "connectapi",
+            f"/workout-service/schedule/{workout_id}",
+            json={"date": date},
+        )
+        return True
+    except Exception as exc:
+        logger.warning("garth.request scheduling failed: %s", exc)
+
+    # Fallback: try via connectapi method if available
+    try:
+        client.connectapi(
+            f"/workout-service/schedule/{workout_id}",
+            method="POST",
+            json={"date": date},
+        )
+        return True
+    except Exception as exc:
+        logger.warning("connectapi scheduling failed: %s", exc)
+
+    return False
+
+
+class PinMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
+            session = request.cookies.get("session", "")
+            if session != _SESSION_SECRET:
+                return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
+        return await call_next(request)
+
+
+app.add_middleware(PinMiddleware)
 
 
 @app.on_event("startup")
@@ -85,7 +114,7 @@ async def verify_pin(pin: str = Form(...)):
         _SESSION_SECRET,
         httponly=True,
         samesite="strict",
-        max_age=60 * 60 * 24 * 30,  # 30 dager
+        max_age=60 * 60 * 24 * 30,
     )
     return response
 
@@ -111,8 +140,7 @@ async def login(email: str = Form(...), password: str = Form(...)):
     try:
         client = garminconnect.Garmin(email=email, password=password)
         client.login()
-        TOKEN_STORE.mkdir(parents=True, exist_ok=True)
-        client.garth.dump(str(TOKEN_STORE))
+        _save_tokens(client)  # non-critical — won't fail login if it errors
         _client = client
         return {"status": "ok", "displayName": client.get_full_name()}
     except garminconnect.GarminConnectAuthenticationError:
@@ -167,19 +195,11 @@ async def upload_workout(
         schedule_note = ""
 
         if scheduled_date and internal_id:
-            try:
-                _client.garth.request(
-                    "POST",
-                    "connectapi",
-                    f"/workout-service/schedule/{internal_id}",
-                    json={"date": scheduled_date},
-                )
-                scheduled = True
-            except Exception as exc:
-                logger.warning("Scheduling failed: %s", exc)
+            scheduled = _schedule_workout(_client, internal_id, scheduled_date)
+            if not scheduled:
                 schedule_note = (
-                    " Merk: Planlegging feilet — filen ble trolig tolket som en "
-                    "gjennomført aktivitet, ikke en fremtidig treningsøkt."
+                    " Merk: Planlegging feilet — filen kan ha blitt tolket som "
+                    "en gjennomført aktivitet, ikke en fremtidig treningsøkt."
                 )
 
         if scheduled:
