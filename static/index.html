@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#030810">
+  <meta name="theme-color" content="#0f2e20">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -28,19 +28,23 @@
     html {
       -webkit-text-size-adjust: 100%;
       overflow-x: hidden;
-      /* CSS spec guarantees html background covers the ENTIRE canvas —
-         behind the status bar, behind Safari's toolbar, overscroll areas,
-         home indicator — every pixel the browser can ever show. */
+      /* background-color is the fallback for iOS overscroll/bounce areas */
+      background-color: #0f2e20;
       background: linear-gradient(180deg, #040c14 0%, #061618 30%, #0a2019 60%, #0f2e20 100%);
       background-attachment: scroll;
       height: 100%;
+      min-height: -webkit-fill-available;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      background-color: #0f2e20;
       background: transparent;
       color: var(--t1);
       min-height: 100%;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
@@ -189,9 +193,14 @@
     /* ── Layout ──────────────────────────────────────────── */
     main {
       position: relative; z-index: 10;
-      max-width: 440px; margin: 0 auto;
+      max-width: 440px; width: 100%; margin: 0 auto;
       padding: 24px 16px;
+      padding-top: max(24px, env(safe-area-inset-top));
       padding-bottom: max(24px, env(safe-area-inset-bottom));
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     /* ── Glass card ──────────────────────────────────────── */
