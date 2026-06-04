@@ -65,11 +65,27 @@ def _try_restore_session() -> garminconnect.Garmin | None:
 
 def _garth_post(path: str, data: dict) -> dict:
     """Make an authenticated POST to the Garmin Connect API."""
+    errors = []
+
+    # Style A: newer garth — request(subdomain, path, method=..., json=...)
+    try:
+        return _client.garth.request("connectapi", path, method="POST", json=data).json()
+    except Exception as e:
+        errors.append(f"A: {e}")
+
+    # Style B: older garth — request(method, subdomain, path, json=...)
     try:
         return _client.garth.request("POST", "connectapi", path, json=data).json()
-    except Exception:
-        # Fallback via connectapi method
-        return _client.connectapi(path, method="POST", json=data)
+    except Exception as e:
+        errors.append(f"B: {e}")
+
+    # Style C: convenience post() method
+    try:
+        return _client.garth.post("connectapi", path, json=data).json()
+    except Exception as e:
+        errors.append(f"C: {e}")
+
+    raise RuntimeError(f"Alle forsøk på Garmin API POST feilet: {errors}")
 
 
 @app.on_event("startup")
