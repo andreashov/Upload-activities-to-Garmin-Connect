@@ -65,35 +65,39 @@ def _try_restore_session() -> garminconnect.Garmin | None:
 
 def _garth_post(path: str, data: dict) -> dict:
     """Make an authenticated POST to the Garmin Connect API."""
-    # Newer garminconnect (0.2.x) — uses garth
-    if hasattr(_client, 'garth'):
-        errors = []
-        try:
-            return _client.garth.request("connectapi", path, method="POST", json=data).json()
-        except Exception as e:
-            errors.append(str(e))
-        try:
-            return _client.garth.request("POST", "connectapi", path, json=data).json()
-        except Exception as e:
-            errors.append(str(e))
-        try:
-            return _client.garth.post("connectapi", path, json=data).json()
-        except Exception as e:
-            errors.append(str(e))
-        logger.warning("garth POST failed: %s", errors)
+    client_attrs = [a for a in dir(_client) if not a.startswith("_")]
+    logger.info("garminconnect attrs: %s", client_attrs)
 
-    # Older garminconnect (0.1.x) — uses requests.Session directly
-    if hasattr(_client, 'session'):
+    # 1. garth via client attribute (newer garminconnect)
+    if hasattr(_client, 'garth'):
+        for style, fn in [
+            ("garth.request(sub,path,method)", lambda: _client.garth.request("connectapi", path, method="POST", json=data).json()),
+            ("garth.request(method,sub,path)", lambda: _client.garth.request("POST", "connectapi", path, json=data).json()),
+            ("garth.post(sub,path)",           lambda: _client.garth.post("connectapi", path, json=data).json()),
+        ]:
+            try:
+                return fn()
+            except Exception as e:
+                logger.warning("%s failed: %s", style, e)
+
+    # 2. garth as module (configured globally by garminconnect login)
+    try:
+        import garth as _garth
+        return _garth.request("POST", "connectapi", path, json=data).json()
+    except Exception as e:
+        logger.warning("garth module POST failed: %s", e)
+
+    # 3. Direct requests.Session (old garminconnect 0.1.x)
+    session = getattr(_client, 'session', None)
+    if session is None:
+        session = getattr(_client, 'req_session', None)
+    if session is not None:
         url = f"https://connectapi.garmin.com{path}"
-        response = _client.session.post(
-            url,
-            json=data,
-            headers={"NK": "NT", "X-app-ver": "4.70.0.0"},
-        )
+        response = session.post(url, json=data, headers={"NK": "NT", "X-app-ver": "4.70.0.0"})
         response.raise_for_status()
         return response.json()
 
-    raise RuntimeError("Fant ingen HTTP-klient i garminconnect-objektet")
+    raise RuntimeError(f"Ingen API-klient tilgjengelig. garminconnect-attributter: {client_attrs}")
 
 
 @app.on_event("startup")
