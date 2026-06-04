@@ -5,269 +5,241 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Garmin">
   <title>Garmin Treningsplanlegger</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --c1: #00d4aa;
-      --c2: #7b2fff;
-      --c3: #00b4d8;
-      --c4: #06ffa5;
-      --c5: #3a86ff;
-      --c6: #ff006e;
-      --text:    rgba(255,255,255,0.92);
-      --text-2:  rgba(255,255,255,0.5);
-      --text-3:  rgba(255,255,255,0.28);
+      --teal:   #00d4aa;
+      --violet: #7b2fff;
+      --blue:   #3a86ff;
+      --green:  #06ffa5;
+      --t1: rgba(255,255,255,0.92);
+      --t2: rgba(255,255,255,0.48);
+      --t3: rgba(255,255,255,0.26);
     }
 
     html { -webkit-text-size-adjust: 100%; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-      background: #04060f;
-      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      background: #030810;
+      color: var(--t1);
       min-height: 100vh;
       min-height: 100dvh;
       overflow-x: hidden;
     }
 
-    /* ── Aurora background ─────────────────────────────── */
-    .aurora {
+    /* ── Aurora background ─────────────────────────── */
+    #aurora {
       position: fixed;
       inset: 0;
       z-index: 0;
       overflow: hidden;
       pointer-events: none;
     }
-    .aurora::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 100% 50% at 50% 110%, rgba(4,6,15,0.98) 0%, transparent 80%),
-        radial-gradient(ellipse 120% 30% at 50% 0%, rgba(4,6,15,0.6) 0%, transparent 60%);
-      z-index: 2;
-    }
 
     .blob {
       position: absolute;
       border-radius: 50%;
-      filter: blur(100px);
-      will-change: transform;
       mix-blend-mode: screen;
+      will-change: transform;
     }
+
+    /* Top-left: teal glow */
     .b1 {
-      width: 680px; height: 680px; left: -18%; top: -12%;
-      background: radial-gradient(circle, rgba(0,212,170,.55) 0%, transparent 65%);
-      animation: d1 20s ease-in-out infinite;
+      width: min(75vw, 480px); height: min(75vw, 480px);
+      top: -18%; left: -18%;
+      background: radial-gradient(circle, rgba(0,210,160,0.72) 0%, rgba(0,180,140,0.3) 40%, transparent 70%);
+      filter: blur(90px);
+      animation: f1 20s ease-in-out infinite alternate;
     }
+    /* Top-right: deep violet */
     .b2 {
-      width: 750px; height: 750px; right: -22%; top: 5%;
-      background: radial-gradient(circle, rgba(123,47,255,.5) 0%, transparent 65%);
-      animation: d2 26s ease-in-out infinite;
+      width: min(85vw, 560px); height: min(85vw, 560px);
+      top: -22%; right: -22%;
+      background: radial-gradient(circle, rgba(130,60,255,0.68) 0%, rgba(100,40,220,0.28) 40%, transparent 70%);
+      filter: blur(100px);
+      animation: f2 26s ease-in-out infinite alternate;
     }
+    /* Mid-left: cool blue */
     .b3 {
-      width: 520px; height: 520px; left: 28%; top: 18%;
-      background: radial-gradient(circle, rgba(0,180,216,.45) 0%, transparent 65%);
-      animation: d3 18s ease-in-out infinite;
+      width: min(60vw, 380px); height: min(60vw, 380px);
+      top: 35%; left: -12%;
+      background: radial-gradient(circle, rgba(40,130,255,0.55) 0%, rgba(20,90,220,0.22) 40%, transparent 70%);
+      filter: blur(80px);
+      animation: f3 22s ease-in-out infinite alternate;
     }
+    /* Bottom-right: green aurora */
     .b4 {
-      width: 480px; height: 480px; left: 5%; bottom: 8%;
-      background: radial-gradient(circle, rgba(6,255,165,.38) 0%, transparent 65%);
-      animation: d4 23s ease-in-out infinite;
+      width: min(65vw, 420px); height: min(65vw, 420px);
+      bottom: -12%; right: -12%;
+      background: radial-gradient(circle, rgba(6,255,150,0.48) 0%, rgba(0,200,120,0.2) 40%, transparent 70%);
+      filter: blur(90px);
+      animation: f4 19s ease-in-out infinite alternate;
     }
+    /* Center accent: magenta drift */
     .b5 {
-      width: 400px; height: 400px; right: 8%; bottom: 15%;
-      background: radial-gradient(circle, rgba(58,134,255,.42) 0%, transparent 65%);
-      animation: d5 17s ease-in-out infinite;
-    }
-    .b6 {
-      width: 340px; height: 340px; left: 52%; top: 55%;
-      background: radial-gradient(circle, rgba(255,0,110,.3) 0%, transparent 65%);
-      animation: d6 29s ease-in-out infinite;
-    }
-    .b7 {
-      width: 300px; height: 300px; left: 20%; top: 50%;
-      background: radial-gradient(circle, rgba(0,212,170,.28) 0%, transparent 65%);
-      animation: d7 22s ease-in-out infinite;
+      width: min(45vw, 260px); height: min(45vw, 260px);
+      top: 42%; left: 28%;
+      background: radial-gradient(circle, rgba(255,30,120,0.38) 0%, rgba(200,0,90,0.15) 40%, transparent 70%);
+      filter: blur(70px);
+      animation: f5 30s ease-in-out infinite alternate;
     }
 
-    @keyframes d1 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      25%{transform:translate(90px,70px) scale(1.08)}
-      50%{transform:translate(50px,130px) scale(.94)}
-      75%{transform:translate(-70px,45px) scale(1.06)}
+    @keyframes f1 {
+      0%   { transform: translate(0,    0)    scale(1); }
+      100% { transform: translate(10vw, 14vh) scale(1.18); }
     }
-    @keyframes d2 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      30%{transform:translate(-110px,90px) scale(1.11)}
-      65%{transform:translate(-60px,160px) scale(.9)}
+    @keyframes f2 {
+      0%   { transform: translate(0,     0)    scale(1); }
+      100% { transform: translate(-12vw, 16vh) scale(0.88); }
     }
-    @keyframes d3 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      20%{transform:translate(70px,-90px) scale(1.13)}
-      55%{transform:translate(-90px,70px) scale(.87)}
-      80%{transform:translate(50px,110px) scale(1.07)}
+    @keyframes f3 {
+      0%   { transform: translate(0,    0)     scale(1); }
+      100% { transform: translate(14vw, -10vh) scale(1.12); }
     }
-    @keyframes d4 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      35%{transform:translate(110px,-70px) scale(1.1)}
-      70%{transform:translate(-70px,-90px) scale(.91)}
+    @keyframes f4 {
+      0%   { transform: translate(0,     0)     scale(1); }
+      100% { transform: translate(-10vw, -14vh) scale(1.14); }
     }
-    @keyframes d5 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      40%{transform:translate(-90px,-110px) scale(1.12)}
-      80%{transform:translate(70px,-60px) scale(.93)}
-    }
-    @keyframes d6 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      30%{transform:translate(-130px,-90px) scale(1.16)}
-      65%{transform:translate(90px,-130px) scale(.89)}
-    }
-    @keyframes d7 {
-      0%,100%{transform:translate(0,0) scale(1)}
-      45%{transform:translate(80px,100px) scale(1.14)}
-      80%{transform:translate(-60px,60px) scale(.92)}
+    @keyframes f5 {
+      0%   { transform: translate(0,     0)    scale(1);    opacity: 0.8; }
+      40%  { transform: translate(-18vw, -8vh) scale(1.25); opacity: 1; }
+      100% { transform: translate(12vw,  18vh) scale(0.8);  opacity: 0.5; }
     }
 
-    /* ── Liquid Glass card ─────────────────────────────── */
-    .glass {
-      position: relative;
-      background: linear-gradient(
-        145deg,
-        rgba(255,255,255,0.075) 0%,
-        rgba(255,255,255,0.038) 50%,
-        rgba(255,255,255,0.06) 100%
-      );
-      backdrop-filter: blur(36px) saturate(200%) brightness(1.06) hue-rotate(2deg);
-      -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.06) hue-rotate(2deg);
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.13);
-      border-top-color: rgba(255,255,255,0.22);
-      border-bottom-color: rgba(0,0,0,0.15);
-      box-shadow:
-        0 2px 0 rgba(255,255,255,0.12) inset,
-        0 -1px 0 rgba(0,0,0,0.18) inset,
-        1px 0 0 rgba(255,255,255,0.06) inset,
-        0 32px 80px rgba(0,0,0,0.55),
-        0 0 0 0.5px rgba(255,255,255,0.07);
-      overflow: hidden;
-    }
-
-    /* Top specular line */
-    .glass::before {
+    /* Darken edges so center card pops */
+    #aurora::after {
       content: '';
       position: absolute;
-      top: 0; left: 12%; right: 12%; height: 1px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255,255,255,0.45) 35%,
-        rgba(255,255,255,0.55) 50%,
-        rgba(255,255,255,0.45) 65%,
-        transparent 100%);
-      border-radius: 100%;
-      z-index: 1;
-    }
-    /* Prismatic side edge */
-    .glass::after {
-      content: '';
-      position: absolute;
-      top: 5%; bottom: 5%; left: 0; width: 1px;
-      background: linear-gradient(180deg,
-        transparent,
-        rgba(0,212,170,0.3),
-        rgba(123,47,255,0.2),
-        rgba(0,180,216,0.3),
-        transparent);
-      z-index: 1;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 100% 55% at 50% 115%, rgba(3,8,16,0.98) 0%, transparent 65%),
+        radial-gradient(ellipse 100% 40% at 50% -10%, rgba(3,8,16,0.75) 0%, transparent 60%);
     }
 
-    /* ── Header ───────────────────────────────────────── */
+    /* ── Header ──────────────────────────────────────── */
     header {
-      position: relative;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 0.9rem 1.4rem;
-      padding-top: max(0.9rem, env(safe-area-inset-top));
-      background: rgba(4,6,15,0.65);
-      backdrop-filter: blur(24px) saturate(160%);
-      -webkit-backdrop-filter: blur(24px) saturate(160%);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 18px;
+      padding-top: max(13px, env(safe-area-inset-top));
+      background: rgba(3,8,16,0.72);
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      border-bottom: 1px solid rgba(255,255,255,0.055);
     }
 
-    .hdr-logo {
-      width: 30px; height: 30px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--c1) 0%, var(--c5) 100%);
-      border-radius: 8px;
+    .logo {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+      border-radius: 9px;
       display: grid; place-items: center;
-      box-shadow: 0 0 18px rgba(0,212,170,0.35);
+      box-shadow: 0 0 18px rgba(0,212,170,0.45), 0 0 6px rgba(0,212,170,0.25);
     }
 
     header h1 {
       flex: 1;
-      font-size: 1rem; font-weight: 700;
-      letter-spacing: -0.025em;
-      background: linear-gradient(120deg, #fff 55%, rgba(255,255,255,.55));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+      color: rgba(255,255,255,0.9);
     }
 
     #user-info {
       display: none; align-items: center;
-      gap: 0.55rem; font-size: 0.78rem; color: var(--text-2);
+      gap: 8px; font-size: 13px; color: var(--t2);
     }
 
     .pill {
       background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.8);
-      padding: 0.3rem 0.85rem;
-      border-radius: 20px; cursor: pointer;
-      font-size: 0.75rem; font-weight: 500;
-      transition: background .18s;
+      border: 1px solid rgba(255,255,255,0.11);
+      color: rgba(255,255,255,0.72);
+      padding: 5px 13px; border-radius: 100px;
+      font-size: 12px; font-weight: 500; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      transition: background .15s;
     }
-    .pill:active { background: rgba(255,255,255,.14); }
+    .pill:active { background: rgba(255,255,255,0.14); }
 
     /* ── Layout ──────────────────────────────────────── */
     main {
       position: relative; z-index: 10;
-      max-width: 480px; margin: 0 auto;
-      padding: 1.5rem 1rem;
-      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+      max-width: 440px; margin: 0 auto;
+      padding: 24px 16px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
     }
 
+    /* ── Glass card ──────────────────────────────────── */
     .card {
-      padding: 1.8rem;
-      margin-bottom: 1rem;
+      position: relative;
+      background: linear-gradient(160deg,
+        rgba(255,255,255,0.065) 0%,
+        rgba(255,255,255,0.028) 55%,
+        rgba(255,255,255,0.048) 100%
+      );
+      backdrop-filter: blur(32px) saturate(145%) brightness(1.05);
+      -webkit-backdrop-filter: blur(32px) saturate(145%) brightness(1.05);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-top-color: rgba(255,255,255,0.18);
+      border-bottom-color: rgba(0,0,0,0.1);
+      padding: 28px 24px;
+      overflow: hidden;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.1) inset,
+        0 30px 70px rgba(0,0,0,0.5),
+        0 0 0 0.5px rgba(255,255,255,0.06);
+    }
+
+    /* Top specular highlight */
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.38) 35%,
+        rgba(255,255,255,0.5) 50%,
+        rgba(255,255,255,0.38) 65%,
+        transparent 100%
+      );
+    }
+
+    /* Prismatic left edge */
+    .card::after {
+      content: '';
+      position: absolute; top: 6%; bottom: 6%; left: 0; width: 1px;
+      background: linear-gradient(180deg,
+        transparent,
+        rgba(0,212,170,0.45),
+        rgba(123,47,255,0.3),
+        rgba(58,134,255,0.45),
+        transparent
+      );
     }
 
     .card-title {
-      font-size: 1.4rem; font-weight: 700;
-      letter-spacing: -0.035em;
-      margin-bottom: 0.25rem;
-      background: linear-gradient(130deg, #fff 60%, rgba(255,255,255,.6));
+      font-size: 26px; font-weight: 700; letter-spacing: -0.6px;
+      margin-bottom: 5px;
+      background: linear-gradient(135deg, #fff 55%, rgba(255,255,255,0.62));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+
     .card-sub {
-      font-size: 0.8rem; color: var(--text-2);
-      font-weight: 400; margin-bottom: 1.5rem;
+      font-size: 13.5px; color: var(--t2);
+      margin-bottom: 26px; line-height: 1.4;
     }
 
-    /* ── Form ─────────────────────────────────────────── */
-    .field { margin-bottom: 0.9rem; }
+    /* ── Form ────────────────────────────────────────── */
+    .field { margin-bottom: 14px; }
 
     label {
       display: block;
-      font-size: 0.67rem; font-weight: 700;
-      color: var(--text-3);
+      font-size: 10.5px; font-weight: 700;
+      color: var(--t3);
       text-transform: uppercase; letter-spacing: 0.09em;
-      margin-bottom: 0.38rem;
+      margin-bottom: 6px;
     }
 
     input[type="email"],
@@ -275,112 +247,100 @@
     input[type="date"],
     input[type="number"] {
       width: 100%;
-      padding: 0.72rem 0.95rem;
+      padding: 13px 14px;
       background: rgba(255,255,255,0.055);
       border: 1px solid rgba(255,255,255,0.09);
       border-radius: 12px;
-      font-size: 0.95rem; color: var(--text);
+      font-size: 16px; color: var(--t1);
       outline: none;
-      transition: all .2s;
       -webkit-appearance: none; appearance: none;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      transition: border-color .18s, background .18s, box-shadow .18s;
     }
     input:focus {
       border-color: rgba(0,212,170,0.6);
-      background: rgba(0,212,170,0.05);
-      box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+      background: rgba(0,212,170,0.04);
+      box-shadow: 0 0 0 3px rgba(0,212,170,0.09);
     }
-    input::placeholder { color: var(--text-3); }
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(.55); cursor: pointer; }
+    input::placeholder { color: var(--t3); }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(.5); cursor: pointer; }
 
-    /* ── Drop zone ────────────────────────────────────── */
+    /* ── Drop zone ───────────────────────────────────── */
     .dz {
-      border: 1.5px dashed rgba(255,255,255,0.12);
+      border: 1.5px dashed rgba(255,255,255,0.13);
       border-radius: 16px;
-      padding: 1.9rem 1.2rem;
+      padding: 30px 16px;
       text-align: center; cursor: pointer;
-      transition: all .25s;
-      background: rgba(255,255,255,0.02);
-      margin-bottom: 1rem;
+      background: rgba(255,255,255,0.022);
+      margin-bottom: 14px;
+      transition: border-color .22s, background .22s;
       -webkit-tap-highlight-color: transparent;
-      position: relative; overflow: hidden;
-    }
-    .dz::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at center, rgba(0,212,170,0.06) 0%, transparent 70%);
-      opacity: 0; transition: opacity .25s;
     }
     .dz:active, .dz.over {
-      border-color: rgba(0,212,170,0.5);
-      box-shadow: 0 0 40px rgba(0,212,170,0.08);
+      border-color: rgba(0,212,170,0.48);
+      background: rgba(0,212,170,0.035);
     }
-    .dz:active::before, .dz.over::before { opacity: 1; }
-
-    .dz-icon { font-size: 2.4rem; display: block; margin-bottom: 0.55rem; }
-    .dz-main { font-size: 0.88rem; color: rgba(255,255,255,0.65); font-weight: 500; margin-bottom: 0.3rem; }
-    .dz-hint { font-size: 0.73rem; color: var(--text-3); }
-    .dz-hint b { color: var(--c1); font-weight: 600; }
+    .dz-icon { font-size: 38px; display: block; margin-bottom: 9px; }
+    .dz-main { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 500; margin-bottom: 4px; }
+    .dz-hint { font-size: 12px; color: var(--t3); line-height: 1.6; }
+    .dz-hint b { color: var(--teal); }
     .dz-file {
-      margin-top: 0.7rem;
-      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-      font-size: 0.875rem; font-weight: 600;
-      color: var(--c4);
+      margin-top: 10px;
+      font-size: 13.5px; font-weight: 600; color: var(--green);
+      display: flex; align-items: center; justify-content: center; gap: 5px;
     }
-    .dz-file::before { content: '✦'; font-size: 0.7rem; }
+    .dz-file:not(:empty)::before { content: '✓'; opacity: 0.7; }
 
-    /* ── Button ───────────────────────────────────────── */
+    /* ── Button ──────────────────────────────────────── */
     .btn {
-      width: 100%; border: none; border-radius: 14px;
-      font-size: 0.95rem; font-weight: 700;
-      letter-spacing: -0.01em;
-      cursor: pointer; min-height: 52px;
+      width: 100%; min-height: 52px;
+      border: none; border-radius: 14px;
+      font-size: 15px; font-weight: 700; letter-spacing: -0.15px;
+      color: #fff; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       position: relative; overflow: hidden;
-      color: #fff;
-      background: linear-gradient(135deg, var(--c1) 0%, var(--c5) 100%);
+      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
       box-shadow:
         0 1px 0 rgba(255,255,255,0.22) inset,
-        0 4px 28px rgba(0,212,170,0.28),
-        0 0 0 0.5px rgba(0,212,170,0.3);
-      transition: transform .15s, box-shadow .15s;
+        0 6px 28px rgba(0,212,170,0.28),
+        0 0 0 0.5px rgba(0,212,170,0.28);
+      transition: transform .12s, box-shadow .12s;
+      margin-top: 8px;
     }
     .btn::after {
       content: '';
       position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      transition: left .45s;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: left .42s;
     }
     .btn:active::after { left: 100%; }
     .btn:active:not(:disabled) {
       transform: scale(0.975);
-      box-shadow: 0 2px 14px rgba(0,212,170,0.18);
+      box-shadow: 0 2px 12px rgba(0,212,170,0.2);
     }
-    .btn:disabled { opacity: .3; cursor: not-allowed; box-shadow: none; }
+    .btn:disabled { opacity: .28; cursor: not-allowed; box-shadow: none; }
 
-    /* ── Alerts ───────────────────────────────────────── */
+    /* ── Alerts ──────────────────────────────────────── */
     .alert {
       display: none;
-      padding: 0.8rem 0.95rem;
-      border-radius: 12px;
-      margin-top: 0.85rem;
-      font-size: 0.83rem; line-height: 1.55;
-      border: 1px solid; backdrop-filter: blur(8px);
+      padding: 12px 14px;
+      border-radius: 11px;
+      margin-top: 12px;
+      font-size: 13px; line-height: 1.5;
+      border: 1px solid;
     }
-    .alert-success { background: rgba(6,255,165,.07); border-color: rgba(6,255,165,.22); color: #06ffa5; }
-    .alert-error   { background: rgba(255,0,110,.07); border-color: rgba(255,0,110,.22); color: #ff4d8d; }
-    .alert-warning { background: rgba(255,190,0,.07); border-color: rgba(255,190,0,.22); color: #ffbe00; }
+    .alert-success { background: rgba(6,255,165,0.07); border-color: rgba(6,255,165,0.22); color: #06ffa5; }
+    .alert-error   { background: rgba(255,0,110,0.07); border-color: rgba(255,0,110,0.22); color: #ff4d8d; }
+    .alert-warning { background: rgba(255,190,0,0.07); border-color: rgba(255,190,0,0.22); color: #ffbe00; }
 
     .spinner {
       display: inline-block; width: 13px; height: 13px;
-      border: 2px solid rgba(255,255,255,.2); border-top-color: #fff;
-      border-radius: 50%; animation: spin .65s linear infinite;
-      margin-right: .45rem; vertical-align: middle;
+      border: 2px solid rgba(255,255,255,0.22); border-top-color: #fff;
+      border-radius: 50%; animation: spin .6s linear infinite;
+      margin-right: 7px; vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #file-input  { display: none; }
+    #file-input     { display: none; }
     #pin-section    { display: none; }
     #login-section  { display: block; }
     #upload-section { display: none; }
@@ -388,21 +348,19 @@
 </head>
 <body>
 
-<div class="aurora" aria-hidden="true">
+<div id="aurora" aria-hidden="true">
   <div class="blob b1"></div>
   <div class="blob b2"></div>
   <div class="blob b3"></div>
   <div class="blob b4"></div>
   <div class="blob b5"></div>
-  <div class="blob b6"></div>
-  <div class="blob b7"></div>
 </div>
 
 <header>
-  <div class="hdr-logo" aria-hidden="true">
+  <div class="logo" aria-hidden="true">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.6"/>
-      <path d="M8 12.5L11 15.5L16 9" stroke="white" stroke-width="1.6"
+      <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/>
+      <path d="M8 12.5L11 15.5L16 9" stroke="white" stroke-width="1.8"
             stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
@@ -415,7 +373,7 @@
 
 <main>
 
-  <div class="glass card" id="pin-section">
+  <div class="card" id="pin-section">
     <div class="card-title">Lås opp</div>
     <div class="card-sub">Skriv inn PIN-koden din for å fortsette</div>
     <form onsubmit="doPin(event)">
@@ -429,7 +387,7 @@
     <div class="alert" id="pin-alert"></div>
   </div>
 
-  <div class="glass card" id="login-section">
+  <div class="card" id="login-section">
     <div class="card-title">Garmin Connect</div>
     <div class="card-sub">Logg inn for å planlegge treningsøkter</div>
     <form onsubmit="doLogin(event)">
@@ -448,7 +406,7 @@
     <div class="alert" id="login-alert"></div>
   </div>
 
-  <div class="glass card" id="upload-section">
+  <div class="card" id="upload-section">
     <div class="card-title">Last opp økt</div>
     <div class="card-sub">Velg treningsfil og planlegg til en dato</div>
 
@@ -489,16 +447,16 @@
   document.getElementById('sched-date').min = new Date().toISOString().slice(0,10);
 
   async function init() {
-    const r = await fetch('/api/status').catch(()=>null);
+    const r = await fetch('/api/status').catch(() => null);
     if (!r) { show('login'); return; }
-    if (r.status===401) { show('pin'); return; }
+    if (r.status === 401) { show('pin'); return; }
     const d = await r.json();
     d.loggedIn ? setIn(d.displayName) : show('login');
   }
 
   function show(n) {
     ['pin','login','upload'].forEach(s =>
-      document.getElementById(s+'-section').style.display = s===n?'block':'none');
+      document.getElementById(s + '-section').style.display = s === n ? 'block' : 'none');
   }
 
   function setIn(name) {
@@ -510,89 +468,100 @@
   async function doPin(e) {
     e.preventDefault();
     const b = document.getElementById('pin-btn');
-    alert2('pin-alert','','');
-    b.disabled=true; b.innerHTML='<span class="spinner"></span>Sjekker…';
+    alert2('pin-alert', '', '');
+    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Sjekker…';
     try {
-      const fd=new FormData(); fd.append('pin',document.getElementById('pin-input').value);
-      const r=await fetch('/api/pin',{method:'POST',body:fd});
-      const d=await r.json();
-      if(r.ok){ const s=await(await fetch('/api/status')).json(); s.loggedIn?setIn(s.displayName):show('login'); }
-      else alert2('pin-alert',d.detail||'Feil PIN','error');
-    } catch(e){ alert2('pin-alert','Nettverksfeil','error'); }
-    finally{ b.disabled=false; b.innerHTML='Fortsett'; }
+      const fd = new FormData();
+      fd.append('pin', document.getElementById('pin-input').value);
+      const r = await fetch('/api/pin', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (r.ok) {
+        const s = await (await fetch('/api/status')).json();
+        s.loggedIn ? setIn(s.displayName) : show('login');
+      } else {
+        alert2('pin-alert', d.detail || 'Feil PIN', 'error');
+      }
+    } catch(e) { alert2('pin-alert', 'Nettverksfeil', 'error'); }
+    finally { b.disabled = false; b.innerHTML = 'Fortsett'; }
   }
 
   async function doLogin(e) {
     e.preventDefault();
-    const b=document.getElementById('login-btn');
-    alert2('login-alert','','');
-    b.disabled=true; b.innerHTML='<span class="spinner"></span>Logger inn…';
+    const b = document.getElementById('login-btn');
+    alert2('login-alert', '', '');
+    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Logger inn…';
     try {
-      const fd=new FormData();
-      fd.append('email',document.getElementById('email').value);
-      fd.append('password',document.getElementById('password').value);
-      const r=await fetch('/api/login',{method:'POST',body:fd});
-      const d=await r.json();
-      r.ok ? setIn(d.displayName) : alert2('login-alert',d.detail||'Innlogging feilet','error');
-    } catch(e){ alert2('login-alert','Nettverksfeil','error'); }
-    finally{ b.disabled=false; b.innerHTML='Logg inn'; }
+      const fd = new FormData();
+      fd.append('email', document.getElementById('email').value);
+      fd.append('password', document.getElementById('password').value);
+      const r = await fetch('/api/login', { method: 'POST', body: fd });
+      const d = await r.json();
+      r.ok ? setIn(d.displayName) : alert2('login-alert', d.detail || 'Innlogging feilet', 'error');
+    } catch(e) { alert2('login-alert', 'Nettverksfeil', 'error'); }
+    finally { b.disabled = false; b.innerHTML = 'Logg inn'; }
   }
 
   async function logout() {
-    await fetch('/api/logout',{method:'POST'});
-    sel=null;
-    document.getElementById('file-label').textContent='';
-    document.getElementById('upload-btn').disabled=true;
-    alert2('upload-alert','','');
-    document.getElementById('user-info').style.display='none';
+    await fetch('/api/logout', { method: 'POST' });
+    sel = null;
+    document.getElementById('file-label').textContent = '';
+    document.getElementById('upload-btn').disabled = true;
+    alert2('upload-alert', '', '');
+    document.getElementById('user-info').style.display = 'none';
     show('login');
   }
 
-  function onDragOver(e){ e.preventDefault(); document.getElementById('dz').classList.add('over'); }
-  function onDragLeave(){ document.getElementById('dz').classList.remove('over'); }
-  function onDrop(e){
-    e.preventDefault(); document.getElementById('dz').classList.remove('over');
-    const f=e.dataTransfer.files[0]; if(f) setFile(f);
+  function onDragOver(e) { e.preventDefault(); document.getElementById('dz').classList.add('over'); }
+  function onDragLeave() { document.getElementById('dz').classList.remove('over'); }
+  function onDrop(e) {
+    e.preventDefault();
+    document.getElementById('dz').classList.remove('over');
+    const f = e.dataTransfer.files[0]; if (f) setFile(f);
   }
-  function onFileInput(i){ if(i.files[0]) setFile(i.files[0]); }
-  function setFile(f){
-    sel=f;
-    document.getElementById('file-label').textContent=f.name;
-    document.getElementById('upload-btn').disabled=false;
-    alert2('upload-alert','','');
-  }
-
-  async function doUpload(){
-    if(!sel) return;
-    const b=document.getElementById('upload-btn');
-    const dv=document.getElementById('sched-date').value;
-    b.disabled=true; b.innerHTML='<span class="spinner"></span>Laster opp…';
-    alert2('upload-alert','','');
-    try{
-      const fd=new FormData(); fd.append('file',sel);
-      if(dv) fd.append('scheduled_date',dv);
-      const r=await fetch('/api/upload',{method:'POST',body:fd});
-      const d=await r.json();
-      if(r.ok){
-        alert2('upload-alert',d.message,d.scheduled?'success':'warning');
-        if(d.scheduled) reset();
-      } else alert2('upload-alert',d.detail||'Opplasting feilet','error');
-    } catch(e){ alert2('upload-alert','Nettverksfeil','error'); }
-    finally{ b.disabled=!sel; b.innerHTML='Last opp til Garmin'; }
+  function onFileInput(i) { if (i.files[0]) setFile(i.files[0]); }
+  function setFile(f) {
+    sel = f;
+    document.getElementById('file-label').textContent = f.name;
+    document.getElementById('upload-btn').disabled = false;
+    alert2('upload-alert', '', '');
   }
 
-  function reset(){
-    sel=null;
-    document.getElementById('file-label').textContent='';
-    document.getElementById('file-input').value='';
-    document.getElementById('sched-date').value='';
-    document.getElementById('upload-btn').disabled=true;
+  async function doUpload() {
+    if (!sel) return;
+    const b = document.getElementById('upload-btn');
+    const dv = document.getElementById('sched-date').value;
+    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Laster opp…';
+    alert2('upload-alert', '', '');
+    try {
+      const fd = new FormData();
+      fd.append('file', sel);
+      if (dv) fd.append('scheduled_date', dv);
+      const r = await fetch('/api/upload', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (r.ok) {
+        alert2('upload-alert', d.message, d.scheduled ? 'success' : 'warning');
+        if (d.scheduled) reset();
+      } else {
+        alert2('upload-alert', d.detail || 'Opplasting feilet', 'error');
+      }
+    } catch(e) { alert2('upload-alert', 'Nettverksfeil', 'error'); }
+    finally { b.disabled = !sel; b.innerHTML = 'Last opp til Garmin'; }
   }
 
-  function alert2(id,msg,type){
-    const el=document.getElementById(id);
-    if(!msg){ el.style.display='none'; return; }
-    el.textContent=msg; el.className='alert alert-'+type; el.style.display='block';
+  function reset() {
+    sel = null;
+    document.getElementById('file-label').textContent = '';
+    document.getElementById('file-input').value = '';
+    document.getElementById('sched-date').value = '';
+    document.getElementById('upload-btn').disabled = true;
+  }
+
+  function alert2(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!msg) { el.style.display = 'none'; return; }
+    el.textContent = msg;
+    el.className = 'alert alert-' + type;
+    el.style.display = 'block';
   }
 
   init().catch(() => show('login'));
