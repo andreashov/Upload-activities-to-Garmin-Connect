@@ -233,9 +233,9 @@
     main {
       position: relative; z-index: 10;
       max-width: 440px; width: 100%; margin: 0 auto;
-      /* padding-top centres the card visually without locking the page
-         height — this allows Safari's address bar to collapse on scroll */
-      padding: 12vh 16px max(32px, env(safe-area-inset-bottom));
+      /* 12vh top centres the card; bottom padding clears Safari toolbar (~83px)
+         plus the safe area inset so nothing is hidden behind browser chrome */
+      padding: 12vh 16px calc(env(safe-area-inset-bottom) + 90px);
     }
 
     /* ── Glass card ──────────────────────────────────────── */
