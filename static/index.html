@@ -90,19 +90,21 @@
       filter: blur(65px);
       animation: f5 13s ease-in-out infinite;
     }
-    /* Bottom-center: teal fill so there's no black gap */
+    /* Bottom-center: center sits AT the bottom edge so light spills up */
     .b6 {
-      width: min(110vw, 680px); height: min(110vw, 680px);
-      bottom: -40%; left: 50%; transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,180,145,0.72) 0%, rgba(0,130,110,0.38) 40%, transparent 68%);
-      filter: blur(90px);
+      width: min(110vw, 700px); height: min(110vw, 700px);
+      bottom: -50%; left: 50%;
+      transform: translateX(-50%) translateY(50%);
+      background: radial-gradient(circle, rgba(0,200,160,0.85) 0%, rgba(0,150,120,0.45) 38%, transparent 65%);
+      filter: blur(80px);
       animation: f6 16s ease-in-out infinite;
     }
-    /* Extra bottom fill blob */
+    /* Bottom-right blue accent */
     .b7 {
       width: min(80vw, 500px); height: min(80vw, 500px);
-      bottom: -20%; right: -10%;
-      background: radial-gradient(circle, rgba(40,80,200,0.52) 0%, rgba(20,50,160,0.22) 45%, transparent 70%);
+      bottom: -50%; right: -10%;
+      transform: translateY(50%);
+      background: radial-gradient(circle, rgba(60,100,255,0.65) 0%, rgba(30,60,200,0.28) 45%, transparent 68%);
       filter: blur(110px);
       animation: f4 14s ease-in-out infinite reverse;
     }
@@ -134,8 +136,8 @@
       75%     { transform: translate(18vw,  -18vh);  opacity: 1; }
     }
     @keyframes f6 {
-      0%,100% { transform: translateX(-50%) translate(0, 0)    scale(1); }
-      50%     { transform: translateX(-50%) translate(8vw, -8vh) scale(1.15); }
+      0%,100% { transform: translateX(-50%) translateY(50%) translate(0, 0)    scale(1); }
+      50%     { transform: translateX(-50%) translateY(50%) translate(8vw, -6vh) scale(1.12); }
     }
 
     /* ── Header ──────────────────────────────────────────── */
@@ -519,14 +521,19 @@
     }
 
     /* ── Kipchoge quote ─────────────────────────────────── */
-    .quote {
-      min-height: 52px;
+    .quote-wrap {
+      position: relative;
+      min-height: 62px;
       margin-bottom: 20px;
+    }
+    .quote {
+      position: absolute;
+      top: 0; left: 0; right: 0;
       font-size: 13px; line-height: 1.6;
       color: rgba(255,255,255,0.38);
       font-style: italic; text-align: center;
       opacity: 0;
-      transition: opacity .35s ease;
+      transition: opacity .65s ease;
     }
     .quote.visible { opacity: 1; }
     .quote cite {
@@ -602,7 +609,10 @@
     <div class="login-icon">🏃</div>
     <div class="card-title">Garmin Connect</div>
     <div class="card-sub">Logg inn med din Garmin Connect-konto</div>
-    <div class="quote" id="kipchoge-quote"></div>
+    <div class="quote-wrap">
+      <div class="quote" id="q0"></div>
+      <div class="quote" id="q1"></div>
+    </div>
     <form onsubmit="doLogin(event)">
       <div class="field">
         <label>E-post</label>
@@ -728,33 +738,36 @@
   ];
   let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
   let _quoteTimer = null;
+  let _activeQ = 0;
+
+  function _qEls() { return [document.getElementById('q0'), document.getElementById('q1')]; }
 
   function showNextQuote() {
-    const el = document.getElementById('kipchoge-quote');
-    if (!el) return;
-    el.classList.remove('visible');
-    setTimeout(() => {
-      _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
-      const q = QUOTES[_quoteIdx];
-      el.innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
-      el.classList.add('visible');
-    }, 370);
+    const els = _qEls();
+    const next = 1 - _activeQ;
+    _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
+    const q = QUOTES[_quoteIdx];
+    els[next].innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
+    // cross-fade: new in, old out simultaneously
+    els[next].classList.add('visible');
+    els[_activeQ].classList.remove('visible');
+    _activeQ = next;
   }
 
   function startQuotes() {
-    const el = document.getElementById('kipchoge-quote');
-    if (!el) return;
+    const els = _qEls();
     clearInterval(_quoteTimer);
+    els.forEach(e => { e.classList.remove('visible'); e.innerHTML = ''; });
     const q = QUOTES[_quoteIdx];
-    el.innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
-    setTimeout(() => el.classList.add('visible'), 80);
-    _quoteTimer = setInterval(showNextQuote, 11000);
+    els[0].innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
+    _activeQ = 0;
+    setTimeout(() => els[0].classList.add('visible'), 80);
+    _quoteTimer = setInterval(showNextQuote, 7000);
   }
 
   function stopQuotes() {
     clearInterval(_quoteTimer);
-    const el = document.getElementById('kipchoge-quote');
-    if (el) el.classList.remove('visible');
+    _qEls().forEach(e => e.classList.remove('visible'));
   }
 
   // ── Confetti ──────────────────────────────────────────────
