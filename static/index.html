@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#008855">
+  <meta name="theme-color" content="#00c8a8">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -30,7 +30,7 @@
       overflow-x: hidden;
       /* #008855 er lys grønn — vises av iOS Safari bak adressefeltet
          og i safe-area-sonen der position:fixed ikke når */
-      background-color: #008855;
+      background-color: #00c8a8;
       margin: 0;
       padding: 0;
       min-height: 100dvh;
@@ -80,19 +80,19 @@
       pointer-events: none;
     }
 
-    /* Bottom fill — glow that always reaches the very bottom */
+    /* Bottom fill — aurora teal glow reaching the very bottom */
     #aurora::after {
       content: '';
       position: absolute;
       left: 0; right: 0;
       bottom: 0;
-      height: 70%;
+      height: 75%;
       background: linear-gradient(180deg,
         transparent 0%,
-        rgba(0,180,130,0.35) 30%,
-        rgba(0,160,115,0.65) 60%,
-        rgba(0,140,100,0.85) 85%,
-        rgba(0,120,88,0.95)  100%
+        rgba(0,200,160,0.18) 20%,
+        rgba(0,210,170,0.50) 48%,
+        rgba(0,212,170,0.78) 72%,
+        rgba(0,212,170,0.95) 100%
       );
       z-index: 1;
       pointer-events: none;
@@ -145,35 +145,43 @@
       filter: blur(70px);
       animation: f5 13s ease-in-out infinite;
     }
-    /* Bottom-center large glow */
+    /* Bottom-center large glow — pulled up closer to viewport */
     .b6 {
       width: min(160vw, 900px); height: min(160vw, 900px);
-      bottom: -38%; left: 50%;
+      bottom: -18%; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,210,160,0.9) 0%, rgba(0,170,130,0.55) 38%, transparent 64%);
+      background: radial-gradient(circle, rgba(0,220,170,0.95) 0%, rgba(0,190,150,0.60) 38%, transparent 64%);
       filter: blur(80px);
       animation: f6 16s ease-in-out infinite;
     }
-    /* Bottom-right blue accent */
+    /* Bottom-right violet/blue accent */
     .b7 {
       width: min(110vw, 680px); height: min(110vw, 680px);
-      bottom: -30%; right: -14%;
-      background: radial-gradient(circle, rgba(60,100,255,0.72) 0%, rgba(30,60,200,0.32) 45%, transparent 68%);
+      bottom: -14%; right: -14%;
+      background: radial-gradient(circle, rgba(100,60,255,0.80) 0%, rgba(60,100,255,0.40) 45%, transparent 68%);
       filter: blur(90px);
       animation: f4 14s ease-in-out infinite reverse;
     }
-    /* Anchored bottom glow — always covers the very bottom of the viewport */
+    /* Anchored bottom glow — fixed, animated, aurora-colored */
     .b8 {
       position: fixed;
-      width: 100vw; height: calc(50vh + 80px);
-      bottom: -80px; left: 0;
-      background: radial-gradient(ellipse at 50% 100%,
-        rgba(0,200,150,0.55) 0%,
-        rgba(0,160,120,0.28) 45%,
-        transparent 70%
+      width: 150vw; height: 65vh;
+      bottom: -12vh; left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse at 50% 75%,
+        rgba(0,225,175,0.85) 0%,
+        rgba(0,200,160,0.55) 28%,
+        rgba(0,160,130,0.25) 52%,
+        transparent 68%
       );
-      filter: blur(40px);
+      filter: blur(48px);
       pointer-events: none;
+      animation: b8-drift 9s ease-in-out infinite;
+    }
+    @keyframes b8-drift {
+      0%,100% { transform: translateX(-50%) scale(1);    opacity: 1;    }
+      45%     { transform: translateX(-48%) scale(1.12); opacity: 0.88; }
+      70%     { transform: translateX(-52%) scale(0.94); opacity: 0.95; }
     }
 
     @keyframes f1 {
