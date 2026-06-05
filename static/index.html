@@ -1056,7 +1056,7 @@
     const next = 1 - _activeQ;
     _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
     const q = QUOTES[_quoteIdx];
-    els[next].innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
+    els[next].innerHTML = `"${q.text}" <cite>${q.who}</cite>`;
     // cross-fade: new in, old out simultaneously
     els[next].classList.add('visible');
     els[_activeQ].classList.remove('visible');
@@ -1068,7 +1068,7 @@
     clearInterval(_quoteTimer);
     els.forEach(e => { e.classList.remove('visible'); e.innerHTML = ''; });
     const q = QUOTES[_quoteIdx];
-    els[0].innerHTML = `"${q.text}" <cite>— ${q.who}</cite>`;
+    els[0].innerHTML = `"${q.text}" <cite>${q.who}</cite>`;
     _activeQ = 0;
     setTimeout(() => els[0].classList.add('visible'), 80);
     _quoteTimer = setInterval(showNextQuote, 7000);
