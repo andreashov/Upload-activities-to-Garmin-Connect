@@ -176,15 +176,20 @@ async def get_status(request: Request):
             _set_cookie(r, sid)
         return r
 
-    try:
-        name = client.get_full_name()
-        r = JSONResponse({"loggedIn": True, "displayName": name})
-        if not APP_PIN:
-            _set_cookie(r, sid)
-        return r
-    except Exception:
-        _sessions[sid] = None
-        return JSONResponse({"loggedIn": False})
+    name_file = _token_dir(sid) / "display_name.txt"
+    if name_file.exists():
+        name = name_file.read_text().strip()
+    else:
+        try:
+            name = client.get_full_name()
+        except Exception:
+            _sessions[sid] = None
+            return JSONResponse({"loggedIn": False})
+
+    r = JSONResponse({"loggedIn": True, "displayName": name})
+    if not APP_PIN:
+        _set_cookie(r, sid)
+    return r
 
 
 # ── Login / Logout ────────────────────────────────────────────────────────────
@@ -192,16 +197,20 @@ async def get_status(request: Request):
 @app.post("/api/login")
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     sid = _sid(request)
+    if not sid:
+        sid = uuid.uuid4().hex
     if sid not in _sessions:
-        raise HTTPException(status_code=401, detail="Ikke autentisert")
+        _sessions[sid] = None
     try:
         client = garminconnect.Garmin(email=email, password=password)
         client.login()
-        _save_tokens(sid, client)
-        _sessions[sid] = client
-        # Skip get_full_name() extra round-trip; derive display name from email
         display_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
-        return {"status": "ok", "displayName": display_name}
+        _save_tokens(sid, client)
+        (_token_dir(sid) / "display_name.txt").write_text(display_name)
+        _sessions[sid] = client
+        r = JSONResponse({"status": "ok", "displayName": display_name})
+        _set_cookie(r, sid)
+        return r
     except garminconnect.GarminConnectAuthenticationError:
         raise HTTPException(status_code=401, detail="Feil e-post eller passord")
     except Exception as exc:

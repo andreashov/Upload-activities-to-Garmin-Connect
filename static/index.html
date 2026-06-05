@@ -238,11 +238,61 @@
       position: relative; z-index: 10;
       max-width: 440px; width: 100%; margin: 0 auto;
       box-sizing: border-box;
-      /* No fixed height — let content decide. Scroll handles overflow. */
       padding-top: max(env(safe-area-inset-top), 16px);
       padding-left: 16px;
       padding-right: 16px;
       padding-bottom: max(env(safe-area-inset-bottom), 24px);
+    }
+
+    /* ── Desktop: horizontal layout ──────────────────────── */
+    @media (min-width: 680px) {
+      body { overflow: hidden; }
+      main {
+        max-width: 820px;
+        padding-top: 0;
+        padding-bottom: 0;
+        display: flex;
+        align-items: center;
+        min-height: 100dvh;
+      }
+      main > .card { width: 100%; }
+
+      /* Upload section header row */
+      #upload-section {
+        padding: 24px 28px 28px;
+      }
+      #upload-section .login-icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin-bottom: 0;
+        margin-right: 14px;
+        width: 44px; height: 44px;
+        border-radius: 12px;
+      }
+      #upload-section .card-title {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: left !important;
+        margin-bottom: 20px;
+      }
+
+      /* Two-column content */
+      .upload-cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      .upload-col-right {
+        display: flex;
+        flex-direction: column;
+      }
+      #upload-btn { margin-top: 0; }
+      .ecg { margin-top: auto; }
+
+      /* Login and PIN sections: stay narrow, centered */
+      #login-section,
+      #pin-section { max-width: 420px; margin: 0 auto; }
     }
 
     /* ── Glass card ──────────────────────────────────────── */
@@ -635,12 +685,18 @@
     /* ── ECG heartbeat ───────────────────────────────────── */
     .ecg {
       display: block;
-      width: calc(100% + 44px);
-      margin-left: -22px; margin-right: -22px;
+      width: 100%;
       height: 44px;
       margin-top: 18px;
       overflow: visible;
       pointer-events: none;
+    }
+    /* On mobile, extend ECG edge-to-edge like before */
+    @media (max-width: 679px) {
+      .ecg {
+        width: calc(100% + 32px);
+        margin-left: -16px; margin-right: -16px;
+      }
     }
     .ecg-path {
       stroke-dasharray: 800, 9999;
@@ -659,6 +715,77 @@
     #pin-section    { display: none; }
     #login-section  { display: block; }
     #upload-section { display: none; }
+
+    /* ── Mobile: kompakt for å unngå scrolling ───────────── */
+    @media (max-width: 679px) {
+      main {
+        padding-top: max(env(safe-area-inset-top), 8px);
+        padding-bottom: max(env(safe-area-inset-bottom), 8px);
+      }
+      .card { padding: 18px 16px; border-radius: 20px; }
+      #pin-section,
+      #login-section,
+      #upload-section { padding-top: clamp(8px, 2vh, 16px); }
+
+      .login-icon {
+        width: clamp(44px, 8vw, 56px);
+        height: clamp(44px, 8vw, 56px);
+        margin-bottom: clamp(8px, 2vh, 14px);
+        border-radius: 14px;
+      }
+      .card-title {
+        font-size: clamp(19px, 5vw, 24px);
+        margin-bottom: clamp(6px, 1.5vh, 12px);
+      }
+      .card-title em { font-size: 16px; }
+      .card-sub { margin-bottom: clamp(10px, 2vh, 18px); font-size: 12px; }
+
+      .quote-wrap { min-height: 50px; margin-bottom: clamp(8px, 2vh, 16px); }
+      .quote { font-size: 13px; line-height: 1.5; }
+
+      #login-section .field { margin-bottom: 10px; }
+      #login-section .btn { margin-top: 12px; }
+
+      input[type="email"],
+      input[type="password"],
+      input[type="date"],
+      input[type="number"] { padding: 11px 12px; font-size: 15px; }
+
+      .dz { padding: clamp(10px, 2.5vh, 18px) 12px; margin-bottom: 10px; }
+      .dz-icon { font-size: 28px; margin-bottom: 4px; }
+      .dz-main { font-size: 13px; }
+
+      input[type="date"] { min-height: 46px; padding: 12px 12px; }
+
+      .dp { padding: clamp(7px, 1.5vh, 11px) 6px; font-size: 13px; }
+      .dp span { font-size: 11px; }
+      .date-pills { margin-top: 8px; }
+      .dp-row { gap: 8px; }
+
+      .field { margin-bottom: clamp(6px, 1.5vh, 12px); }
+      .btn { min-height: 46px; font-size: 14px; margin-top: 6px; }
+
+      .alert { margin-top: 8px; padding: 10px 12px; font-size: 12px; }
+
+      .ecg { height: 34px; margin-top: 10px; }
+
+      .pin-box { width: 76px; height: 64px; font-size: 26px; }
+    }
+
+    /* Ekstra kompakt på svært små skjermer (iPhone SE o.l.) */
+    @media (max-width: 679px) and (max-height: 640px) {
+      .login-icon { width: 40px; height: 40px; margin-bottom: 6px; }
+      .card { padding: 14px 14px; }
+      .card-title { font-size: 18px; margin-bottom: 6px; }
+      .quote-wrap { min-height: 42px; margin-bottom: 8px; }
+      .quote { font-size: 12px; }
+      .dz { padding: 8px 10px; margin-bottom: 8px; }
+      .dz-icon { font-size: 22px; margin-bottom: 2px; }
+      input[type="email"],
+      input[type="password"] { padding: 9px 10px; }
+      .btn { min-height: 42px; }
+      .ecg { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -727,65 +854,71 @@
     <div class="login-icon"><img src="/apple-touch-icon.png" alt=""></div>
     <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
 
-    <!-- File picker -->
-    <div class="dz" id="dz"
-         onclick="document.getElementById('file-input').click()"
-         ondragover="onDragOver(event)"
-         ondragleave="onDragLeave(event)"
-         ondrop="onDrop(event)">
-      <span class="dz-icon">📂</span>
-      <div class="dz-main">Trykk for å velge fil</div>
-      <div class="dz-hint">
-        <b>JSON</b> for planlagte fremtidige økter
-        &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
+    <div class="upload-cols">
+    <div class="upload-col-left">
+      <!-- File picker -->
+      <div class="dz" id="dz"
+           onclick="document.getElementById('file-input').click()"
+           ondragover="onDragOver(event)"
+           ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event)">
+        <span class="dz-icon">📂</span>
+        <div class="dz-main">Trykk for å velge fil</div>
+        <div class="dz-hint">
+          <b>JSON</b> for planlagte fremtidige økter
+          &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
+        </div>
+        <!-- Selected state -->
+        <div class="dz-selected">
+          <div class="dz-badge" id="file-badge">JSON</div>
+          <div class="dz-fname" id="file-label"></div>
+          <div class="dz-change">Bytt</div>
+        </div>
       </div>
-      <!-- Selected state -->
-      <div class="dz-selected">
-        <div class="dz-badge" id="file-badge">JSON</div>
-        <div class="dz-fname" id="file-label"></div>
-        <div class="dz-change">Bytt</div>
-      </div>
-    </div>
-    <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
-           onchange="onFileInput(this)">
+      <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
+             onchange="onFileInput(this)">
 
-    <!-- Date picker -->
-    <div class="field">
-      <div class="date-wrap" id="date-wrap">
-        <input type="date" id="sched-date">
-        <span class="date-ph">Planlegg til dato — valgfritt</span>
-      </div>
-      <div class="date-pills">
-        <div class="dp-row">
-          <button type="button" class="dp" onclick="setDate(0,this)">I dag<span id="date-today"></span></button>
-          <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span id="date-tomorrow"></span></button>
+      <!-- Date picker -->
+      <div class="field">
+        <div class="date-wrap" id="date-wrap">
+          <input type="date" id="sched-date">
+          <span class="date-ph">Planlegg til dato — valgfritt</span>
+        </div>
+        <div class="date-pills">
+          <div class="dp-row">
+            <button type="button" class="dp" onclick="setDate(0,this)">I dag<span id="date-today"></span></button>
+            <button type="button" class="dp" onclick="setDate(1,this)">I morgen<span id="date-tomorrow"></span></button>
+          </div>
         </div>
       </div>
     </div>
 
-    <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
-      Last opp til Garmin
-    </button>
-    <div class="alert" id="upload-alert"></div>
-    <!-- ECG heartbeat line — aurora gradient, draws left→right like a real monitor -->
-    <svg class="ecg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="ecg-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%"   stop-color="#00d4aa"/>
-          <stop offset="28%"  stop-color="#3a86ff"/>
-          <stop offset="52%"  stop-color="#7b2fff"/>
-          <stop offset="76%"  stop-color="#ff2878"/>
-          <stop offset="100%" stop-color="#06ffa5"/>
-        </linearGradient>
-      </defs>
-      <path class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="1.8"
-        stroke-linecap="round" stroke-linejoin="round"
-        d="M0,22 L10,22 Q13,17 15,22 L18,22 L20,3 L22,41 L24,22 Q32,30 44,22 L80,22
-           L90,22 Q93,17 95,22 L98,22 L100,3 L102,41 L104,22 Q112,30 124,22 L160,22
-           L170,22 Q173,17 175,22 L178,22 L180,3 L182,41 L184,22 Q192,30 204,22 L240,22
-           L250,22 Q253,17 255,22 L258,22 L260,3 L262,41 L264,22 Q272,30 284,22 L320,22
-           L330,22 Q333,17 335,22 L338,22 L340,3 L342,41 L344,22 Q352,30 364,22 L400,22"/>
-    </svg>
+    <div class="upload-col-right">
+      <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
+        Last opp til Garmin
+      </button>
+      <div class="alert" id="upload-alert"></div>
+      <!-- ECG heartbeat line -->
+      <svg class="ecg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ecg-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#00d4aa"/>
+            <stop offset="28%"  stop-color="#3a86ff"/>
+            <stop offset="52%"  stop-color="#7b2fff"/>
+            <stop offset="76%"  stop-color="#ff2878"/>
+            <stop offset="100%" stop-color="#06ffa5"/>
+          </linearGradient>
+        </defs>
+        <path class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round"
+          d="M0,22 L10,22 Q13,17 15,22 L18,22 L20,3 L22,41 L24,22 Q32,30 44,22 L80,22
+             L90,22 Q93,17 95,22 L98,22 L100,3 L102,41 L104,22 Q112,30 124,22 L160,22
+             L170,22 Q173,17 175,22 L178,22 L180,3 L182,41 L184,22 Q192,30 204,22 L240,22
+             L250,22 Q253,17 255,22 L258,22 L260,3 L262,41 L264,22 Q272,30 284,22 L320,22
+             L330,22 Q333,17 335,22 L338,22 L340,3 L342,41 L344,22 Q352,30 364,22 L400,22"/>
+      </svg>
+    </div>
+    </div><!-- /.upload-cols -->
   </div>
 
 </main>
