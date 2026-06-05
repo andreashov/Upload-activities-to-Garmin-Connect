@@ -267,8 +267,7 @@
       box-shadow:
         0 1px 0 rgba(200,160,255,0.15) inset,
         0 4px 18px rgba(100,40,220,0.3);
-      padding: 7px 12px;
-      font-size: 17px; font-weight: 300; line-height: 1;
+      padding: 8px 10px;
       gap: 0;
     }
 
@@ -1075,7 +1074,13 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
-    <button class="pill" id="install-btn" onclick="installPWA()" title="Installer app">+</button>
+    <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="14" height="14" rx="3.5" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="8" y1="4.5" x2="8" y2="11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="4.5" y1="8" x2="11.5" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
     <button class="pill" onclick="logout()">Logg ut</button>
   </div>
 </header>
