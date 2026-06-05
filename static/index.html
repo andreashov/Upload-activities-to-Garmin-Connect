@@ -734,6 +734,21 @@
       100% { stroke-dashoffset: 800; opacity: 0; }
     }
 
+    /* Fade aurora til svart i bunnen — speiler ::before-vignettet øverst */
+    #bottom-vignette {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 180px;
+      background: linear-gradient(to top,
+        #000000 0%,
+        rgba(0,0,0,0.75) 28%,
+        rgba(0,0,0,0.35) 55%,
+        transparent 100%
+      );
+      z-index: 5; /* over aurora (0), under kortinnhold (10) */
+      pointer-events: none;
+    }
+
     #file-input     { display: none; }
     #pin-section    { display: none; }
     #login-section  { display: block; }
@@ -822,6 +837,8 @@
   <div class="blob b7"></div>
   <div class="b8"></div>
 </div>
+<!-- Fade aurora til svart mot bunnen, som speiler topp-vignettet -->
+<div id="bottom-vignette" aria-hidden="true"></div>
 
 <header>
   <div id="user-info">
