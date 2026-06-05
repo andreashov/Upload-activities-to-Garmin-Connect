@@ -234,6 +234,7 @@ async def upload_workout(
     request: Request,
     file: UploadFile = File(...),
     scheduled_date: str = Form(default=None),
+    activity_name: str = Form(default=None),
 ):
     client = _get_client(request)
     if client is None:
@@ -243,20 +244,24 @@ async def upload_workout(
     suffix = Path(file.filename or "workout").suffix.lower()
 
     if suffix == ".json":
-        return await _upload_json_workout(client, content, scheduled_date)
+        return await _upload_json_workout(client, content, scheduled_date, activity_name)
     else:
-        return await _upload_activity_file(client, content, suffix, scheduled_date)
+        return await _upload_activity_file(client, content, suffix, scheduled_date, activity_name)
 
 
 async def _upload_json_workout(
     client: garminconnect.Garmin,
     content: bytes,
     scheduled_date: str | None,
+    activity_name: str | None = None,
 ):
     try:
         workout_def = json_module.loads(content)
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
+
+    if activity_name:
+        workout_def["workoutName"] = activity_name
 
     workout_id = None
     try:
@@ -306,7 +311,26 @@ async def _upload_activity_file(
     content: bytes,
     suffix: str,
     scheduled_date: str | None,
+    activity_name: str | None = None,
 ):
+    # Inject activity name into GPX <trk><name> if provided
+    if activity_name and suffix == ".gpx":
+        try:
+            import xml.etree.ElementTree as ET
+            ET.register_namespace('', 'http://www.topografix.com/GPX/1/1')
+            root = ET.fromstring(content)
+            ns = {'gpx': 'http://www.topografix.com/GPX/1/1'}
+            trk = root.find('gpx:trk', ns) or root.find('trk')
+            if trk is not None:
+                name_el = trk.find('gpx:name', ns) or trk.find('name')
+                if name_el is None:
+                    name_el = ET.SubElement(trk, 'name')
+                    trk.insert(0, name_el)
+                name_el.text = activity_name
+            content = ET.tostring(root, encoding='unicode', xml_declaration=True).encode()
+        except Exception as e:
+            logger.warning("GPX name injection failed: %s", e)
+
     with tempfile.NamedTemporaryFile(suffix=suffix or ".fit", delete=False) as tmp:
         tmp.write(content)
         tmp_path = tmp.name

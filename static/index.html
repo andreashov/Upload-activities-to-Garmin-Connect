@@ -239,6 +239,84 @@
     }
     .pill:active { background: rgba(255,255,255,0.18); }
 
+    /* ── PWA install button ──────────────────────────────────── */
+    #install-btn {
+      display: none;
+      gap: 6px;
+      align-items: center;
+    }
+    #install-btn::before { content: '⬇'; font-size: 11px; }
+
+    /* ── Preview overlay ─────────────────────────────────────── */
+    #preview-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+    #preview-overlay.open { display: flex; }
+    #preview-panel {
+      width: 100%; max-width: 820px;
+      max-height: 80dvh;
+      background: linear-gradient(160deg, rgba(20,20,28,0.97), rgba(12,12,18,0.99));
+      border-top: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px 24px 0 0;
+      padding: 20px 20px max(env(safe-area-inset-bottom),20px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #preview-panel h3 {
+      font-size: 17px; font-weight: 800;
+      margin-bottom: 4px; color: var(--t1);
+    }
+    #preview-panel .preview-meta {
+      font-size: 12px; color: var(--t2);
+      margin-bottom: 16px;
+    }
+    .preview-step {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .preview-step:last-child { border-bottom: none; }
+    .step-num {
+      flex-shrink: 0; width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(0,212,170,0.15);
+      border: 1px solid rgba(0,212,170,0.3);
+      color: var(--teal); font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-info { flex: 1; }
+    .step-name { font-size: 13.5px; font-weight: 600; color: var(--t1); }
+    .step-detail { font-size: 12px; color: var(--t2); margin-top: 2px; line-height: 1.5; }
+    .preview-close-row {
+      display: flex; justify-content: flex-end; margin-bottom: 16px;
+    }
+    #preview-close {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--t2); font-size: 13px; font-weight: 600;
+      padding: 6px 16px; border-radius: 100px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Name field in upload section ───────────────────────── */
+    #name-field { display: none; }
+    #preview-btn-row { display: none; margin-top: -4px; }
+    #preview-btn-row button {
+      background: none; border: none;
+      color: var(--teal); font-size: 12.5px; font-weight: 600;
+      cursor: pointer; padding: 4px 0;
+      -webkit-tap-highlight-color: transparent;
+      text-decoration: underline; text-underline-offset: 2px;
+      opacity: 0.85;
+    }
+
     /* ── Layout ──────────────────────────────────────────── */
     main {
       position: fixed; inset: 0; z-index: 10;
@@ -863,9 +941,20 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
+    <button class="pill" id="install-btn" onclick="installPWA()">Installer</button>
     <button class="pill" onclick="logout()">Logg ut</button>
   </div>
 </header>
+
+<!-- Preview panel -->
+<div id="preview-overlay" onclick="overlayBgClick(event)">
+  <div id="preview-panel">
+    <div class="preview-close-row">
+      <button id="preview-close" onclick="closePreview()">Lukk ✕</button>
+    </div>
+    <div id="preview-content"></div>
+  </div>
+</div>
 
 <main>
 
@@ -939,6 +1028,14 @@
     </div>
 
     <div class="upload-col-right">
+      <!-- Activity name (shown after file selection) -->
+      <div class="field" id="name-field">
+        <label>Navn på økt</label>
+        <input type="text" id="activity-name" placeholder="Navn på treningsøkt">
+      </div>
+      <div id="preview-btn-row">
+        <button onclick="openPreview()">🔍 Vis detaljer</button>
+      </div>
       <!-- Date picker -->
       <div class="field">
         <div class="date-wrap" id="date-wrap">
@@ -1239,12 +1336,60 @@
   async function logout() {
     await fetch('/api/logout', { method: 'POST' });
     sel = null;
+    _parsedJson = null;
     document.getElementById('dz').classList.remove('has-file');
     document.getElementById('file-label').textContent = '';
+    document.getElementById('activity-name').value = '';
+    document.getElementById('name-field').style.display = 'none';
+    document.getElementById('preview-btn-row').style.display = 'none';
     document.getElementById('upload-btn').disabled = true;
     alert2('upload-alert', '', '');
     document.getElementById('user-info').style.display = 'none';
     show('login');
+  }
+
+  // ── PWA install ───────────────────────────────────────────
+  let _deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredInstall = e;
+    document.getElementById('install-btn').style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('install-btn').style.display = 'none';
+    _deferredInstall = null;
+  });
+  async function installPWA() {
+    if (_deferredInstall) {
+      _deferredInstall.prompt();
+      const { outcome } = await _deferredInstall.userChoice;
+      if (outcome === 'accepted') _deferredInstall = null;
+    } else {
+      alert('For å installere på iPhone: trykk Del-knappen i Safari, deretter «Legg til på Hjem-skjerm».');
+    }
+  }
+
+  // ── File parsing ──────────────────────────────────────────
+  let _parsedJson = null;
+
+  function _parseNameFromContent(ext, text) {
+    try {
+      if (ext === 'json') {
+        const obj = JSON.parse(text);
+        return obj.workoutName || obj.name || null;
+      }
+      if (ext === 'gpx') {
+        const doc = new DOMParser().parseFromString(text, 'application/xml');
+        const nameEl = doc.querySelector('trk > name') || doc.querySelector('name');
+        return nameEl ? nameEl.textContent.trim() : null;
+      }
+      if (ext === 'tcx') {
+        const doc = new DOMParser().parseFromString(text, 'application/xml');
+        const nameEl = doc.querySelector('Activity > Notes') || doc.querySelector('Name') || doc.querySelector('Id');
+        return nameEl ? nameEl.textContent.trim() : null;
+      }
+    } catch (_) {}
+    return null;
   }
 
   function onDragOver(e) { e.preventDefault(); document.getElementById('dz').classList.add('over'); }
@@ -1256,13 +1401,30 @@
   }
   function onFileInput(i) { if (i.files[0]) setFile(i.files[0]); }
 
-  function setFile(f) {
+  async function setFile(f) {
     sel = f;
+    _parsedJson = null;
     const ext = f.name.split('.').pop().toLowerCase();
     const badge = document.getElementById('file-badge');
     badge.textContent = ext.toUpperCase();
     badge.className = 'dz-badge type-' + (ext === 'json' ? 'json' : 'fit');
-    document.getElementById('file-label').textContent = f.name;
+
+    // Read file text to extract name and parse JSON preview
+    let parsedName = null;
+    try {
+      const text = await f.text();
+      parsedName = _parseNameFromContent(ext, text);
+      if (ext === 'json') {
+        try { _parsedJson = JSON.parse(text); } catch (_) {}
+      }
+    } catch (_) {}
+
+    const displayName = parsedName || f.name;
+    document.getElementById('file-label').textContent = displayName;
+    document.getElementById('activity-name').value = parsedName || '';
+    document.getElementById('activity-name').placeholder = parsedName ? 'Rediger navn…' : f.name;
+    document.getElementById('name-field').style.display = 'block';
+    document.getElementById('preview-btn-row').style.display = _parsedJson ? 'block' : 'none';
     document.getElementById('dz').classList.add('has-file');
     document.getElementById('upload-btn').disabled = false;
     alert2('upload-alert', '', '');
@@ -1278,6 +1440,8 @@
       const fd = new FormData();
       fd.append('file', sel);
       if (dv) fd.append('scheduled_date', dv);
+      const actName = document.getElementById('activity-name').value.trim();
+      if (actName) fd.append('activity_name', actName);
       const r = await fetch('/api/upload', { method: 'POST', body: fd });
       const d = await r.json();
       if (r.ok) {
@@ -1291,11 +1455,79 @@
     finally { b.disabled = !sel; b.innerHTML = 'Last opp til Garmin'; }
   }
 
+  // ── Preview panel ─────────────────────────────────────────
+  function openPreview() {
+    if (!_parsedJson) return;
+    const panel = document.getElementById('preview-content');
+    const j = _parsedJson;
+    const name = j.workoutName || j.name || '(uten navn)';
+    const sport = j.sportType?.sportTypeKey || j.sportType || '';
+    const steps = j.workoutSegments?.[0]?.workoutSteps || j.workoutSteps || [];
+
+    let html = `<h3>${name}</h3>`;
+    if (sport) html += `<div class="preview-meta">${sport}</div>`;
+
+    if (steps.length === 0) {
+      html += '<p style="color:var(--t2);font-size:13px">Ingen steg funnet i filen.</p>';
+    } else {
+      steps.forEach((step, i) => {
+        const stepName = step.stepName || step.workoutStepName || step.type || `Steg ${i+1}`;
+        const details = [];
+        // Duration
+        if (step.endCondition?.conditionTypeKey === 'time' && step.endConditionValue) {
+          const s = Math.round(step.endConditionValue);
+          details.push(s >= 60 ? `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} min` : `${s} sek`);
+        } else if (step.endCondition?.conditionTypeKey === 'distance' && step.endConditionValue) {
+          details.push(`${(step.endConditionValue/100).toFixed(0)} m`);
+        } else if (step.endCondition?.conditionTypeKey === 'lap.button') {
+          details.push('Til knapp');
+        } else if (step.endCondition?.conditionTypeKey === 'iterations' && step.numberOfIterations) {
+          details.push(`${step.numberOfIterations}×`);
+        }
+        // Target
+        if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && step.targetValueOne) {
+          details.push(`Pulssone ${step.targetValueOne}`);
+        } else if (step.targetType?.workoutTargetTypeKey === 'pace.zone' && step.targetValueOne) {
+          details.push(`Temposone ${step.targetValueOne}`);
+        } else if (step.targetType?.workoutTargetTypeKey === 'cadence' && step.targetValueOne) {
+          details.push(`${step.targetValueOne} spm`);
+        }
+        // Child steps (intervals)
+        const children = step.workoutSteps;
+        html += `<div class="preview-step">
+          <div class="step-num">${i+1}</div>
+          <div class="step-info">
+            <div class="step-name">${stepName}</div>
+            ${details.length ? `<div class="step-detail">${details.join(' · ')}</div>` : ''}
+            ${children?.length ? `<div class="step-detail">${children.length} intervaller</div>` : ''}
+          </div>
+        </div>`;
+      });
+    }
+
+    panel.innerHTML = html;
+    document.getElementById('preview-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePreview() {
+    document.getElementById('preview-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function overlayBgClick(e) {
+    if (e.target === document.getElementById('preview-overlay')) closePreview();
+  }
+
   function reset() {
     sel = null;
+    _parsedJson = null;
     document.getElementById('dz').classList.remove('has-file');
     document.getElementById('file-label').textContent = '';
     document.getElementById('file-input').value = '';
+    document.getElementById('activity-name').value = '';
+    document.getElementById('name-field').style.display = 'none';
+    document.getElementById('preview-btn-row').style.display = 'none';
     dateInput.value = '';
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
