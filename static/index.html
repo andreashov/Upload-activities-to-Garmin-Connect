@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#00965a">
+  <meta name="theme-color" content="#008855">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -28,8 +28,9 @@
     html {
       -webkit-text-size-adjust: 100%;
       overflow-x: hidden;
-      background: #0f2e20 linear-gradient(180deg, #000 0%, #040c14 12%, #061618 35%, #0a2019 65%, #0f2e20 100%);
-      background-attachment: scroll;
+      /* #008855 er lys grønn — vises av iOS Safari bak adressefeltet
+         og i safe-area-sonen der position:fixed ikke når */
+      background-color: #008855;
       margin: 0;
       padding: 0;
       min-height: 100dvh;
