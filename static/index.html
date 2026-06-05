@@ -53,48 +53,39 @@
     #aurora {
       position: fixed;
       top: 0; left: 0; right: 0;
-      /* Extend 80px below viewport to cover iOS Safari toolbar area */
       bottom: -80px;
       z-index: 0;
       pointer-events: none;
-      background: linear-gradient(180deg,
-        #040c14 0%,
-        #061618 28%,
-        #0a2019 55%,
-        #061210 78%,
-        #000000 100%
-      );
+      background: #000;
     }
 
-    /* Top fade to black — applies on all pages since aurora is fixed */
+    /* Top fade to black */
     #aurora::before {
       content: '';
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg,
         #000000 0%,
-        rgba(0,0,0,0.6) 8%,
-        rgba(0,0,0,0.15) 16%,
-        transparent 26%
+        rgba(0,0,0,0.55) 7%,
+        rgba(0,0,0,0.12) 14%,
+        transparent 24%
       );
       z-index: 2;
       pointer-events: none;
     }
 
-    /* Bottom fill — aurora teal that fades to black at the very bottom */
+    /* Mid-glow: subtle depth layer */
     #aurora::after {
       content: '';
       position: absolute;
       left: 0; right: 0;
       bottom: 0;
-      height: 80%;
+      height: 70%;
       background: linear-gradient(180deg,
         transparent 0%,
-        rgba(0,200,160,0.18) 18%,
-        rgba(0,212,170,0.55) 42%,
-        rgba(0,200,160,0.65) 60%,
-        rgba(0,160,130,0.40) 78%,
-        rgba(0,0,0,0)        100%
+        rgba(0,180,120,0.08) 30%,
+        rgba(0,160,110,0.18) 60%,
+        rgba(0,0,0,0) 100%
       );
       z-index: 1;
       pointer-events: none;
@@ -107,83 +98,83 @@
       will-change: transform;
     }
 
-    /* Top-left: teal */
+    /* Nordlys-grønn — beveger seg horisontalt, bred og lav */
     .b1 {
-      width: min(80vw, 520px); height: min(80vw, 520px);
-      top: -22%; left: -22%;
-      background: radial-gradient(circle, rgba(0,220,160,0.92) 0%, rgba(0,180,140,0.42) 45%, transparent 72%);
-      filter: blur(80px);
-      animation: f1 9s ease-in-out infinite;
+      width: min(110vw, 680px); height: min(35vw, 220px);
+      top: 18%; left: -10%;
+      background: radial-gradient(ellipse, rgba(0,255,160,0.82) 0%, rgba(0,210,130,0.38) 50%, transparent 72%);
+      filter: blur(42px);
+      animation: f1 11s ease-in-out infinite;
     }
-    /* Top-right: violet */
+    /* Nordlys-violet — bue øverst til høyre */
     .b2 {
-      width: min(90vw, 580px); height: min(90vw, 580px);
-      top: -26%; right: -26%;
-      background: radial-gradient(circle, rgba(140,55,255,0.88) 0%, rgba(100,35,220,0.38) 45%, transparent 72%);
-      filter: blur(90px);
-      animation: f2 11s ease-in-out infinite;
+      width: min(80vw, 520px); height: min(28vw, 180px);
+      top: 8%; right: -8%;
+      background: radial-gradient(ellipse, rgba(160,60,255,0.90) 0%, rgba(120,30,230,0.42) 48%, transparent 72%);
+      filter: blur(36px);
+      animation: f2 13s ease-in-out infinite;
     }
-    /* Mid-left: blue */
+    /* Cyan/isblå stripe — midten venstre */
     .b3 {
-      width: min(65vw, 420px); height: min(65vw, 420px);
-      top: 38%; left: -16%;
-      background: radial-gradient(circle, rgba(40,140,255,0.8) 0%, rgba(20,90,220,0.32) 45%, transparent 72%);
-      filter: blur(75px);
-      animation: f3 8s ease-in-out infinite;
+      width: min(75vw, 480px); height: min(22vw, 140px);
+      top: 42%; left: -12%;
+      background: radial-gradient(ellipse, rgba(0,230,255,0.75) 0%, rgba(0,170,220,0.30) 50%, transparent 72%);
+      filter: blur(38px);
+      animation: f3 9s ease-in-out infinite;
     }
-    /* Bottom-right: green */
+    /* Klargrønn — nedre høyre */
     .b4 {
-      width: min(72vw, 460px); height: min(72vw, 460px);
-      bottom: -18%; right: -18%;
-      background: radial-gradient(circle, rgba(6,255,150,0.75) 0%, rgba(0,200,120,0.32) 45%, transparent 72%);
-      filter: blur(85px);
+      width: min(70vw, 440px); height: min(25vw, 160px);
+      bottom: 12%; right: -10%;
+      background: radial-gradient(ellipse, rgba(20,255,140,0.85) 0%, rgba(0,200,100,0.35) 48%, transparent 72%);
+      filter: blur(40px);
       animation: f4 10s ease-in-out infinite;
     }
-    /* Mid-center accent: magenta — enlarged to bridge top/bottom blob gap */
+    /* Magenta/rosa — diagonal aksent */
     .b5 {
-      width: min(80vw, 500px); height: min(80vw, 500px);
-      top: 36%; left: 10%;
-      background: radial-gradient(circle, rgba(255,40,120,0.65) 0%, rgba(200,0,90,0.24) 45%, transparent 72%);
-      filter: blur(70px);
-      animation: f5 13s ease-in-out infinite;
+      width: min(60vw, 380px); height: min(20vw, 130px);
+      top: 30%; right: 5%;
+      background: radial-gradient(ellipse, rgba(255,50,180,0.70) 0%, rgba(200,0,140,0.28) 48%, transparent 72%);
+      filter: blur(44px);
+      animation: f5 15s ease-in-out infinite;
     }
-    /* Bottom-center large glow — pulled up closer to viewport */
+    /* Bred grønn bue — senter nedre halvdel */
     .b6 {
-      width: min(160vw, 900px); height: min(160vw, 900px);
-      bottom: -18%; left: 50%;
+      width: min(140vw, 860px); height: min(40vw, 260px);
+      bottom: 8%; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(0,220,170,0.95) 0%, rgba(0,190,150,0.60) 38%, transparent 64%);
-      filter: blur(80px);
-      animation: f6 16s ease-in-out infinite;
+      background: radial-gradient(ellipse, rgba(0,240,180,0.78) 0%, rgba(0,200,150,0.38) 45%, transparent 66%);
+      filter: blur(50px);
+      animation: f6 18s ease-in-out infinite;
     }
-    /* Bottom-right violet/blue accent */
+    /* Lilla/indigo — nedre venstre */
     .b7 {
-      width: min(110vw, 680px); height: min(110vw, 680px);
-      bottom: -14%; right: -14%;
-      background: radial-gradient(circle, rgba(100,60,255,0.80) 0%, rgba(60,100,255,0.40) 45%, transparent 68%);
-      filter: blur(90px);
-      animation: f4 14s ease-in-out infinite reverse;
+      width: min(65vw, 420px); height: min(22vw, 140px);
+      bottom: 22%; left: -8%;
+      background: radial-gradient(ellipse, rgba(120,80,255,0.80) 0%, rgba(80,40,220,0.32) 48%, transparent 70%);
+      filter: blur(38px);
+      animation: f3 12s ease-in-out infinite reverse;
     }
-    /* Anchored bottom glow — fades to black at the bottom edge */
+    /* Anchored bottom glow — fades to black */
     .b8 {
       position: fixed;
-      width: 150vw; height: 65vh;
-      bottom: -12vh; left: 50%;
+      width: 150vw; height: 55vh;
+      bottom: -10vh; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(ellipse at 50% 40%,
-        rgba(0,225,175,0.80) 0%,
-        rgba(0,200,160,0.50) 30%,
-        rgba(0,120,100,0.15) 58%,
+      background: radial-gradient(ellipse at 50% 35%,
+        rgba(0,220,160,0.55) 0%,
+        rgba(0,180,130,0.28) 35%,
+        rgba(0,80,60,0.08)  58%,
         transparent 72%
       );
-      filter: blur(48px);
+      filter: blur(52px);
       pointer-events: none;
       animation: b8-drift 9s ease-in-out infinite;
     }
     @keyframes b8-drift {
       0%,100% { transform: translateX(-50%) scale(1);    opacity: 1;    }
-      45%     { transform: translateX(-48%) scale(1.12); opacity: 0.88; }
-      70%     { transform: translateX(-52%) scale(0.94); opacity: 0.95; }
+      45%     { transform: translateX(-48%) scale(1.10); opacity: 0.85; }
+      70%     { transform: translateX(-52%) scale(0.95); opacity: 0.95; }
     }
 
     @keyframes f1 {
