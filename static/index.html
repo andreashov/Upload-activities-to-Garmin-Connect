@@ -227,27 +227,52 @@
     }
 
     .pill {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.16);
-      color: rgba(255,255,255,0.8);
-      padding: 6px 15px; border-radius: 100px;
-      font-size: 13px; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      transition: background .15s;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      transition: background .15s, box-shadow .15s;
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.14) 0%,
+        rgba(255,255,255,0.07) 100%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-top-color: rgba(255,255,255,0.28);
+      border-bottom-color: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.12) inset,
+        0 4px 16px rgba(0,0,0,0.25),
+        0 0 0 0.5px rgba(255,255,255,0.07);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.4);
     }
-    .pill:active { background: rgba(255,255,255,0.18); }
+    .pill:active {
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.12) 100%);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.1) inset,
+        0 2px 8px rgba(0,0,0,0.2);
+    }
 
-    /* ── PWA install button — mobile only ───────────────────── */
+    /* Installer: lilla aksent */
     #install-btn {
-      display: none;
-      gap: 6px; align-items: center;
-      background: rgba(123,47,255,0.15);
-      border-color: rgba(123,47,255,0.32);
-      color: #c4a3ff;
+      background: linear-gradient(135deg,
+        rgba(123,47,255,0.28) 0%,
+        rgba(100,30,220,0.16) 100%);
+      border-color: rgba(160,100,255,0.35);
+      border-top-color: rgba(180,130,255,0.45);
+      color: #d4b8ff;
+      box-shadow:
+        0 1px 0 rgba(200,160,255,0.15) inset,
+        0 4px 18px rgba(100,40,220,0.3),
+        0 0 0 0.5px rgba(160,100,255,0.15);
     }
     #install-btn::before { content: '↓'; font-size: 13px; font-weight: 800; }
+
+    /* ── PWA install button — mobile only ───────────────────── */
+    #install-btn { display: none; }
     @media (min-width: 680px) { #install-btn { display: none !important; } }
 
     /* ── Card flip animation ─────────────────────────────────── */
@@ -263,8 +288,8 @@
     #upload-section.flip-in  { animation: card-flip-in  0.30s ease-out forwards; }
 
     /* ── Card back face ──────────────────────────────────────── */
-    #card-back { display: none; }
-    #card-back.visible { display: block; }
+    #card-back { display: none; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #card-back.visible { display: flex; flex-direction: column; }
 
     .back-nav {
       display: flex; align-items: center; gap: 10px;
@@ -1569,12 +1594,21 @@
   // ── Card flip ─────────────────────────────────────────────
   function _flipCard(showBack, onSwap) {
     const card = document.getElementById('upload-section');
+    // Lock height before flip so the card doesn't resize
+    card.style.height = card.offsetHeight + 'px';
     card.classList.add('flip-out');
     setTimeout(() => {
       card.classList.remove('flip-out');
       onSwap();
+      // Back face scrolls inside the locked height
+      const back = document.getElementById('card-back');
+      if (showBack) back.style.maxHeight = card.style.height;
       card.classList.add('flip-in');
-      setTimeout(() => card.classList.remove('flip-in'), 320);
+      setTimeout(() => {
+        card.classList.remove('flip-in');
+        // Unlock height when returning to front (front content may vary)
+        if (!showBack) card.style.height = '';
+      }, 320);
     }, 290);
   }
 
