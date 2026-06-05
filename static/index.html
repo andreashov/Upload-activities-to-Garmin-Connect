@@ -256,26 +256,8 @@
         0 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* Installer: liquid glass, ingen pill-ring */
-    #install-btn {
-      background: linear-gradient(160deg,
-        rgba(140,70,255,0.22) 0%,
-        rgba(100,30,220,0.12) 100%);
-      border: none;
-      border-radius: 14px;
-      color: #d0b8ff;
-      box-shadow:
-        0 1px 0 rgba(210,170,255,0.18) inset,
-        0 6px 22px rgba(100,40,220,0.35),
-        0 0 0 1px rgba(160,100,255,0.22);
-      padding: 9px 10px;
-      gap: 0;
-    }
-    #install-btn:active {
-      background: linear-gradient(160deg,
-        rgba(140,70,255,0.34) 0%,
-        rgba(100,30,220,0.22) 100%);
-    }
+    /* Installer: same as Logg ut pill, icon only */
+    #install-btn { padding: 7px 10px; gap: 0; }
 
     /* ── PWA install button — mobile only ───────────────────── */
     #install-btn { display: none; }
@@ -323,6 +305,11 @@
       border-radius: 2px 0 0 0;
       transform: rotate(45deg);
     }
+    .tip-title {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+      margin-bottom: 10px;
+    }
     .tip-step {
       display: flex; align-items: flex-start; gap: 10px;
       padding: 6px 0;
@@ -369,9 +356,18 @@
     #card-back.visible {
       display: flex; flex-direction: column;
       overflow-y: auto; -webkit-overflow-scrolling: touch;
-      /* pad same as .card default */
       padding: 22px 22px 24px;
       box-sizing: border-box;
+    }
+    /* Slim custom scrollbar — matches glass aesthetic */
+    #card-back::-webkit-scrollbar { width: 3px; }
+    #card-back::-webkit-scrollbar-track { background: transparent; }
+    #card-back::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.18);
+      border-radius: 2px;
+    }
+    #card-back::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.32);
     }
 
     .back-nav {
@@ -838,7 +834,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
       padding: 10px 12px;
-      font-size: 15px; font-weight: 600;
+      font-size: 16px; font-weight: 600; /* 16px prevents iOS zoom-on-focus */
       color: var(--t1);
       outline: none;
       -webkit-appearance: none;
@@ -864,7 +860,13 @@
       width: 100%;
       justify-content: center;
     }
-    .dz-preview-link::before { content: '🔍'; font-size: 12px; }
+    .dz-preview-link::before {
+      content: '';
+      display: block;
+      width: 14px; height: 14px; flex-shrink: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'%3E%3Crect x='1' y='1' width='12' height='12' rx='2.5' stroke='%2300d4aa' stroke-width='1.3'/%3E%3Cline x1='3.5' y1='4.5' x2='10.5' y2='4.5' stroke='%2300d4aa' stroke-width='1.1' stroke-linecap='round'/%3E%3Cline x1='3.5' y1='7' x2='10.5' y2='7' stroke='%2300d4aa' stroke-width='1.1' stroke-linecap='round'/%3E%3Cline x1='3.5' y1='9.5' x2='7.5' y2='9.5' stroke='%2300d4aa' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-size: contain; background-repeat: no-repeat;
+    }
     .dz-preview-link:active { background: rgba(0,212,170,0.2); }
     .dz-preview-link.visible { display: flex; }
 
@@ -1149,7 +1151,7 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
-    <button id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">
+    <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">
       <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
         <rect x="1" y="1" width="24" height="24" rx="6" fill="currentColor" opacity="0.18"/>
         <line x1="13" y1="6" x2="13" y2="20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
@@ -1157,9 +1159,10 @@
       </svg>
     </button>
     <div id="install-tooltip" role="tooltip">
+      <div class="tip-title">For å installere som app</div>
       <div class="tip-step">
         <div class="tip-num">1</div>
-        <div class="tip-text"><span class="tip-icon">📤</span> Trykk <b>Del</b>-knappen nederst i Safari</div>
+        <div class="tip-text">Trykk <b>Del</b>-knappen 📤 nederst i Safari</div>
       </div>
       <div class="tip-step">
         <div class="tip-num">2</div>
@@ -1245,7 +1248,7 @@
                    onkeydown="event.stopPropagation()">
             <div class="dz-preview-link" id="preview-btn-row"
                  onclick="openPreview(); event.stopPropagation()">
-              Vis detaljer
+              Vis detaljer om økten
             </div>
           </div>
         </div>
