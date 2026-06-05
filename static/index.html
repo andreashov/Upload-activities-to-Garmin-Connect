@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#0f2e20">
+  <meta name="theme-color" content="#00965a">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -208,7 +208,7 @@
 
     /* ── Header ──────────────────────────────────────────── */
     header {
-      position: sticky; top: 0; z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: flex-end;
       padding: 16px 20px;
       padding-top: max(16px, env(safe-area-inset-top));
@@ -239,27 +239,24 @@
 
     /* ── Layout ──────────────────────────────────────────── */
     main {
-      position: relative; z-index: 10;
-      max-width: 440px; width: 100%; margin: 0 auto;
+      position: fixed; inset: 0; z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-sizing: border-box;
-      padding-top: max(env(safe-area-inset-top), 16px);
-      padding-left: 16px;
-      padding-right: 16px;
-      padding-bottom: max(env(safe-area-inset-bottom), 24px);
+      padding: max(env(safe-area-inset-top), 60px) 16px max(env(safe-area-inset-bottom), 24px);
+      overflow-y: auto;
+    }
+    main > .card {
+      width: 100%;
+      max-width: 440px;
     }
 
     /* ── Desktop: horizontal layout ──────────────────────── */
     @media (min-width: 680px) {
       body { overflow: hidden; }
-      main {
-        max-width: 820px;
-        padding-top: 0;
-        padding-bottom: 0;
-        display: flex;
-        align-items: center;
-        min-height: 100dvh;
-      }
-      main > .card { width: 100%; }
+      main { padding: 20px; }
+      main > .card { max-width: 820px; }
 
       /* Upload section header row */
       #upload-section {
@@ -734,8 +731,7 @@
     /* ── Mobile: kompakt for å unngå scrolling ───────────── */
     @media (max-width: 679px) {
       main {
-        padding-top: max(env(safe-area-inset-top), 8px);
-        padding-bottom: max(env(safe-area-inset-bottom), 8px);
+        padding: max(env(safe-area-inset-top), 56px) 16px max(env(safe-area-inset-bottom), 16px);
       }
       .card { padding: 18px 16px; border-radius: 20px; }
       #pin-section,
