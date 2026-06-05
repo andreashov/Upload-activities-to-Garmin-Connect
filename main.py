@@ -160,7 +160,7 @@ async def get_status(request: Request):
         _sessions[sid] = None
 
     if sid not in _sessions:
-        return JSONResponse({"loggedIn": False})
+        return JSONResponse({"loggedIn": False, "pinRequired": bool(APP_PIN)})
 
     client = _sessions[sid]
 

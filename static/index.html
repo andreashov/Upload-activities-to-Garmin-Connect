@@ -1030,7 +1030,8 @@
     if (!r) { show('login'); return; }
     if (r.status === 401) { show('pin'); return; }
     const d = await r.json();
-    d.loggedIn ? setIn(d.displayName) : show('login');
+    if (d.loggedIn) { setIn(d.displayName); return; }
+    d.pinRequired ? show('pin') : show('login');
   }
 
   // ── Kipchoge quotes ───────────────────────────────────────
@@ -1228,7 +1229,9 @@
       fd.append('password', document.getElementById('password').value);
       const r = await fetch('/api/login', { method: 'POST', body: fd });
       const d = await r.json();
-      r.ok ? setIn(d.displayName) : alert2('login-alert', d.detail || 'Innlogging feilet', 'error');
+      if (r.ok) { setIn(d.displayName); }
+      else if (r.status === 401 && d.detail === 'Krever PIN') { show('pin'); }
+      else { alert2('login-alert', d.detail || 'Innlogging feilet', 'error'); }
     } catch(e) { alert2('login-alert', 'Nettverksfeil', 'error'); }
     finally { b.disabled = false; b.innerHTML = 'Logg inn'; }
   }
