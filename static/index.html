@@ -281,6 +281,75 @@
     #install-btn { display: none; }
     @media (min-width: 680px) { #install-btn { display: none !important; } }
 
+    /* ── Install tooltip ─────────────────────────────────────── */
+    #install-tooltip {
+      display: none;
+      position: fixed;
+      top: calc(max(16px, env(safe-area-inset-top)) + 52px);
+      right: 14px;
+      z-index: 300;
+      width: 230px;
+      backdrop-filter: blur(28px) saturate(180%) brightness(1.1);
+      -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.1);
+      background: linear-gradient(160deg,
+        rgba(255,255,255,0.16) 0%,
+        rgba(255,255,255,0.08) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.32);
+      border-radius: 16px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.14) inset,
+        0 8px 32px rgba(0,0,0,0.4),
+        0 2px 12px rgba(0,0,0,0.25);
+      padding: 14px 15px 15px;
+      animation: tip-in .2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    #install-tooltip.open { display: block; }
+    @keyframes tip-in {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+    /* Arrow pointing up-right */
+    #install-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -7px; right: 16px;
+      width: 13px; height: 13px;
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.10) 100%);
+      border-top: 1px solid rgba(255,255,255,0.28);
+      border-left: 1px solid rgba(255,255,255,0.28);
+      border-radius: 2px 0 0 0;
+      transform: rotate(45deg);
+    }
+    .tip-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 6px 0;
+    }
+    .tip-step + .tip-step {
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip-num {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      font-size: 11px; font-weight: 800;
+      color: rgba(255,255,255,0.7);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .tip-text {
+      font-size: 12.5px; line-height: 1.5;
+      color: rgba(255,255,255,0.85);
+    }
+    .tip-text b { color: #fff; font-weight: 700; }
+    .tip-icon {
+      font-size: 14px; line-height: 1;
+    }
+
     /* ── Card flip animation ─────────────────────────────────── */
     @keyframes card-flip-out {
       from { transform: perspective(1100px) rotateY(0deg);   opacity: 1; }
@@ -1087,6 +1156,16 @@
         <line x1="6" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
       </svg>
     </button>
+    <div id="install-tooltip" role="tooltip">
+      <div class="tip-step">
+        <div class="tip-num">1</div>
+        <div class="tip-text"><span class="tip-icon">📤</span> Trykk <b>Del</b>-knappen nederst i Safari</div>
+      </div>
+      <div class="tip-step">
+        <div class="tip-num">2</div>
+        <div class="tip-text">Velg <b>Legg til på Hjem-skjermen</b></div>
+      </div>
+    </div>
     <button class="pill" onclick="logout()">Logg ut</button>
   </div>
 </header>
@@ -1518,15 +1597,38 @@
     _installBtn.style.display = 'none';
     _deferredInstall = null;
   });
+  const _installTooltip = document.getElementById('install-tooltip');
+  let _tipTimer = null;
+
+  function _closeTooltip() {
+    _installTooltip.classList.remove('open');
+    clearTimeout(_tipTimer);
+  }
+
   async function installPWA() {
     if (_deferredInstall) {
+      _closeTooltip();
       _deferredInstall.prompt();
       const { outcome } = await _deferredInstall.userChoice;
       if (outcome === 'accepted') { _deferredInstall = null; _installBtn.style.display = 'none'; }
     } else {
-      alert('For å installere på iPhone: trykk Del-knappen (📤) i Safari, deretter «Legg til på Hjem-skjerm».');
+      // iOS: toggle tooltip
+      if (_installTooltip.classList.contains('open')) {
+        _closeTooltip();
+      } else {
+        _installTooltip.classList.add('open');
+        clearTimeout(_tipTimer);
+        _tipTimer = setTimeout(_closeTooltip, 7000);
+      }
     }
   }
+
+  // Close tooltip on outside tap
+  document.addEventListener('click', e => {
+    if (!_installBtn.contains(e.target) && !_installTooltip.contains(e.target)) {
+      _closeTooltip();
+    }
+  }, true);
 
   // ── File parsing ──────────────────────────────────────────
   let _parsedJson = null;
