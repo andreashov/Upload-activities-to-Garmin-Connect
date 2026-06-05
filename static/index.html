@@ -287,8 +287,8 @@
         display: flex;
         flex-direction: column;
       }
-      #upload-btn { margin-top: 0; }
-      .ecg { margin-top: auto; }
+      #upload-btn { margin-top: 8px; }
+      .upload-col-right .field { margin-bottom: 8px; }
 
       /* Login and PIN sections: stay narrow, centered */
       #login-section,
@@ -877,7 +877,9 @@
       </div>
       <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
              onchange="onFileInput(this)">
+    </div>
 
+    <div class="upload-col-right">
       <!-- Date picker -->
       <div class="field">
         <div class="date-wrap" id="date-wrap">
@@ -891,34 +893,32 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="upload-col-right">
       <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
         Last opp til Garmin
       </button>
       <div class="alert" id="upload-alert"></div>
-      <!-- ECG heartbeat line -->
-      <svg class="ecg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="ecg-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="#00d4aa"/>
-            <stop offset="28%"  stop-color="#3a86ff"/>
-            <stop offset="52%"  stop-color="#7b2fff"/>
-            <stop offset="76%"  stop-color="#ff2878"/>
-            <stop offset="100%" stop-color="#06ffa5"/>
-          </linearGradient>
-        </defs>
-        <path class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round"
-          d="M0,22 L10,22 Q13,17 15,22 L18,22 L20,3 L22,41 L24,22 Q32,30 44,22 L80,22
-             L90,22 Q93,17 95,22 L98,22 L100,3 L102,41 L104,22 Q112,30 124,22 L160,22
-             L170,22 Q173,17 175,22 L178,22 L180,3 L182,41 L184,22 Q192,30 204,22 L240,22
-             L250,22 Q253,17 255,22 L258,22 L260,3 L262,41 L264,22 Q272,30 284,22 L320,22
-             L330,22 Q333,17 335,22 L338,22 L340,3 L342,41 L344,22 Q352,30 364,22 L400,22"/>
-      </svg>
     </div>
     </div><!-- /.upload-cols -->
+
+    <!-- ECG heartbeat line — spans full width below both columns -->
+    <svg class="ecg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="ecg-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%"   stop-color="#00d4aa"/>
+          <stop offset="28%"  stop-color="#3a86ff"/>
+          <stop offset="52%"  stop-color="#7b2fff"/>
+          <stop offset="76%"  stop-color="#ff2878"/>
+          <stop offset="100%" stop-color="#06ffa5"/>
+        </linearGradient>
+      </defs>
+      <path class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round"
+        d="M0,22 L10,22 Q13,17 15,22 L18,22 L20,3 L22,41 L24,22 Q32,30 44,22 L80,22
+           L90,22 Q93,17 95,22 L98,22 L100,3 L102,41 L104,22 Q112,30 124,22 L160,22
+           L170,22 Q173,17 175,22 L178,22 L180,3 L182,41 L184,22 Q192,30 204,22 L240,22
+           L250,22 Q253,17 255,22 L258,22 L260,3 L262,41 L264,22 Q272,30 284,22 L320,22
+           L330,22 Q333,17 335,22 L338,22 L340,3 L342,41 L344,22 Q352,30 364,22 L400,22"/>
+    </svg>
   </div>
 
 </main>
