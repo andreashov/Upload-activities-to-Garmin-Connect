@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#00c8a8">
+  <meta name="theme-color" content="#000000">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -30,7 +30,7 @@
       overflow-x: hidden;
       /* #008855 er lys grønn — vises av iOS Safari bak adressefeltet
          og i safe-area-sonen der position:fixed ikke når */
-      background-color: #00c8a8;
+      background-color: #000000;
       margin: 0;
       padding: 0;
       min-height: 100dvh;
@@ -59,9 +59,10 @@
       pointer-events: none;
       background: linear-gradient(180deg,
         #040c14 0%,
-        #061618 30%,
-        #0a2019 60%,
-        #0f2e20 100%
+        #061618 28%,
+        #0a2019 55%,
+        #061210 78%,
+        #000000 100%
       );
     }
 
@@ -80,19 +81,20 @@
       pointer-events: none;
     }
 
-    /* Bottom fill — aurora teal glow reaching the very bottom */
+    /* Bottom fill — aurora teal that fades to black at the very bottom */
     #aurora::after {
       content: '';
       position: absolute;
       left: 0; right: 0;
       bottom: 0;
-      height: 75%;
+      height: 80%;
       background: linear-gradient(180deg,
         transparent 0%,
-        rgba(0,200,160,0.18) 20%,
-        rgba(0,210,170,0.50) 48%,
-        rgba(0,212,170,0.78) 72%,
-        rgba(0,212,170,0.95) 100%
+        rgba(0,200,160,0.18) 18%,
+        rgba(0,212,170,0.55) 42%,
+        rgba(0,200,160,0.65) 60%,
+        rgba(0,160,130,0.40) 78%,
+        rgba(0,0,0,0)        100%
       );
       z-index: 1;
       pointer-events: none;
@@ -162,17 +164,17 @@
       filter: blur(90px);
       animation: f4 14s ease-in-out infinite reverse;
     }
-    /* Anchored bottom glow — fixed, animated, aurora-colored */
+    /* Anchored bottom glow — fades to black at the bottom edge */
     .b8 {
       position: fixed;
       width: 150vw; height: 65vh;
       bottom: -12vh; left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(ellipse at 50% 75%,
-        rgba(0,225,175,0.85) 0%,
-        rgba(0,200,160,0.55) 28%,
-        rgba(0,160,130,0.25) 52%,
-        transparent 68%
+      background: radial-gradient(ellipse at 50% 40%,
+        rgba(0,225,175,0.80) 0%,
+        rgba(0,200,160,0.50) 30%,
+        rgba(0,120,100,0.15) 58%,
+        transparent 72%
       );
       filter: blur(48px);
       pointer-events: none;
