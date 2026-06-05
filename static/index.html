@@ -28,11 +28,12 @@
     html {
       -webkit-text-size-adjust: 100%;
       overflow-x: hidden;
-      background: #000 linear-gradient(180deg, #000 0%, #040c14 12%, #061618 35%, #0a2019 65%, #0f2e20 100%);
+      background: #0f2e20 linear-gradient(180deg, #000 0%, #040c14 12%, #061618 35%, #0a2019 65%, #0f2e20 100%);
       background-attachment: scroll;
       margin: 0;
       padding: 0;
       min-height: 100dvh;
+      overscroll-behavior: none;
     }
 
     body {
@@ -44,12 +45,15 @@
       min-height: 100dvh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
     }
 
     /* ── Aurora ──────────────────────────────────────────── */
     #aurora {
       position: fixed;
-      inset: 0;
+      top: 0; left: 0; right: 0;
+      /* Extend 80px below viewport to cover iOS Safari toolbar area */
+      bottom: -80px;
       z-index: 0;
       pointer-events: none;
       background: linear-gradient(180deg,
@@ -160,8 +164,8 @@
     /* Anchored bottom glow — always covers the very bottom of the viewport */
     .b8 {
       position: fixed;
-      width: 100vw; height: 50vh;
-      bottom: 0; left: 0;
+      width: 100vw; height: calc(50vh + 80px);
+      bottom: -80px; left: 0;
       background: radial-gradient(ellipse at 50% 100%,
         rgba(0,200,150,0.55) 0%,
         rgba(0,160,120,0.28) 45%,
