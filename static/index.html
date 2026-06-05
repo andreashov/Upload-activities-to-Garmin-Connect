@@ -305,17 +305,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ── Name field in upload section ───────────────────────── */
-    #name-field { display: none; }
-    #preview-btn-row { display: none; margin-top: -4px; }
-    #preview-btn-row button {
-      background: none; border: none;
-      color: var(--teal); font-size: 12.5px; font-weight: 600;
-      cursor: pointer; padding: 4px 0;
-      -webkit-tap-highlight-color: transparent;
-      text-decoration: underline; text-underline-offset: 2px;
-      opacity: 0.85;
-    }
+
 
     /* ── Layout ──────────────────────────────────────────── */
     main {
@@ -636,12 +626,16 @@
     .dz.has-file .dz-hint { display: none; }
 
     /* File selected state */
-    .dz-selected { display: none; align-items: center; gap: 12px; }
+    .dz-selected { display: none; flex-direction: column; gap: 0; width: 100%; }
     .dz.has-file .dz-selected { display: flex; }
+    .dz-file-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
     .dz-badge {
       flex-shrink: 0;
-      padding: 6px 10px;
-      border-radius: 8px;
+      padding: 5px 9px;
+      border-radius: 7px;
       font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
       text-transform: uppercase;
       background: rgba(6,255,165,0.15);
@@ -650,16 +644,41 @@
     }
     .dz-badge.type-json { background: rgba(0,212,170,0.15); color: var(--teal); border-color: rgba(0,212,170,0.28); }
     .dz-badge.type-fit  { background: rgba(58,134,255,0.15); color: #7cb9ff; border-color: rgba(58,134,255,0.28); }
-    .dz-fname {
-      flex: 1; text-align: left; min-width: 0;
-      font-size: 13.5px; font-weight: 600; color: var(--t1);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
     .dz-change {
-      flex-shrink: 0;
+      margin-left: auto; flex-shrink: 0;
       font-size: 12px; color: var(--t2);
       text-decoration: underline; text-underline-offset: 2px;
+      cursor: pointer;
     }
+    /* Inline editable name */
+    .dz-name-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 15px; font-weight: 600;
+      color: var(--t1);
+      outline: none;
+      -webkit-appearance: none;
+      transition: border-color .18s, background .18s, box-shadow .18s;
+      margin-bottom: 10px;
+    }
+    .dz-name-input:focus {
+      border-color: rgba(0,212,170,0.55);
+      background: rgba(0,212,170,0.04);
+      box-shadow: 0 0 0 3px rgba(0,212,170,0.08);
+    }
+    .dz-name-input::placeholder { color: var(--t3); font-weight: 400; }
+    .dz-preview-link {
+      display: none;
+      font-size: 12.5px; font-weight: 600;
+      color: var(--teal); opacity: 0.85;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      align-items: center; gap: 5px;
+    }
+    .dz-preview-link.visible { display: flex; }
 
     /* ── Button ──────────────────────────────────────────── */
     .btn {
@@ -1018,9 +1037,18 @@
         </div>
         <!-- Selected state -->
         <div class="dz-selected">
-          <div class="dz-badge" id="file-badge">JSON</div>
-          <div class="dz-fname" id="file-label"></div>
-          <div class="dz-change">Bytt</div>
+          <div class="dz-file-row">
+            <div class="dz-badge" id="file-badge">JSON</div>
+            <div class="dz-change" onclick="document.getElementById('file-input').click(); event.stopPropagation()">Bytt</div>
+          </div>
+          <input class="dz-name-input" id="activity-name" type="text"
+                 placeholder="Navn på økt"
+                 onclick="event.stopPropagation()"
+                 onkeydown="event.stopPropagation()">
+          <div class="dz-preview-link" id="preview-btn-row"
+               onclick="openPreview(); event.stopPropagation()">
+            🔍 Vis detaljer
+          </div>
         </div>
       </div>
       <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
@@ -1028,14 +1056,6 @@
     </div>
 
     <div class="upload-col-right">
-      <!-- Activity name (shown after file selection) -->
-      <div class="field" id="name-field">
-        <label>Navn på økt</label>
-        <input type="text" id="activity-name" placeholder="Navn på treningsøkt">
-      </div>
-      <div id="preview-btn-row">
-        <button onclick="openPreview()">🔍 Vis detaljer</button>
-      </div>
       <!-- Date picker -->
       <div class="field">
         <div class="date-wrap" id="date-wrap">
@@ -1338,34 +1358,44 @@
     sel = null;
     _parsedJson = null;
     document.getElementById('dz').classList.remove('has-file');
-    document.getElementById('file-label').textContent = '';
     document.getElementById('activity-name').value = '';
-    document.getElementById('name-field').style.display = 'none';
-    document.getElementById('preview-btn-row').style.display = 'none';
+    document.getElementById('preview-btn-row').classList.remove('visible');
     document.getElementById('upload-btn').disabled = true;
     alert2('upload-alert', '', '');
     document.getElementById('user-info').style.display = 'none';
     show('login');
   }
 
+  // ── Service Worker ────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
   // ── PWA install ───────────────────────────────────────────
   let _deferredInstall = null;
+  const _installBtn = document.getElementById('install-btn');
+
+  // Show install button unless already running as standalone PWA
+  if (!window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone) {
+    _installBtn.style.display = 'flex';
+  }
+
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     _deferredInstall = e;
-    document.getElementById('install-btn').style.display = 'flex';
+    _installBtn.style.display = 'flex';
   });
   window.addEventListener('appinstalled', () => {
-    document.getElementById('install-btn').style.display = 'none';
+    _installBtn.style.display = 'none';
     _deferredInstall = null;
   });
   async function installPWA() {
     if (_deferredInstall) {
       _deferredInstall.prompt();
       const { outcome } = await _deferredInstall.userChoice;
-      if (outcome === 'accepted') _deferredInstall = null;
+      if (outcome === 'accepted') { _deferredInstall = null; _installBtn.style.display = 'none'; }
     } else {
-      alert('For å installere på iPhone: trykk Del-knappen i Safari, deretter «Legg til på Hjem-skjerm».');
+      alert('For å installere på iPhone: trykk Del-knappen (📤) i Safari, deretter «Legg til på Hjem-skjerm».');
     }
   }
 
@@ -1420,11 +1450,9 @@
     } catch (_) {}
 
     const displayName = parsedName || f.name;
-    document.getElementById('file-label').textContent = displayName;
     document.getElementById('activity-name').value = parsedName || '';
     document.getElementById('activity-name').placeholder = parsedName ? 'Rediger navn…' : f.name;
-    document.getElementById('name-field').style.display = 'block';
-    document.getElementById('preview-btn-row').style.display = _parsedJson ? 'block' : 'none';
+    document.getElementById('preview-btn-row').classList.toggle('visible', !!_parsedJson);
     document.getElementById('dz').classList.add('has-file');
     document.getElementById('upload-btn').disabled = false;
     alert2('upload-alert', '', '');
@@ -1523,11 +1551,9 @@
     sel = null;
     _parsedJson = null;
     document.getElementById('dz').classList.remove('has-file');
-    document.getElementById('file-label').textContent = '';
     document.getElementById('file-input').value = '';
     document.getElementById('activity-name').value = '';
-    document.getElementById('name-field').style.display = 'none';
-    document.getElementById('preview-btn-row').style.display = 'none';
+    document.getElementById('preview-btn-row').classList.remove('visible');
     dateInput.value = '';
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
