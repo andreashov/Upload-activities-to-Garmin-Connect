@@ -242,10 +242,12 @@
     /* ── PWA install button — mobile only ───────────────────── */
     #install-btn {
       display: none;
-      gap: 6px;
-      align-items: center;
+      gap: 6px; align-items: center;
+      background: rgba(123,47,255,0.15);
+      border-color: rgba(123,47,255,0.32);
+      color: #c4a3ff;
     }
-    #install-btn::before { content: '⬇'; font-size: 11px; }
+    #install-btn::before { content: '↓'; font-size: 13px; font-weight: 800; }
     @media (min-width: 680px) { #install-btn { display: none !important; } }
 
     /* ── Card flip animation ─────────────────────────────────── */
@@ -260,51 +262,121 @@
     #upload-section.flip-out { animation: card-flip-out 0.28s ease-in  forwards; }
     #upload-section.flip-in  { animation: card-flip-in  0.30s ease-out forwards; }
 
-    /* Card back face — same liquid glass as .card */
-    #card-back {
-      display: none;
-    }
+    /* ── Card back face ──────────────────────────────────────── */
+    #card-back { display: none; }
     #card-back.visible { display: block; }
 
-    .back-header {
+    .back-nav {
       display: flex; align-items: center; gap: 10px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .back-return {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.13);
-      color: var(--t2); font-size: 13px; font-weight: 600;
-      padding: 6px 14px; border-radius: 100px; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--t2); font-size: 12px; font-weight: 700;
+      padding: 6px 13px; border-radius: 100px; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: background .15s;
-      flex-shrink: 0;
+      letter-spacing: 0.02em;
     }
-    .back-return:active { background: rgba(255,255,255,0.15); }
-    .back-title {
-      font-size: 17px; font-weight: 800; color: var(--t1);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    .back-return::before { content: '←'; font-size: 13px; }
+    .back-return:active { background: rgba(255,255,255,0.14); }
+
+    .back-overview {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px;
     }
-    .back-meta {
-      font-size: 12px; color: var(--t2); margin-bottom: 16px;
+    .back-sport-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600;
+      color: var(--t2);
+    }
+    .back-total-pill {
+      margin-left: auto;
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.25);
+      color: var(--teal);
+      font-size: 12px; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .back-workout-name {
+      font-size: 16px; font-weight: 800; color: var(--t1);
+      margin-bottom: 4px;
+    }
+    .back-workout-desc {
+      font-size: 11.5px; color: var(--t2); line-height: 1.5;
+      margin-bottom: 14px;
     }
 
-    .preview-step {
-      display: flex; gap: 12px; align-items: flex-start;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+    /* ── Workout timeline ────────────────────────────────────── */
+    .ws-list { padding-bottom: 4px; }
+
+    /* Top-level single step */
+    .ws-outer {
+      border-bottom: 1px solid rgba(255,255,255,0.055);
     }
-    .preview-step:last-child { border-bottom: none; }
-    .step-num {
-      flex-shrink: 0; width: 24px; height: 24px;
-      border-radius: 50%;
-      background: rgba(0,212,170,0.15);
-      border: 1px solid rgba(0,212,170,0.3);
-      color: var(--teal); font-size: 11px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
+    .ws-outer:last-child { border-bottom: none; }
+
+    .ws-step {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0;
     }
-    .step-info { flex: 1; }
-    .step-name { font-size: 13.5px; font-weight: 600; color: var(--t1); }
-    .step-detail { font-size: 12px; color: var(--t2); margin-top: 2px; line-height: 1.5; }
+    .ws-bar {
+      flex-shrink: 0;
+      width: 4px; border-radius: 2px;
+      align-self: stretch;
+      min-height: 28px;
+    }
+    .ws-info { flex: 1; min-width: 0; }
+    .ws-label {
+      font-size: 13px; font-weight: 700; color: var(--t1);
+      line-height: 1.3;
+    }
+    .ws-desc {
+      font-size: 11.5px; color: var(--t2);
+      margin-top: 2px; line-height: 1.4;
+    }
+    .ws-right { flex-shrink: 0; text-align: right; }
+    .ws-target {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em;
+      margin-bottom: 2px;
+    }
+    .ws-dur {
+      font-size: 13px; font-weight: 700; color: var(--t1);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Repeat group */
+    .ws-repeat {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 6px 0;
+    }
+    .ws-repeat-hdr {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .ws-reps {
+      font-size: 16px; font-weight: 900;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .ws-repeat-meta {
+      font-size: 11.5px; color: var(--t2); flex: 1;
+    }
+    .ws-repeat-total {
+      font-size: 12px; font-weight: 700; color: var(--t2);
+    }
+    .ws-children .ws-step {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .ws-children .ws-step:last-child { border-bottom: none; }
 
 
 
@@ -673,12 +745,19 @@
     .dz-name-input::placeholder { color: var(--t3); font-weight: 400; }
     .dz-preview-link {
       display: none;
-      font-size: 12.5px; font-weight: 600;
-      color: var(--teal); opacity: 0.85;
-      cursor: pointer;
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.26);
+      color: var(--teal);
+      font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+      padding: 7px 14px; border-radius: 10px;
+      cursor: pointer; align-items: center; gap: 6px;
       -webkit-tap-highlight-color: transparent;
-      align-items: center; gap: 5px;
+      transition: background .15s;
+      width: 100%;
+      justify-content: center;
     }
+    .dz-preview-link::before { content: '🔍'; font-size: 12px; }
+    .dz-preview-link:active { background: rgba(0,212,170,0.2); }
     .dz-preview-link.visible { display: flex; }
 
     /* ── Button ──────────────────────────────────────────── */
@@ -1041,7 +1120,7 @@
                    onkeydown="event.stopPropagation()">
             <div class="dz-preview-link" id="preview-btn-row"
                  onclick="openPreview(); event.stopPropagation()">
-              🔍 Vis detaljer
+              Vis detaljer
             </div>
           </div>
         </div>
@@ -1095,11 +1174,9 @@
 
     <!-- ── Back face (workout details) ── -->
     <div id="card-back">
-      <div class="back-header">
-        <button class="back-return" onclick="closePreview()">← Tilbake</button>
-        <div class="back-title" id="back-title"></div>
+      <div class="back-nav">
+        <button class="back-return" onclick="closePreview()">Tilbake</button>
       </div>
-      <div class="back-meta" id="back-meta"></div>
       <div id="preview-content"></div>
     </div>
 
@@ -1501,54 +1578,121 @@
     }, 290);
   }
 
+  // ── Workout renderer ──────────────────────────────────────
+  function _fmtDur(secs, condKey) {
+    if (!secs) return '';
+    if (condKey === 'distance') return `${(secs / 100).toFixed(0)} m`;
+    const m = Math.floor(secs / 60), s = secs % 60;
+    if (m === 0) return `${s} sek`;
+    if (s === 0) return `${m} min`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function _stepColor(step) {
+    const key = step.stepType?.stepTypeKey;
+    if (key === 'warmup')   return '#3a86ff';
+    if (key === 'cooldown') return '#7b2fff';
+    if (key === 'recovery' || key === 'rest') return 'rgba(255,255,255,0.22)';
+    const hr = step.targetValueOne;
+    if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr) {
+      if (hr < 155) return '#00d4aa';
+      if (hr < 165) return '#ffbe00';
+      if (hr < 175) return '#ff8c42';
+      return '#ff4d6d';
+    }
+    // short = all-out
+    if ((step.endConditionValue || 999) <= 30) return '#ff4d6d';
+    return '#00d4aa';
+  }
+
+  function _stepLabel(step) {
+    return {
+      warmup: 'Oppvarming', cooldown: 'Nedvarming',
+      interval: 'Drag', recovery: 'Hvile/pause', rest: 'Hvile',
+    }[step.stepType?.stepTypeKey] || 'Steg';
+  }
+
+  function _renderStep(step, inside) {
+    const color  = _stepColor(step);
+    const label  = _stepLabel(step);
+    const dur    = _fmtDur(step.endConditionValue, step.endCondition?.conditionTypeKey);
+    const hr1    = step.targetValueOne, hr2 = step.targetValueTwo;
+    const hasHR  = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
+    const target = hasHR ? `${hr1}–${hr2} bpm` : '';
+    const desc   = step.description || '';
+    return `<div class="ws-step">
+      <div class="ws-bar" style="background:${color}"></div>
+      <div class="ws-info">
+        <div class="ws-label">${label}</div>
+        ${desc ? `<div class="ws-desc">${desc}</div>` : ''}
+      </div>
+      <div class="ws-right">
+        ${target ? `<div class="ws-target" style="color:${color}">${target}</div>` : ''}
+        <div class="ws-dur">${dur}</div>
+      </div>
+    </div>`;
+  }
+
+  function _renderRepeat(group) {
+    const reps = group.numberOfIterations || 1;
+    const children = group.workoutSteps || [];
+    let roundSecs = 0;
+    children.forEach(c => { roundSecs += c.endConditionValue || 0; });
+    const totalFmt = _fmtDur(roundSecs * reps, 'time');
+    const perFmt   = _fmtDur(roundSecs, 'time');
+    return `<div class="ws-repeat">
+      <div class="ws-repeat-hdr">
+        <span class="ws-reps">${reps}×</span>
+        <span class="ws-repeat-meta">${perFmt} per runde</span>
+        <span class="ws-repeat-total">${totalFmt} totalt</span>
+      </div>
+      <div class="ws-children">${children.map(c => _renderStep(c, true)).join('')}</div>
+    </div>`;
+  }
+
+  function _renderWorkout(j) {
+    const steps  = j.workoutSegments?.[0]?.workoutSteps || j.workoutSteps || [];
+    const sport  = j.sportType?.sportTypeKey || '';
+    const name   = j.workoutName || j.name || '(uten navn)';
+    const desc   = j.description || '';
+
+    // Total time
+    let totalSecs = 0;
+    steps.forEach(s => {
+      if (s.type === 'RepeatGroupDTO') {
+        const n = s.numberOfIterations || 1;
+        (s.workoutSteps || []).forEach(c => { totalSecs += (c.endConditionValue || 0) * n; });
+      } else {
+        totalSecs += s.endConditionValue || 0;
+      }
+    });
+
+    const icon = { running:'🏃', cycling:'🚴', swimming:'🏊', strength:'🏋️' }[sport] || '🏋️';
+    const sportNO = { running:'Løping', cycling:'Sykling', swimming:'Svømming' }[sport] || sport;
+
+    let html = `<div class="back-overview">
+      <span class="back-sport-badge">${icon} ${sportNO}</span>
+      <span class="back-total-pill">~${_fmtDur(totalSecs, 'time')}</span>
+    </div>
+    <div class="back-workout-name">${name}</div>
+    ${desc ? `<div class="back-workout-desc">${desc}</div>` : ''}
+    <div class="ws-list">`;
+
+    steps.forEach(step => {
+      if (step.type === 'RepeatGroupDTO') {
+        html += _renderRepeat(step);
+      } else {
+        html += `<div class="ws-outer">${_renderStep(step)}</div>`;
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
   function openPreview() {
     if (!_parsedJson) return;
-    const j = _parsedJson;
-    const name = j.workoutName || j.name || '(uten navn)';
-    const sport = j.sportType?.sportTypeKey || j.sportType || '';
-    const steps = j.workoutSegments?.[0]?.workoutSteps || j.workoutSteps || [];
-
-    let html = '';
-    if (steps.length === 0) {
-      html = '<p style="color:var(--t2);font-size:13px">Ingen steg funnet i filen.</p>';
-    } else {
-      steps.forEach((step, i) => {
-        const stepName = step.stepName || step.workoutStepName || step.type || `Steg ${i+1}`;
-        const details = [];
-        if (step.endCondition?.conditionTypeKey === 'time' && step.endConditionValue) {
-          const s = Math.round(step.endConditionValue);
-          details.push(s >= 60 ? `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} min` : `${s} sek`);
-        } else if (step.endCondition?.conditionTypeKey === 'distance' && step.endConditionValue) {
-          details.push(`${(step.endConditionValue/100).toFixed(0)} m`);
-        } else if (step.endCondition?.conditionTypeKey === 'lap.button') {
-          details.push('Til knapp');
-        } else if (step.endCondition?.conditionTypeKey === 'iterations' && step.numberOfIterations) {
-          details.push(`${step.numberOfIterations}×`);
-        }
-        if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && step.targetValueOne) {
-          details.push(`Pulssone ${step.targetValueOne}`);
-        } else if (step.targetType?.workoutTargetTypeKey === 'pace.zone' && step.targetValueOne) {
-          details.push(`Temposone ${step.targetValueOne}`);
-        } else if (step.targetType?.workoutTargetTypeKey === 'cadence' && step.targetValueOne) {
-          details.push(`${step.targetValueOne} spm`);
-        }
-        const children = step.workoutSteps;
-        html += `<div class="preview-step">
-          <div class="step-num">${i+1}</div>
-          <div class="step-info">
-            <div class="step-name">${stepName}</div>
-            ${details.length ? `<div class="step-detail">${details.join(' · ')}</div>` : ''}
-            ${children?.length ? `<div class="step-detail">${children.length} intervaller</div>` : ''}
-          </div>
-        </div>`;
-      });
-    }
-
     _flipCard(true, () => {
-      document.getElementById('back-title').textContent = name;
-      document.getElementById('back-meta').textContent = sport;
-      document.getElementById('back-meta').style.display = sport ? 'block' : 'none';
-      document.getElementById('preview-content').innerHTML = html;
+      document.getElementById('preview-content').innerHTML = _renderWorkout(_parsedJson);
       document.getElementById('card-front').style.display = 'none';
       document.getElementById('card-back').classList.add('visible');
     });
