@@ -255,6 +255,16 @@
         0 1px 0 rgba(255,255,255,0.1) inset,
         0 2px 8px rgba(0,0,0,0.2);
     }
+    .pill.active {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
+      border-color: rgba(6,255,165,0.4);
+      color: rgba(0,0,0,0.85);
+      text-shadow: none;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.22) inset,
+        0 4px 16px rgba(6,255,165,0.28),
+        0 0 0 0.5px rgba(6,255,165,0.3);
+    }
 
     /* Installer: same as Logg ut pill, icon only */
     #install-btn { padding: 7px 10px; gap: 0; }
@@ -1455,6 +1465,7 @@
     if (!r) { show('login'); return; }
     if (r.status === 401) { show('pin'); return; }
     const d = await r.json();
+    _refreshGroupBtn();
     if (d.loggedIn) {
       setIn(d.displayName);
       if (_shareParam) _openShareView(_shareParam);
@@ -1462,6 +1473,14 @@
     }
     if (_shareParam) { _openShareViewAnon(_shareParam); return; }
     d.pinRequired ? show('pin') : show('login');
+  }
+
+  async function _refreshGroupBtn() {
+    try {
+      const r = await fetch('/api/group-workout');
+      const d = await r.json();
+      document.getElementById('group-btn').classList.toggle('active', !!d.active);
+    } catch(e) {}
   }
 
   function _buildGroupContent(data, shareUrl, showBackBtn) {
@@ -1897,6 +1916,7 @@
         const d = await r.json();
         if (r.ok) {
           alert2('upload-alert', d.message + '\n\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
+          document.getElementById('group-btn').classList.add('active');
           launchConfetti(); reset();
         } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
       } else {
@@ -2123,6 +2143,7 @@
     try {
       const r = await fetch('/api/group-workout');
       groupData = await r.json();
+      document.getElementById('group-btn').classList.toggle('active', !!groupData?.active);
     } catch(e) {}
 
     _flipCard(true, () => {
