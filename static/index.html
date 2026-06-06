@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TEST · Garmin Treningsplanlegger</title>
+  <title>Garmin Treningsplanlegger</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
@@ -1029,32 +1029,6 @@
       100% { stroke-dashoffset: 800; opacity: 0; }
     }
 
-    /* ── TEST-banner ─────────────────────────────────────── */
-    #test-banner {
-      position: fixed;
-      top: max(env(safe-area-inset-top), 10px);
-      left: 14px;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,190,0,0.15);
-      border: 1px solid rgba(255,190,0,0.45);
-      color: #ffbe00;
-      font-size: 10px; font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 100px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      pointer-events: none;
-      user-select: none;
-    }
-    #test-banner::before {
-      content: '⚠';
-      font-size: 10px;
-    }
 
     /* Fade aurora til svart i bunnen — speiler ::before-vignettet øverst */
     #bottom-vignette {
@@ -1202,8 +1176,6 @@
 </div>
 <!-- Fade aurora til svart mot bunnen, som speiler topp-vignettet -->
 <div id="bottom-vignette" aria-hidden="true"></div>
-<!-- TEST-miljø-markering — kun i test-branchen -->
-<div id="test-banner" aria-hidden="true">Test</div>
 
 <header>
   <div id="user-info">
