@@ -76,12 +76,14 @@ def _restore_client(sid: str) -> Optional[garminconnect.Garmin]:
 
 
 def _save_group_workout(workout_def: dict, scheduled_date: str) -> None:
+    share_id = uuid.uuid4().hex[:8]
     GROUP_WORKOUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     GROUP_WORKOUT_FILE.write_text(json_module.dumps({
         "workoutName": workout_def.get("workoutName", "Treningsøkt"),
         "workoutDef": workout_def,
         "date": scheduled_date,
         "uploadedAt": datetime.utcnow().isoformat(),
+        "shareId": share_id,
     }, ensure_ascii=False))
 
 
@@ -122,7 +124,7 @@ def _api_post(client: garminconnect.Garmin, path: str, data: dict) -> dict:
 class PinMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
-        if APP_PIN and path.startswith("/api/") and path != "/api/pin":
+        if APP_PIN and path.startswith("/api/") and path not in ("/api/pin", "/api/status") and not path.startswith("/api/share/"):
             if _sid(request) not in _sessions:
                 return StarletteJSONResponse({"detail": "Krever PIN"}, status_code=401)
         return await call_next(request)
@@ -417,6 +419,20 @@ async def get_group_workout():
         return {"active": False}
     return {
         "active": True,
+        "workoutName": data["workoutName"],
+        "workoutDef": data["workoutDef"],
+        "date": data["date"],
+        "uploadedAt": data["uploadedAt"],
+        "shareId": data.get("shareId"),
+    }
+
+
+@app.get("/api/share/{share_id}")
+async def get_shared_workout(share_id: str):
+    data = _load_group_workout()
+    if not data or data.get("shareId") != share_id:
+        raise HTTPException(status_code=404, detail="Lenken er utløpt eller ugyldig")
+    return {
         "workoutName": data["workoutName"],
         "workoutDef": data["workoutDef"],
         "date": data["date"],

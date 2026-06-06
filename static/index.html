@@ -1076,6 +1076,28 @@
     #login-section  { display: block; }
     #upload-section { display: none; }
     /* ── De Grønnes økt ─────────────────────────────────────── */
+    .gw-share-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 11px; margin-top: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      font-size: 13px; font-weight: 700; color: var(--t2);
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: background .15s, color .15s;
+    }
+    .gw-share-btn:active { background: rgba(255,255,255,0.12); color: var(--t1); }
+    .gw-share-btn.copied { color: var(--green); border-color: rgba(6,255,165,0.3); }
+
+    .share-open-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none;
+      color: var(--t3); font-size: 12px; font-weight: 600;
+      cursor: pointer; padding: 0; margin-bottom: 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .share-open-btn:active { color: var(--t1); }
+
     .gw-check-label {
       display: flex; align-items: center; gap: 10px;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -1420,13 +1442,66 @@
     refreshDateDisplay();
   }
 
+  const _shareParam = new URLSearchParams(location.search).get('share');
+
   async function init() {
     const r = await fetch('/api/status').catch(() => null);
     if (!r) { show('login'); return; }
     if (r.status === 401) { show('pin'); return; }
     const d = await r.json();
-    if (d.loggedIn) { setIn(d.displayName); return; }
+    if (d.loggedIn) {
+      setIn(d.displayName);
+      if (_shareParam) _openShareView(_shareParam);
+      return;
+    }
+    if (_shareParam) { _openShareViewAnon(_shareParam); return; }
     d.pinRequired ? show('pin') : show('login');
+  }
+
+  async function _openShareView(shareId) {
+    let data = null;
+    try {
+      const r = await fetch(`/api/share/${shareId}`);
+      if (r.ok) data = await r.json();
+    } catch(e) {}
+    _flipCard(true, () => {
+      document.getElementById('card-front').style.display = 'none';
+      document.getElementById('card-back').classList.add('visible');
+      document.getElementById('back-title').textContent = 'De Grønnes økt';
+      if (!data) {
+        document.getElementById('preview-content').innerHTML = `
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:36px;margin-bottom:10px">🔗</div>
+            <div style="font-size:14px;color:var(--t1);font-weight:600">Lenken er utløpt</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:6px">Ukens økt er allerede gjennomført</div>
+          </div>`;
+        return;
+      }
+      const meta = `${_fmtDateLong(data.date)} · Lastet opp ${_fmtRelTime(data.uploadedAt)}`;
+      document.getElementById('preview-content').innerHTML = `
+        <button class="share-open-btn" onclick="closePreview()">← Tilbake til appen</button>
+        <div class="gw-date-line">${meta}</div>
+        <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
+        <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
+        <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
+    });
+  }
+
+  async function _openShareViewAnon(shareId) {
+    let data = null;
+    try {
+      const r = await fetch(`/api/share/${shareId}`);
+      if (r.ok) data = await r.json();
+    } catch(e) {}
+    show('login');
+    if (!data) return;
+    const meta = `${_fmtDateLong(data.date)}`;
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(6,255,165,0.07);border:1px solid rgba(6,255,165,0.2);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--green);font-weight:600;';
+    banner.textContent = `De Grønnes økt — ${meta}. Logg inn for å legge den til.`;
+    const loginCard = document.getElementById('login-section');
+    loginCard.insertBefore(banner, loginCard.querySelector('form'));
+    _pendingShareId = shareId;
   }
 
   // ── Kipchoge quotes ───────────────────────────────────────
@@ -1530,10 +1605,26 @@
     else stopQuotes();
   }
 
+  let _pendingShareId = null;
+
   function setIn(name) {
     show('upload');
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('display-name').textContent = name;
+    if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
+  }
+
+  function copyShareLink(url) {
+    const btn = document.getElementById('share-btn');
+    if (navigator.share) {
+      navigator.share({ title: 'De Grønnes økt', url });
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copied');
+        btn.querySelector('span') ? btn.querySelector('span').textContent = 'Kopiert!' : btn.innerHTML = btn.innerHTML.replace('Del lenke', 'Kopiert!');
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = btn.innerHTML.replace('Kopiert!', 'Del lenke'); }, 2000);
+      });
+    }
   }
 
   // ── PIN boxes ─────────────────────────────────────────────
@@ -2027,9 +2118,20 @@
       }
 
       const meta = `${_fmtDateLong(groupData.date)} · Lastet opp ${_fmtRelTime(groupData.uploadedAt)}`;
+      const shareUrl = groupData.shareId ? `${location.origin}/?share=${groupData.shareId}` : null;
       document.getElementById('preview-content').innerHTML = `
         <div class="gw-date-line">${meta}</div>
         <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
+        ${shareUrl ? `<button class="gw-share-btn" id="share-btn" onclick="copyShareLink('${shareUrl}')">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0">
+            <circle cx="12" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="3" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+            <line x1="10.3" y1="3.4" x2="4.7" y2="6.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="4.7" y1="8.4" x2="10.3" y2="11.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Del lenke
+        </button>` : ''}
         <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
         <div style="margin-top:20px">${_renderWorkout(groupData.workoutDef)}</div>`;
     });
