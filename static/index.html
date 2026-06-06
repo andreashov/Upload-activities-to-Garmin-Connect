@@ -1069,7 +1069,26 @@
     #login-section  { display: block; }
     #upload-section { display: none; }
     /* ── De grønnes økt ─────────────────────────────────────── */
-    /* Checkbox toggle for «Sett som De grønnes økt» */
+    .gw-check-label {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      font-size: 13px; font-weight: 600; color: var(--t1);
+    }
+    .gw-check-label input[type="checkbox"] { display: none; }
+    .gw-check-box {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .gw-check-label input:checked + .gw-check-box {
+      background: rgba(6,255,165,0.15);
+      border-color: rgba(6,255,165,0.5);
+    }
+    .gw-check-label input:checked + .gw-check-box::after {
+      content: '✓'; font-size: 12px; font-weight: 800; color: var(--green);
+    }
     .gw-check-label {
       display: flex; align-items: center; gap: 10px;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -1305,7 +1324,7 @@
         <!-- Set as group workout — only shown for JSON files -->
         <div class="field" id="gw-toggle-wrap" style="display:none">
           <label class="gw-check-label">
-            <input type="checkbox" id="set-as-group" onchange="onGroupToggle(this)"
+            <input type="checkbox" id="set-as-group" onchange="onGroupToggle(this)">
             <span class="gw-check-box"></span>
             <span>Sett som De grønnes økt</span>
           </label>
