@@ -744,6 +744,82 @@
     #pin-section    { display: none; }
     #login-section  { display: block; }
     #upload-section { display: none; }
+    #group-section  { display: none; }
+
+    /* ── De grønnes økt ─────────────────────────────────────── */
+    .gw-back {
+      display: flex; align-items: center; gap: 8px;
+      background: none; border: none; color: var(--t2);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      padding: 0; margin-bottom: 18px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gw-back:active { color: var(--t1); }
+
+    .gw-title {
+      font-size: clamp(20px, 5vw, 26px); font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #06ffa5 0%, #00d4aa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+    .gw-meta {
+      font-size: 12px; color: var(--t2); margin-bottom: 20px; line-height: 1.5;
+    }
+
+    .gw-empty {
+      text-align: center; padding: 28px 0 12px;
+      color: var(--t2); font-size: 14px; line-height: 1.6;
+    }
+    .gw-empty-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+    .gw-empty-sub { font-size: 12px; color: var(--t3); margin-top: 6px; }
+
+    .gw-steps { margin-bottom: 20px; }
+    .gw-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .gw-step:last-child { border-bottom: none; }
+    .gw-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 5px;
+    }
+    .gw-step-info { flex: 1; min-width: 0; }
+    .gw-step-label { font-size: 13px; font-weight: 700; display: block; }
+    .gw-step-dur { font-size: 12px; color: var(--t2); }
+    .gw-step-desc { font-size: 11px; color: var(--t3); margin-top: 2px; display: block; }
+
+    .gw-repeat {
+      border-left: 2px solid rgba(255,255,255,0.1);
+      padding-left: 10px; margin: 6px 0 6px 18px;
+    }
+    .gw-repeat-header {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--t3); margin-bottom: 4px;
+    }
+
+    /* Checkbox toggle for «Sett som De grønnes økt» */
+    .gw-check-label {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      font-size: 13px; font-weight: 600; color: var(--t1);
+    }
+    .gw-check-label input[type="checkbox"] { display: none; }
+    .gw-check-box {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .gw-check-label input:checked + .gw-check-box {
+      background: rgba(6,255,165,0.15);
+      border-color: rgba(6,255,165,0.5);
+    }
+    .gw-check-label input:checked + .gw-check-box::after {
+      content: '✓'; font-size: 12px; font-weight: 800; color: var(--green);
+    }
 
     /* ── Mobile: kompakt for å unngå scrolling ───────────── */
     @media (max-width: 679px) {
@@ -834,6 +910,7 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
+    <button class="pill" id="group-btn" onclick="showGroupSection()">De grønnes økt</button>
     <button class="pill" onclick="logout()">Logg ut</button>
   </div>
 </header>
@@ -923,6 +1000,15 @@
           </div>
         </div>
       </div>
+      <!-- Set as group workout — only shown for JSON files -->
+      <div class="field" id="gw-toggle-wrap" style="display:none">
+        <label class="gw-check-label">
+          <input type="checkbox" id="set-as-group">
+          <span class="gw-check-box"></span>
+          <span>Sett som De grønnes økt</span>
+        </label>
+      </div>
+
       <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
         Last opp til Garmin
       </button>
@@ -951,6 +1037,20 @@
            L264,24 L268,20 L271,24 L273,24 L275,4 L277,44 L279,24 L286,28 L298,24 L336,24
            L348,24 L352,20 L355,24 L357,24 L359,4 L361,44 L363,24 L370,28 L382,24 L400,24"/>
     </svg>
+  </div>
+
+  <!-- De grønnes økt -->
+  <div class="card" id="group-section">
+    <button class="gw-back" onclick="backToUpload()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Tilbake
+    </button>
+    <div class="gw-title">De grønnes økt</div>
+    <div id="gw-meta" class="gw-meta"></div>
+    <div id="gw-content"></div>
+    <div class="alert" id="group-alert"></div>
   </div>
 
 </main>
@@ -1098,7 +1198,7 @@
   }
 
   function show(n) {
-    ['pin','login','upload'].forEach(s =>
+    ['pin','login','upload','group'].forEach(s =>
       document.getElementById(s + '-section').style.display = s === n ? 'block' : 'none');
     if (n === 'pin') setTimeout(() => document.getElementById('p0').focus(), 60);
     if (n === 'login') startQuotes();
@@ -1233,6 +1333,7 @@
     document.getElementById('file-label').textContent = f.name;
     document.getElementById('dz').classList.add('has-file');
     document.getElementById('upload-btn').disabled = false;
+    document.getElementById('gw-toggle-wrap').style.display = ext === 'json' ? 'block' : 'none';
     alert2('upload-alert', '', '');
   }
 
@@ -1246,6 +1347,7 @@
       const fd = new FormData();
       fd.append('file', sel);
       if (dv) fd.append('scheduled_date', dv);
+      if (document.getElementById('set-as-group').checked) fd.append('set_as_group', 'true');
       const r = await fetch('/api/upload', { method: 'POST', body: fd });
       const d = await r.json();
       if (r.ok) {
@@ -1268,6 +1370,8 @@
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     document.getElementById('upload-btn').disabled = true;
+    document.getElementById('gw-toggle-wrap').style.display = 'none';
+    document.getElementById('set-as-group').checked = false;
     refreshDateDisplay();
   }
 
@@ -1280,6 +1384,126 @@
   }
 
   init().catch(() => show('login'));
+
+  // ── De grønnes økt ───────────────────────────────────────
+  function _fmtDur(secs, condKey) {
+    if (!secs) return '';
+    if (condKey === 'distance') return `${secs} m`;
+    const m = Math.floor(secs / 60), s = secs % 60;
+    if (m === 0) return `${s} sek`;
+    if (s === 0) return `${m} min`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function _stepColor(step) {
+    const key = step.stepType?.stepTypeKey;
+    if (key === 'warmup')   return '#3a86ff';
+    if (key === 'cooldown') return '#7b2fff';
+    if (key === 'recovery' || key === 'rest') return 'rgba(255,255,255,0.25)';
+    const hr = step.targetValueOne;
+    if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr) {
+      if (hr < 155) return '#00d4aa';
+      if (hr < 165) return '#ffbe00';
+      if (hr < 175) return '#ff8c42';
+      return '#ff4d6d';
+    }
+    if ((step.endConditionValue || 999) <= 30) return '#ff4d6d';
+    return '#00d4aa';
+  }
+
+  function _stepLabel(step) {
+    const map = { warmup: 'Oppvarming', cooldown: 'Nedvarming', recovery: 'Pause', rest: 'Hvile', interval: 'Intervall' };
+    return map[step.stepType?.stepTypeKey] || 'Steg';
+  }
+
+  function _renderSteps(steps, depth) {
+    let html = '';
+    for (const step of (steps || [])) {
+      if (step.type === 'RepeatGroupDTO') {
+        html += `<div class="gw-repeat">
+          <div class="gw-repeat-header">${step.numberOfIterations}× gjentakelse</div>`;
+        html += _renderSteps(step.workoutSteps, depth + 1);
+        html += `</div>`;
+      } else {
+        const color = _stepColor(step);
+        const label = _stepLabel(step);
+        const dur = _fmtDur(step.endConditionValue, step.endCondition?.conditionTypeKey);
+        const hr = (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && step.targetValueOne)
+          ? ` · ${step.targetValueOne}–${step.targetValueTwo} bpm` : '';
+        const desc = step.description ? `<span class="gw-step-desc">${step.description}</span>` : '';
+        html += `<div class="gw-step">
+          <div class="gw-dot" style="background:${color}"></div>
+          <div class="gw-step-info">
+            <span class="gw-step-label" style="color:${color}">${label}</span>
+            <span class="gw-step-dur">${dur}${hr}</span>
+            ${desc}
+          </div>
+        </div>`;
+      }
+    }
+    return html;
+  }
+
+  function _fmtRelTime(isoStr) {
+    const diff = (Date.now() - new Date(isoStr + 'Z')) / 1000;
+    if (diff < 60) return 'Nettopp';
+    if (diff < 3600) return `${Math.floor(diff/60)} min siden`;
+    if (diff < 86400) return `${Math.floor(diff/3600)} t siden`;
+    return `${Math.floor(diff/86400)} dager siden`;
+  }
+
+  function _fmtDate(iso) {
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('no-NO', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  async function showGroupSection() {
+    show('group');
+    document.getElementById('gw-content').innerHTML = '<div style="text-align:center;padding:24px;color:var(--t3)">Laster…</div>';
+    document.getElementById('gw-meta').textContent = '';
+    alert2('group-alert', '', '');
+    try {
+      const r = await fetch('/api/group-workout');
+      const d = await r.json();
+      if (!d.active) {
+        document.getElementById('gw-content').innerHTML = `
+          <div class="gw-empty">
+            <span class="gw-empty-icon">🏃</span>
+            Ingen økt planlagt ennå
+            <div class="gw-empty-sub">Den som planlegger uken laster opp sin økt og huker av «Sett som De grønnes økt»</div>
+          </div>`;
+        return;
+      }
+      document.getElementById('gw-meta').textContent =
+        `${_fmtDate(d.date)} · Lastet opp ${_fmtRelTime(d.uploadedAt)}`;
+
+      const steps = d.workoutDef?.workoutSegments?.[0]?.workoutSteps || [];
+      document.getElementById('gw-content').innerHTML = `
+        <div class="gw-steps">${_renderSteps(steps, 0)}</div>
+        <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>`;
+    } catch(e) {
+      document.getElementById('gw-content').innerHTML = '<div class="gw-empty">Kunne ikke laste økt</div>';
+    }
+  }
+
+  async function claimGroupWorkout() {
+    const b = document.getElementById('claim-btn');
+    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Legger til…';
+    alert2('group-alert', '', '');
+    try {
+      const r = await fetch('/api/group-workout/claim', { method: 'POST' });
+      const d = await r.json();
+      if (r.ok) {
+        alert2('group-alert', d.message || 'Lagt til i Garmin!', 'success');
+        launchConfetti();
+      } else {
+        alert2('group-alert', d.detail || 'Noe gikk galt', 'error');
+      }
+    } catch(e) { alert2('group-alert', 'Nettverksfeil', 'error'); }
+    finally { if (b) { b.disabled = false; b.innerHTML = 'Legg til i min Garmin'; } }
+  }
+
+  function backToUpload() { show('upload'); }
 </script>
 </body>
 </html>
