@@ -394,9 +394,8 @@
     }
 
     .back-nav {
-      display: flex; align-items: center;
-      position: relative;
-      margin-bottom: 3px; min-height: 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
     }
     .back-title {
       font-size: 14px; font-weight: 700;
@@ -405,7 +404,6 @@
       background-clip: text;
     }
     .back-close {
-      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
       display: flex; align-items: center; justify-content: center;
       width: 32px; height: 32px;
       backdrop-filter: blur(20px) saturate(160%);
@@ -1444,7 +1442,7 @@
     <div id="card-back">
       <div class="back-nav">
         <span id="back-title" class="back-title"></span>
-        <button class="back-close" onclick="closePreview()" aria-label="Lukk">✕</button>
+        <button class="back-close" id="back-close-nav" onclick="closePreview()" aria-label="Lukk">✕</button>
       </div>
       <div id="preview-content"></div>
     </div>
@@ -2100,9 +2098,11 @@
     const icon = { running:'🏃', cycling:'🚴', swimming:'🏊', strength:'🏋️' }[sport] || '🏋️';
     const sportNO = { running:'Løping', cycling:'Sykling', swimming:'Svømming' }[sport] || sport;
 
+    document.getElementById('back-close-nav').style.display = 'none';
     let html = `<div class="back-overview">
       <span class="back-sport-badge">${icon} ${sportNO}</span>
       <span class="back-total-pill">~${_fmtDur(totalSecs, 'time')}</span>
+      <button class="back-close" onclick="closePreview()" aria-label="Lukk">✕</button>
     </div>
     <div class="back-workout-name">${name}</div>
     ${desc ? `<div class="back-workout-desc">${desc}</div>` : ''}
@@ -2130,6 +2130,7 @@
 
   function closePreview() {
     document.getElementById('group-btn').classList.remove('open');
+    document.getElementById('back-close-nav').style.display = '';
     _flipCard(false, () => {
       document.getElementById('card-back').classList.remove('visible');
       document.getElementById('card-front').style.display = '';
