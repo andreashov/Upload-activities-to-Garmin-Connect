@@ -437,8 +437,7 @@
       color: var(--t2);
     }
     .back-total-pill {
-      display: inline-block;
-      margin-bottom: 6px;
+      margin-left: auto;
       background: rgba(0,212,170,0.1);
       border: 1px solid rgba(0,212,170,0.25);
       color: var(--teal);
@@ -1443,7 +1442,7 @@
     <div id="card-back">
       <div class="back-nav">
         <span id="back-title" class="back-title"></span>
-        <button class="back-close" id="back-close-nav" onclick="closePreview()" aria-label="Lukk">✕</button>
+        <button class="back-close" onclick="closePreview()" aria-label="Lukk">✕</button>
       </div>
       <div id="preview-content"></div>
     </div>
@@ -2099,12 +2098,10 @@
     const icon = { running:'🏃', cycling:'🚴', swimming:'🏊', strength:'🏋️' }[sport] || '🏋️';
     const sportNO = { running:'Løping', cycling:'Sykling', swimming:'Svømming' }[sport] || sport;
 
-    document.getElementById('back-close-nav').style.display = 'none';
     let html = `<div class="back-overview">
       <span class="back-sport-badge">${icon} ${sportNO}</span>
-      <button class="back-close" onclick="closePreview()" aria-label="Lukk">✕</button>
+      <span class="back-total-pill">~${_fmtDur(totalSecs, 'time')}</span>
     </div>
-    <span class="back-total-pill">~${_fmtDur(totalSecs, 'time')}</span>
     <div class="back-workout-name">${name}</div>
     ${desc ? `<div class="back-workout-desc">${desc}</div>` : ''}
     <div class="ws-list">`;
@@ -2131,7 +2128,6 @@
 
   function closePreview() {
     document.getElementById('group-btn').classList.remove('open');
-    document.getElementById('back-close-nav').style.display = '';
     _flipCard(false, () => {
       document.getElementById('card-back').classList.remove('visible');
       document.getElementById('card-front').style.display = '';
