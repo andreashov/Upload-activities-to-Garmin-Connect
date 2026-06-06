@@ -6,6 +6,7 @@ import os
 import shutil
 import tempfile
 import uuid
+from datetime import datetime, date as date_type
 from pathlib import Path
 from typing import Optional
 
@@ -24,6 +25,7 @@ app = FastAPI(title="Garmin Workout Scheduler")
 
 TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path(__file__).parent / "data" / "garmin_tokens")))
 APP_PIN = os.getenv("APP_PIN", "")
+GROUP_WORKOUT_FILE = Path(__file__).parent / "data" / "group_workout.json"
 
 # session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
 _sessions: dict[str, Optional[garminconnect.Garmin]] = {}
@@ -69,6 +71,28 @@ def _restore_client(sid: str) -> Optional[garminconnect.Garmin]:
         client.garth.load(str(d))
         client.get_full_name()
         return client
+    except Exception:
+        return None
+
+
+def _save_group_workout(workout_def: dict, scheduled_date: str) -> None:
+    GROUP_WORKOUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    GROUP_WORKOUT_FILE.write_text(json_module.dumps({
+        "workoutName": workout_def.get("workoutName", "Treningsøkt"),
+        "workoutDef": workout_def,
+        "date": scheduled_date,
+        "uploadedAt": datetime.utcnow().isoformat(),
+    }, ensure_ascii=False))
+
+
+def _load_group_workout() -> Optional[dict]:
+    if not GROUP_WORKOUT_FILE.exists():
+        return None
+    try:
+        data = json_module.loads(GROUP_WORKOUT_FILE.read_text())
+        if data.get("date") and date_type.fromisoformat(data["date"]) < date_type.today():
+            return None
+        return data
     except Exception:
         return None
 
@@ -160,7 +184,7 @@ async def get_status(request: Request):
         _sessions[sid] = None
 
     if sid not in _sessions:
-        return JSONResponse({"loggedIn": False})
+        return JSONResponse({"loggedIn": False, "pinRequired": bool(APP_PIN)})
 
     client = _sessions[sid]
 
@@ -234,6 +258,7 @@ async def upload_workout(
     request: Request,
     file: UploadFile = File(...),
     scheduled_date: str = Form(default=None),
+    activity_name: str = Form(default=None),
 ):
     client = _get_client(request)
     if client is None:
@@ -243,20 +268,24 @@ async def upload_workout(
     suffix = Path(file.filename or "workout").suffix.lower()
 
     if suffix == ".json":
-        return await _upload_json_workout(client, content, scheduled_date)
+        return await _upload_json_workout(client, content, scheduled_date, activity_name)
     else:
-        return await _upload_activity_file(client, content, suffix, scheduled_date)
+        return await _upload_activity_file(client, content, suffix, scheduled_date, activity_name)
 
 
 async def _upload_json_workout(
     client: garminconnect.Garmin,
     content: bytes,
     scheduled_date: str | None,
+    activity_name: str | None = None,
 ):
     try:
         workout_def = json_module.loads(content)
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
+
+    if activity_name:
+        workout_def["workoutName"] = activity_name
 
     workout_id = None
     try:
@@ -306,7 +335,26 @@ async def _upload_activity_file(
     content: bytes,
     suffix: str,
     scheduled_date: str | None,
+    activity_name: str | None = None,
 ):
+    # Inject activity name into GPX <trk><name> if provided
+    if activity_name and suffix == ".gpx":
+        try:
+            import xml.etree.ElementTree as ET
+            ET.register_namespace('', 'http://www.topografix.com/GPX/1/1')
+            root = ET.fromstring(content)
+            ns = {'gpx': 'http://www.topografix.com/GPX/1/1'}
+            trk = root.find('gpx:trk', ns) or root.find('trk')
+            if trk is not None:
+                name_el = trk.find('gpx:name', ns) or trk.find('name')
+                if name_el is None:
+                    name_el = ET.SubElement(trk, 'name')
+                    trk.insert(0, name_el)
+                name_el.text = activity_name
+            content = ET.tostring(root, encoding='unicode', xml_declaration=True).encode()
+        except Exception as e:
+            logger.warning("GPX name injection failed: %s", e)
+
     with tempfile.NamedTemporaryFile(suffix=suffix or ".fit", delete=False) as tmp:
         tmp.write(content)
         tmp_path = tmp.name
@@ -340,6 +388,52 @@ async def _upload_activity_file(
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         os.unlink(tmp_path)
+
+
+# ── De Grønnes økt ───────────────────────────────────────────────────────────
+
+@app.post("/api/group-workout/set")
+async def set_group_workout(
+    request: Request,
+    file: UploadFile = File(...),
+    scheduled_date: str = Form(...),
+):
+    if _get_client(request) is None:
+        raise HTTPException(status_code=401, detail="Ikke innlogget")
+    try:
+        workout_def = json_module.loads(await file.read())
+    except json_module.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
+    _save_group_workout(workout_def, scheduled_date)
+    d = date_type.fromisoformat(scheduled_date)
+    date_no = d.strftime("%-d. %B").lower()
+    return {"status": "ok", "message": f"De Grønnes økt er delt ✓ — {date_no}"}
+
+
+@app.get("/api/group-workout")
+async def get_group_workout():
+    data = _load_group_workout()
+    if not data:
+        return {"active": False}
+    return {
+        "active": True,
+        "workoutName": data["workoutName"],
+        "workoutDef": data["workoutDef"],
+        "date": data["date"],
+        "uploadedAt": data["uploadedAt"],
+    }
+
+
+@app.post("/api/group-workout/claim")
+async def claim_group_workout(request: Request):
+    client = _get_client(request)
+    if client is None:
+        raise HTTPException(status_code=401, detail="Ikke innlogget")
+    data = _load_group_workout()
+    if not data:
+        raise HTTPException(status_code=404, detail="Ingen aktiv gruppeøkt")
+    content = json_module.dumps(data["workoutDef"]).encode()
+    return await _upload_json_workout(client, content, data["date"])
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
