@@ -390,7 +390,7 @@ async def _upload_activity_file(
         os.unlink(tmp_path)
 
 
-# ── De grønnes økt ───────────────────────────────────────────────────────────
+# ── De Grønnes økt ───────────────────────────────────────────────────────────
 
 @app.post("/api/group-workout/set")
 async def set_group_workout(
@@ -405,7 +405,7 @@ async def set_group_workout(
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
     _save_group_workout(workout_def, scheduled_date)
-    return {"status": "ok", "message": f"De grønnes økt er delt — {scheduled_date} ✓"}
+    return {"status": "ok", "message": f"De Grønnes økt er delt — {scheduled_date} ✓"}
 
 
 @app.get("/api/group-workout")

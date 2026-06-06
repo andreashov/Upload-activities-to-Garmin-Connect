@@ -892,8 +892,15 @@
         0 1px 0 rgba(255,255,255,0.22) inset,
         0 6px 28px rgba(0,212,170,0.28),
         0 0 0 0.5px rgba(0,212,170,0.28);
-      transition: transform .12s, box-shadow .12s;
+      transition: transform .12s, box-shadow .12s, background .25s;
       margin-top: 8px;
+    }
+    .btn.btn-group {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.22) inset,
+        0 6px 28px rgba(6,255,165,0.32),
+        0 0 0 0.5px rgba(6,255,165,0.3);
     }
     .btn::after {
       content: '';
@@ -1068,7 +1075,7 @@
     #pin-section    { display: none; }
     #login-section  { display: block; }
     #upload-section { display: none; }
-    /* ── De grønnes økt ─────────────────────────────────────── */
+    /* ── De Grønnes økt ─────────────────────────────────────── */
     .gw-check-label {
       display: flex; align-items: center; gap: 10px;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -1201,7 +1208,7 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
-    <button class="pill" id="group-btn" onclick="showGroupSection()">De grønnes økt</button>
+    <button class="pill" id="group-btn" onclick="showGroupSection()">De Grønnes økt</button>
     <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">
       <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
         <rect x="1" y="1" width="24" height="24" rx="6" fill="currentColor" opacity="0.18"/>
@@ -1326,7 +1333,7 @@
           <label class="gw-check-label">
             <input type="checkbox" id="set-as-group" onchange="onGroupToggle(this)">
             <span class="gw-check-box"></span>
-            <span>Sett som De grønnes økt</span>
+            <span>Sett som De Grønnes økt</span>
           </label>
         </div>
         <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
@@ -1755,14 +1762,15 @@
 
   function onGroupToggle(cb) {
     const btn = document.getElementById('upload-btn');
-    btn.textContent = cb.checked ? 'Del som De grønnes økt' : 'Last opp til Garmin';
+    btn.textContent = cb.checked ? 'Del som De Grønnes økt' : 'Last opp til Garmin';
+    btn.classList.toggle('btn-group', cb.checked);
   }
 
   async function doUpload() {
     if (!sel) return;
     const isGroup = document.getElementById('set-as-group').checked;
     if (isGroup && !dateInput.value) {
-      alert2('upload-alert', 'Du må velge dato for å dele som De grønnes økt', 'error');
+      alert2('upload-alert', 'Du må velge dato for å dele som De Grønnes økt', 'error');
       return;
     }
     const b = document.getElementById('upload-btn');
@@ -1777,8 +1785,10 @@
       if (isGroup) {
         const r = await fetch('/api/group-workout/set', { method: 'POST', body: fd });
         const d = await r.json();
-        if (r.ok) { alert2('upload-alert', d.message, 'success'); launchConfetti(); reset(); }
-        else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
+        if (r.ok) {
+          alert2('upload-alert', d.message + '\n\nHusk: du må selv laste opp økten til Garmin Connect. Gå tilbake, velg filen og trykk «Last opp til Garmin».', 'success');
+          launchConfetti(); reset();
+        } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
       } else {
         const actName = document.getElementById('activity-name')?.value?.trim();
         if (actName) fd.append('activity_name', actName);
@@ -1977,7 +1987,7 @@
 
   init().catch(() => show('login'));
 
-  // ── De grønnes økt ───────────────────────────────────────
+  // ── De Grønnes økt ───────────────────────────────────────
   function _fmtRelTime(isoStr) {
     const diff = (Date.now() - new Date(isoStr + 'Z')) / 1000;
     if (diff < 60) return 'Nettopp';
@@ -2002,7 +2012,7 @@
       document.getElementById('card-front').style.display = 'none';
       const back = document.getElementById('card-back');
       back.classList.add('visible');
-      document.getElementById('back-title').textContent = 'De grønnes økt';
+      document.getElementById('back-title').textContent = 'De Grønnes økt';
 
       if (!groupData?.active) {
         document.getElementById('preview-content').innerHTML = `
@@ -2010,7 +2020,7 @@
             <div style="font-size:38px;margin-bottom:12px">🏃</div>
             <div style="font-size:14px;color:var(--t1);font-weight:600">Ingen økt planlagt</div>
             <div style="font-size:12px;color:var(--t3);margin-top:6px;line-height:1.6">
-              Den som planlegger uken laster opp<br>sin økt og huker av «Sett som De grønnes økt»
+              Den som planlegger uken laster opp<br>sin økt og huker av «Sett som De Grønnes økt»
             </div>
           </div>`;
         return;
@@ -2019,9 +2029,9 @@
       const meta = `${_fmtDateLong(groupData.date)} · Lastet opp ${_fmtRelTime(groupData.uploadedAt)}`;
       document.getElementById('preview-content').innerHTML = `
         <div class="gw-date-line">${meta}</div>
-        ${_renderWorkout(groupData.workoutDef)}
-        <button class="btn" id="claim-btn" style="margin-top:16px" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
-        <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>`;
+        <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
+        <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
+        <div style="margin-top:20px">${_renderWorkout(groupData.workoutDef)}</div>`;
     });
   }
 
