@@ -1458,6 +1458,24 @@
     d.pinRequired ? show('pin') : show('login');
   }
 
+  function _buildGroupContent(data, shareUrl, showBackBtn) {
+    const meta = `${_fmtDateLong(data.date)} · Lastet opp ${_fmtRelTime(data.uploadedAt)}`;
+    const shareSvg = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0">
+      <circle cx="12" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="3" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="10.3" y1="3.4" x2="4.7" y2="6.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="4.7" y1="8.4" x2="10.3" y2="11.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>`;
+    return `
+      ${showBackBtn ? `<button class="share-open-btn" onclick="closePreview()">← Tilbake til appen</button>` : ''}
+      <div class="gw-date-line">${meta}</div>
+      <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
+      ${shareUrl ? `<button class="gw-share-btn" id="share-btn" onclick="copyShareLink('${shareUrl}')">${shareSvg} Del lenke</button>` : ''}
+      <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
+      <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
+  }
+
   async function _openShareView(shareId) {
     let data = null;
     try {
@@ -1477,13 +1495,8 @@
           </div>`;
         return;
       }
-      const meta = `${_fmtDateLong(data.date)} · Lastet opp ${_fmtRelTime(data.uploadedAt)}`;
-      document.getElementById('preview-content').innerHTML = `
-        <button class="share-open-btn" onclick="closePreview()">← Tilbake til appen</button>
-        <div class="gw-date-line">${meta}</div>
-        <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
-        <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
-        <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
+      document.getElementById('preview-content').innerHTML =
+        _buildGroupContent(data, location.href, true);
     });
   }
 
@@ -2117,23 +2130,9 @@
         return;
       }
 
-      const meta = `${_fmtDateLong(groupData.date)} · Lastet opp ${_fmtRelTime(groupData.uploadedAt)}`;
       const shareUrl = groupData.shareId ? `${location.origin}/?share=${groupData.shareId}` : null;
-      document.getElementById('preview-content').innerHTML = `
-        <div class="gw-date-line">${meta}</div>
-        <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
-        ${shareUrl ? `<button class="gw-share-btn" id="share-btn" onclick="copyShareLink('${shareUrl}')">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0">
-            <circle cx="12" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
-            <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
-            <circle cx="3" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
-            <line x1="10.3" y1="3.4" x2="4.7" y2="6.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            <line x1="4.7" y1="8.4" x2="10.3" y2="11.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
-          Del lenke
-        </button>` : ''}
-        <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
-        <div style="margin-top:20px">${_renderWorkout(groupData.workoutDef)}</div>`;
+      document.getElementById('preview-content').innerHTML =
+        _buildGroupContent(groupData, shareUrl, false);
     });
   }
 
