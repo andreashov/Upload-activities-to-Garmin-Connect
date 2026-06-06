@@ -490,15 +490,11 @@
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .ws-children .ws-step:last-child { border-bottom: none; }
-    .ws-skip-badge {
-      display: inline-block;
-      margin-top: 3px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
-      color: rgba(255,190,0,0.75);
-      background: rgba(255,190,0,0.08);
-      border: 1px solid rgba(255,190,0,0.2);
-      border-radius: 5px;
-      padding: 1px 6px;
+    .ws-skip-info {
+      margin-top: 8px;
+      font-size: 12px; font-weight: 500;
+      color: var(--t2);
+      padding: 4px 0 2px 0;
     }
 
 
@@ -1947,7 +1943,7 @@
 
   // ── Workout renderer ──────────────────────────────────────
   function _fmtDur(secs, condKey) {
-    if (condKey === 'lap.button') return 'Lap';
+    if (condKey === 'lap.button') return 'Runde-tastetrykk';
     if (!secs) return '';
     if (condKey === 'distance') return `${(secs / 100).toFixed(0)} m`;
     const m = Math.floor(secs / 60), s = secs % 60;
@@ -1975,28 +1971,28 @@
 
   function _stepLabel(step) {
     return {
-      warmup: 'Oppvarming', cooldown: 'Nedvarming',
-      interval: 'Drag', recovery: 'Hvile/pause', rest: 'Hvile',
+      warmup: 'Oppvarming', cooldown: 'Avkjøling',
+      interval: 'Løp', recovery: 'Restitusjon', rest: 'Hvile',
     }[step.stepType?.stepTypeKey] || 'Steg';
   }
 
-  function _renderStep(step, inside, skipped) {
-    const color  = skipped ? 'rgba(255,255,255,0.18)' : _stepColor(step);
+  function _renderStep(step, inside) {
+    const color  = _stepColor(step);
     const label  = _stepLabel(step);
     const dur    = _fmtDur(step.endConditionValue, step.endCondition?.conditionTypeKey);
     const hr1    = step.targetValueOne, hr2 = step.targetValueTwo;
-    const hasHR  = !skipped && step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
+    const hasHR  = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
     const target = hasHR ? `${hr1}–${hr2} bpm` : '';
     const desc   = step.description || '';
-    return `<div class="ws-step${skipped ? ' ws-step-skipped' : ''}">
+    return `<div class="ws-step">
       <div class="ws-bar" style="background:${color}"></div>
       <div class="ws-info">
-        <div class="ws-label" style="${skipped ? 'opacity:0.45' : ''}">${label}</div>
-        ${skipped ? `<div class="ws-skip-badge">hoppes over på siste runde</div>` : (desc ? `<div class="ws-desc">${desc}</div>` : '')}
+        <div class="ws-label">${label}</div>
+        ${desc ? `<div class="ws-desc">${desc}</div>` : ''}
       </div>
-      <div class="ws-right" style="${skipped ? 'opacity:0.45' : ''}">
+      <div class="ws-right">
         ${target ? `<div class="ws-target" style="color:${color}">${target}</div>` : ''}
-        <div class="ws-dur" style="${skipped ? 'text-decoration:line-through' : ''}">${dur}</div>
+        <div class="ws-dur">${dur}</div>
       </div>
     </div>`;
   }
@@ -2011,10 +2007,8 @@
     const totalSecs = roundSecs * reps - lastStepSecs;
     const totalFmt = _fmtDur(totalSecs, 'time');
     const perFmt   = _fmtDur(roundSecs, 'time');
-    const stepsHtml = children.map((c, i) => {
-      const isLast = i === children.length - 1;
-      return _renderStep(c, true, skipLast && isLast);
-    }).join('');
+    const stepsHtml = children.map(c => _renderStep(c, true, false)).join('');
+    const skipLabel = skipLast ? _stepLabel(children[children.length - 1]) : null;
     return `<div class="ws-repeat">
       <div class="ws-repeat-hdr">
         <span class="ws-reps">${reps}×</span>
@@ -2022,6 +2016,7 @@
         <span class="ws-repeat-total">${totalFmt} totalt</span>
       </div>
       <div class="ws-children">${stepsHtml}</div>
+      ${skipLabel ? `<div class="ws-skip-info">Hopp over siste ${skipLabel}: På</div>` : ''}
     </div>`;
   }
 
