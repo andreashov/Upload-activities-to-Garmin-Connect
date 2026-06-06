@@ -490,6 +490,16 @@
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .ws-children .ws-step:last-child { border-bottom: none; }
+    .ws-skip-badge {
+      display: inline-block;
+      margin-top: 3px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+      color: rgba(255,190,0,0.75);
+      background: rgba(255,190,0,0.08);
+      border: 1px solid rgba(255,190,0,0.2);
+      border-radius: 5px;
+      padding: 1px 6px;
+    }
 
 
 
@@ -1969,23 +1979,23 @@
     }[step.stepType?.stepTypeKey] || 'Steg';
   }
 
-  function _renderStep(step, inside) {
-    const color  = _stepColor(step);
+  function _renderStep(step, inside, skipped) {
+    const color  = skipped ? 'rgba(255,255,255,0.18)' : _stepColor(step);
     const label  = _stepLabel(step);
     const dur    = _fmtDur(step.endConditionValue, step.endCondition?.conditionTypeKey);
     const hr1    = step.targetValueOne, hr2 = step.targetValueTwo;
-    const hasHR  = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
+    const hasHR  = !skipped && step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
     const target = hasHR ? `${hr1}–${hr2} bpm` : '';
     const desc   = step.description || '';
-    return `<div class="ws-step">
+    return `<div class="ws-step${skipped ? ' ws-step-skipped' : ''}">
       <div class="ws-bar" style="background:${color}"></div>
       <div class="ws-info">
-        <div class="ws-label">${label}</div>
-        ${desc ? `<div class="ws-desc">${desc}</div>` : ''}
+        <div class="ws-label" style="${skipped ? 'opacity:0.45' : ''}">${label}</div>
+        ${skipped ? `<div class="ws-skip-badge">hoppes over på siste runde</div>` : (desc ? `<div class="ws-desc">${desc}</div>` : '')}
       </div>
-      <div class="ws-right">
+      <div class="ws-right" style="${skipped ? 'opacity:0.45' : ''}">
         ${target ? `<div class="ws-target" style="color:${color}">${target}</div>` : ''}
-        <div class="ws-dur">${dur}</div>
+        <div class="ws-dur" style="${skipped ? 'text-decoration:line-through' : ''}">${dur}</div>
       </div>
     </div>`;
   }
@@ -1993,17 +2003,26 @@
   function _renderRepeat(group) {
     const reps = group.numberOfIterations || 1;
     const children = group.workoutSteps || [];
+    const smart = !!group.smartRepeat;
     let roundSecs = 0;
     children.forEach(c => { roundSecs += c.endConditionValue || 0; });
-    const totalFmt = _fmtDur(roundSecs * reps, 'time');
+    // With smartRepeat, last step is skipped on final iteration
+    const lastStepSecs = smart ? (children[children.length - 1]?.endConditionValue || 0) : 0;
+    const totalSecs = roundSecs * reps - lastStepSecs;
+    const totalFmt = _fmtDur(totalSecs, 'time');
     const perFmt   = _fmtDur(roundSecs, 'time');
+    const stepsHtml = children.map((c, i) => {
+      const isLast = i === children.length - 1;
+      const skipped = smart && isLast;
+      return _renderStep(c, true, skipped);
+    }).join('');
     return `<div class="ws-repeat">
       <div class="ws-repeat-hdr">
         <span class="ws-reps">${reps}×</span>
         <span class="ws-repeat-meta">${perFmt} per runde</span>
         <span class="ws-repeat-total">${totalFmt} totalt</span>
       </div>
-      <div class="ws-children">${children.map(c => _renderStep(c, true)).join('')}</div>
+      <div class="ws-children">${stepsHtml}</div>
     </div>`;
   }
 
