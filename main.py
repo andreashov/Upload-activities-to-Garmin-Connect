@@ -259,7 +259,6 @@ async def upload_workout(
     file: UploadFile = File(...),
     scheduled_date: str = Form(default=None),
     activity_name: str = Form(default=None),
-    set_as_group: bool = Form(default=False),
 ):
     client = _get_client(request)
     if client is None:
@@ -269,11 +268,6 @@ async def upload_workout(
     suffix = Path(file.filename or "workout").suffix.lower()
 
     if suffix == ".json":
-        if set_as_group and scheduled_date:
-            try:
-                _save_group_workout(json_module.loads(content), scheduled_date)
-            except Exception:
-                logger.warning("Kunne ikke lagre gruppeøkt")
         return await _upload_json_workout(client, content, scheduled_date, activity_name)
     else:
         return await _upload_activity_file(client, content, suffix, scheduled_date, activity_name)
@@ -397,6 +391,22 @@ async def _upload_activity_file(
 
 
 # ── De grønnes økt ───────────────────────────────────────────────────────────
+
+@app.post("/api/group-workout/set")
+async def set_group_workout(
+    request: Request,
+    file: UploadFile = File(...),
+    scheduled_date: str = Form(...),
+):
+    if _get_client(request) is None:
+        raise HTTPException(status_code=401, detail="Ikke innlogget")
+    try:
+        workout_def = json_module.loads(await file.read())
+    except json_module.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
+    _save_group_workout(workout_def, scheduled_date)
+    return {"status": "ok", "message": f"De grønnes økt er delt — {scheduled_date} ✓"}
+
 
 @app.get("/api/group-workout")
 async def get_group_workout():

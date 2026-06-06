@@ -1305,7 +1305,7 @@
         <!-- Set as group workout — only shown for JSON files -->
         <div class="field" id="gw-toggle-wrap" style="display:none">
           <label class="gw-check-label">
-            <input type="checkbox" id="set-as-group">
+            <input type="checkbox" id="set-as-group" onchange="onGroupToggle(this)"
             <span class="gw-check-box"></span>
             <span>Sett som De grønnes økt</span>
           </label>
@@ -1734,34 +1734,47 @@
     alert2('upload-alert', '', '');
   }
 
+  function onGroupToggle(cb) {
+    const btn = document.getElementById('upload-btn');
+    btn.textContent = cb.checked ? 'Del som De grønnes økt' : 'Last opp til Garmin';
+  }
+
   async function doUpload() {
     if (!sel) return;
-    if (document.getElementById('set-as-group').checked && !dateInput.value) {
-      alert2('upload-alert', 'Du må velge dato når du setter De grønnes økt', 'error');
+    const isGroup = document.getElementById('set-as-group').checked;
+    if (isGroup && !dateInput.value) {
+      alert2('upload-alert', 'Du må velge dato for å dele som De grønnes økt', 'error');
       return;
     }
     const b = document.getElementById('upload-btn');
     const dv = dateInput.value;
-    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Laster opp…';
+    const origLabel = b.textContent;
+    b.disabled = true; b.innerHTML = '<span class="spinner"></span>' + (isGroup ? 'Deler…' : 'Laster opp…');
     alert2('upload-alert', '', '');
     try {
       const fd = new FormData();
       fd.append('file', sel);
-      if (dv) fd.append('scheduled_date', dv);
-      const actName = document.getElementById('activity-name')?.value?.trim();
-      if (actName) fd.append('activity_name', actName);
-      if (document.getElementById('set-as-group').checked) fd.append('set_as_group', 'true');
-      const r = await fetch('/api/upload', { method: 'POST', body: fd });
-      const d = await r.json();
-      if (r.ok) {
-        alert2('upload-alert', d.message, d.scheduled ? 'success' : 'warning');
-        if (d.scheduled) { launchConfetti(); reset(); }
-        else launchConfetti();
+      fd.append('scheduled_date', dv);
+      if (isGroup) {
+        const r = await fetch('/api/group-workout/set', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (r.ok) { alert2('upload-alert', d.message, 'success'); launchConfetti(); reset(); }
+        else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
       } else {
-        alert2('upload-alert', d.detail || 'Opplasting feilet', 'error');
+        const actName = document.getElementById('activity-name')?.value?.trim();
+        if (actName) fd.append('activity_name', actName);
+        const r = await fetch('/api/upload', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (r.ok) {
+          alert2('upload-alert', d.message, d.scheduled ? 'success' : 'warning');
+          if (d.scheduled) { launchConfetti(); reset(); }
+          else launchConfetti();
+        } else {
+          alert2('upload-alert', d.detail || 'Opplasting feilet', 'error');
+        }
       }
     } catch(e) { alert2('upload-alert', 'Nettverksfeil', 'error'); }
-    finally { b.disabled = !sel; b.innerHTML = 'Last opp til Garmin'; }
+    finally { b.disabled = !sel; b.textContent = origLabel; }
   }
 
   // ── Card flip ─────────────────────────────────────────────
@@ -1929,7 +1942,9 @@
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     document.getElementById('upload-btn').disabled = true;
     document.getElementById('gw-toggle-wrap').style.display = 'none';
-    document.getElementById('set-as-group').checked = false;
+    const cb = document.getElementById('set-as-group');
+    cb.checked = false;
+    document.getElementById('upload-btn').textContent = 'Last opp til Garmin';
     refreshDateDisplay();
   }
 
