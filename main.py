@@ -6,6 +6,7 @@ import os
 import shutil
 import tempfile
 import uuid
+from datetime import datetime, date as date_type
 from pathlib import Path
 from typing import Optional
 
@@ -24,6 +25,7 @@ app = FastAPI(title="Garmin Workout Scheduler")
 
 TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path(__file__).parent / "data" / "garmin_tokens")))
 APP_PIN = os.getenv("APP_PIN", "")
+GROUP_WORKOUT_FILE = Path(__file__).parent / "data" / "group_workout.json"
 
 # session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
 _sessions: dict[str, Optional[garminconnect.Garmin]] = {}
@@ -69,6 +71,28 @@ def _restore_client(sid: str) -> Optional[garminconnect.Garmin]:
         client.garth.load(str(d))
         client.get_full_name()
         return client
+    except Exception:
+        return None
+
+
+def _save_group_workout(workout_def: dict, scheduled_date: str) -> None:
+    GROUP_WORKOUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    GROUP_WORKOUT_FILE.write_text(json_module.dumps({
+        "workoutName": workout_def.get("workoutName", "Treningsøkt"),
+        "workoutDef": workout_def,
+        "date": scheduled_date,
+        "uploadedAt": datetime.utcnow().isoformat(),
+    }, ensure_ascii=False))
+
+
+def _load_group_workout() -> Optional[dict]:
+    if not GROUP_WORKOUT_FILE.exists():
+        return None
+    try:
+        data = json_module.loads(GROUP_WORKOUT_FILE.read_text())
+        if data.get("date") and date_type.fromisoformat(data["date"]) < date_type.today():
+            return None
+        return data
     except Exception:
         return None
 
@@ -235,6 +259,7 @@ async def upload_workout(
     file: UploadFile = File(...),
     scheduled_date: str = Form(default=None),
     activity_name: str = Form(default=None),
+    set_as_group: bool = Form(default=False),
 ):
     client = _get_client(request)
     if client is None:
@@ -244,6 +269,11 @@ async def upload_workout(
     suffix = Path(file.filename or "workout").suffix.lower()
 
     if suffix == ".json":
+        if set_as_group and scheduled_date:
+            try:
+                _save_group_workout(json_module.loads(content), scheduled_date)
+            except Exception:
+                logger.warning("Kunne ikke lagre gruppeøkt")
         return await _upload_json_workout(client, content, scheduled_date, activity_name)
     else:
         return await _upload_activity_file(client, content, suffix, scheduled_date, activity_name)
@@ -364,6 +394,34 @@ async def _upload_activity_file(
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         os.unlink(tmp_path)
+
+
+# ── De grønnes økt ───────────────────────────────────────────────────────────
+
+@app.get("/api/group-workout")
+async def get_group_workout():
+    data = _load_group_workout()
+    if not data:
+        return {"active": False}
+    return {
+        "active": True,
+        "workoutName": data["workoutName"],
+        "workoutDef": data["workoutDef"],
+        "date": data["date"],
+        "uploadedAt": data["uploadedAt"],
+    }
+
+
+@app.post("/api/group-workout/claim")
+async def claim_group_workout(request: Request):
+    client = _get_client(request)
+    if client is None:
+        raise HTTPException(status_code=401, detail="Ikke innlogget")
+    data = _load_group_workout()
+    if not data:
+        raise HTTPException(status_code=404, detail="Ingen aktiv gruppeøkt")
+    content = json_module.dumps(data["workoutDef"]).encode()
+    return await _upload_json_workout(client, content, data["date"])
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
