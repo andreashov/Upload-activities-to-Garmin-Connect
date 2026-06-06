@@ -437,7 +437,8 @@
       color: var(--t2);
     }
     .back-total-pill {
-      margin-left: auto;
+      display: inline-block;
+      margin-bottom: 6px;
       background: rgba(0,212,170,0.1);
       border: 1px solid rgba(0,212,170,0.25);
       color: var(--teal);
@@ -2101,9 +2102,9 @@
     document.getElementById('back-close-nav').style.display = 'none';
     let html = `<div class="back-overview">
       <span class="back-sport-badge">${icon} ${sportNO}</span>
-      <span class="back-total-pill">~${_fmtDur(totalSecs, 'time')}</span>
       <button class="back-close" onclick="closePreview()" aria-label="Lukk">✕</button>
     </div>
+    <span class="back-total-pill">~${_fmtDur(totalSecs, 'time')}</span>
     <div class="back-workout-name">${name}</div>
     ${desc ? `<div class="back-workout-desc">${desc}</div>` : ''}
     <div class="ws-list">`;
