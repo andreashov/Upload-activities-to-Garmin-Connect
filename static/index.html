@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>TEST · Garmin Treningsplanlegger</title>
@@ -255,7 +255,7 @@
         0 1px 0 rgba(255,255,255,0.1) inset,
         0 2px 8px rgba(0,0,0,0.2);
     }
-    .pill.active {
+    .pill.open {
       background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
       border-color: rgba(6,255,165,0.4);
       color: rgba(0,0,0,0.85);
@@ -264,6 +264,19 @@
         0 1px 0 rgba(255,255,255,0.22) inset,
         0 4px 16px rgba(6,255,165,0.28),
         0 0 0 0.5px rgba(6,255,165,0.3);
+    }
+    .pill-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 17px; height: 17px; padding: 0 4px;
+      border-radius: 9px;
+      font-size: 11px; font-weight: 700; line-height: 1;
+      background: rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.9);
+      transition: background .15s, color .15s;
+    }
+    .pill.open .pill-badge {
+      background: rgba(0,0,0,0.2);
+      color: rgba(0,0,0,0.75);
     }
 
     /* Installer: square pill, icon only */
@@ -1197,7 +1210,7 @@
       input[type="email"],
       input[type="password"],
       input[type="date"],
-      input[type="number"] { padding: 11px 12px; font-size: 15px; }
+      input[type="number"] { padding: 11px 12px; font-size: 16px; }
 
       .dz { padding: clamp(10px, 2.5vh, 18px) 12px; margin-bottom: 10px; }
       .dz-icon { font-size: 28px; margin-bottom: 4px; }
@@ -1256,7 +1269,7 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
-    <button class="pill" id="group-btn" onclick="showGroupSection()">De Grønnes økt</button>
+    <button class="pill" id="group-btn" onclick="showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
     <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">+</button>
     <div id="install-tooltip" role="tooltip">
       <div class="tip-title">For å installere som app</div>
@@ -1483,7 +1496,7 @@
     try {
       const r = await fetch('/api/group-workout');
       const d = await r.json();
-      document.getElementById('group-btn').classList.toggle('active', !!d.active);
+      document.getElementById('group-badge').textContent = d.active ? '1' : '+';
     } catch(e) {}
   }
 
@@ -1919,7 +1932,7 @@
         const d = await r.json();
         if (r.ok) {
           alert2('upload-alert', d.message + '\n\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
-          document.getElementById('group-btn').classList.add('active');
+          document.getElementById('group-badge').textContent = '1';
           launchConfetti(); reset();
         } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
       } else {
@@ -2092,6 +2105,7 @@
   }
 
   function closePreview() {
+    document.getElementById('group-btn').classList.remove('open');
     _flipCard(false, () => {
       document.getElementById('card-back').classList.remove('visible');
       document.getElementById('card-front').style.display = '';
@@ -2146,8 +2160,10 @@
     try {
       const r = await fetch('/api/group-workout');
       groupData = await r.json();
-      document.getElementById('group-btn').classList.toggle('active', !!groupData?.active);
+      document.getElementById('group-badge').textContent = groupData?.active ? '1' : '+';
     } catch(e) {}
+
+    document.getElementById('group-btn').classList.add('open');
 
     _flipCard(true, () => {
       document.getElementById('card-front').style.display = 'none';
