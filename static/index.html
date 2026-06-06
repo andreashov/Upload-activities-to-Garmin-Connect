@@ -396,7 +396,7 @@
     .back-nav {
       display: flex; align-items: center;
       position: relative;
-      margin-bottom: 8px; min-height: 32px;
+      margin-bottom: 3px; min-height: 32px;
     }
     .back-title {
       font-size: 14px; font-weight: 700;
@@ -1269,7 +1269,7 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
-    <button class="pill" id="group-btn" onclick="showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
+    <button class="pill" id="group-btn" onclick="document.getElementById('group-btn').classList.contains('open') ? closePreview() : showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
     <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">+</button>
     <div id="install-tooltip" role="tooltip">
       <div class="tip-title">For å installere som app</div>
