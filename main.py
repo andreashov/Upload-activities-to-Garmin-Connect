@@ -209,7 +209,12 @@ def _generate_workout_with_ai(description: str) -> dict:
         json={"contents": [{"parts": [{"text": prompt}]}]},
         timeout=60,
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        try:
+            err = resp.json().get("error", {}).get("message", resp.text)
+        except Exception:
+            err = resp.text
+        raise RuntimeError(f"Gemini API-feil ({resp.status_code}): {err}")
     data = resp.json()
     text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE).strip()
