@@ -405,7 +405,19 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         raise HTTPException(status_code=401, detail="Feil e-post eller passord")
     except Exception as exc:
         logger.exception("Login failed")
-        raise HTTPException(status_code=500, detail=str(exc))
+        msg = str(exc)
+        if "HTTP 403" in msg or "strategies exhausted" in msg:
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Garmin avviste innloggingsforsøket (HTTP 403). Dette skjer "
+                    "vanligvis når Garmin midlertidig blokkerer innlogging fra "
+                    "tjenerens IP-adresse eller krever en sikkerhetssjekk — det "
+                    "er ikke noe galt med brukernavn/passord. Vent noen minutter "
+                    "og prøv igjen."
+                ),
+            )
+        raise HTTPException(status_code=500, detail=msg)
 
 
 @app.post("/api/logout")
