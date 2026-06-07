@@ -959,7 +959,10 @@
       margin-top: 12px;
       font-size: 13px; line-height: 1.5;
       border: 1px solid;
+      white-space: pre-line;
     }
+    .alert .alert-line1 { font-weight: 700; }
+    .alert .alert-line2 { opacity: 0.8; font-weight: 500; }
     .alert-success { background: rgba(6,255,165,0.07); border-color: rgba(6,255,165,0.22); color: #06ffa5; }
     .alert-error   { background: rgba(255,0,110,0.07); border-color: rgba(255,0,110,0.22); color: #ff4d8d; }
     .alert-warning { background: rgba(255,190,0,0.07); border-color: rgba(255,190,0,0.22); color: #ffbe00; }
@@ -2130,9 +2133,19 @@
   function alert2(id, msg, type) {
     const el = document.getElementById(id);
     if (!msg) { el.style.display = 'none'; return; }
-    el.textContent = msg;
+    const lines = msg.split('\n');
+    if (lines.length > 1) {
+      el.innerHTML = `<span class="alert-line1">${_escHtml(lines[0])}</span>\n` +
+        lines.slice(1).map(l => `<span class="alert-line2">${_escHtml(l)}</span>`).join('\n');
+    } else {
+      el.textContent = msg;
+    }
     el.className = 'alert alert-' + type;
     el.style.display = 'block';
+  }
+
+  function _escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   init().catch(() => show('login'));

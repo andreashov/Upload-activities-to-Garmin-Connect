@@ -337,7 +337,7 @@ async def _upload_json_workout(
                 logger.warning("direct schedule failed: %s", exc)
 
     if scheduled:
-        message = f"Treningsøkt lagt til i Garmin-kalenderen din: {scheduled_date} ✓"
+        message = f"Treningsøkt lagt til i Garmin-kalenderen din\n{_fmt_date_no(scheduled_date)} ✓"
     else:
         message = f"Treningsøkt opprettet i Garmin Connect (ID: {workout_id})"
 
