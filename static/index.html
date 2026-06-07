@@ -916,6 +916,52 @@
     .dz-preview-link:active { background: rgba(0,212,170,0.2); }
     .dz-preview-link.visible { display: flex; }
 
+    /* ── AI workout generation (TEST) ──────────────────────── */
+    .ai-gen-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 10px;
+      font-size: 12px; font-weight: 700; color: var(--t2);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color .15s;
+    }
+    .ai-gen-toggle:active { color: var(--t1); }
+    .ai-gen-panel {
+      display: none;
+      margin-top: 10px;
+      padding: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px;
+    }
+    .ai-gen-panel.open { display: block; }
+    .ai-gen-panel textarea {
+      width: 100%;
+      min-height: 76px;
+      padding: 11px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 11px;
+      font: inherit; font-size: 13px; color: var(--t1);
+      outline: none; resize: vertical;
+      -webkit-appearance: none; appearance: none;
+      transition: border-color .18s, background .18s;
+    }
+    .ai-gen-panel textarea::placeholder { color: rgba(255,255,255,0.28); }
+    .ai-gen-panel textarea:focus { border-color: rgba(0,212,170,0.4); background: rgba(0,212,170,0.04); }
+    .ai-gen-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; min-height: 42px; margin-top: 10px;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
+      border: none; border-radius: 12px;
+      color: #fff; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .15s;
+    }
+    .ai-gen-btn:disabled { opacity: 0.5; cursor: default; }
+    .ai-gen-btn:active:not(:disabled) { opacity: 0.85; }
+
     /* ── Button ──────────────────────────────────────────── */
     .btn {
       width: 100%; min-height: 52px;
@@ -1359,6 +1405,16 @@
         </div>
         <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
                onchange="onFileInput(this)">
+
+        <!-- AI workout generation (TEST) -->
+        <div class="ai-gen-toggle" id="ai-gen-toggle" style="display:none" onclick="toggleAiGen()">
+          ✨ Eller beskriv økten med AI
+        </div>
+        <div class="ai-gen-panel" id="ai-gen-panel">
+          <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
+          <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
+          <div class="alert" id="ai-gen-alert"></div>
+        </div>
       </div>
 
       <div class="upload-col-right">
@@ -1665,6 +1721,9 @@
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('display-name').textContent = name;
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
+    fetch('/api/status').then(r => r.json()).then(d => {
+      if (d.aiWorkoutGenEnabled) document.getElementById('ai-gen-toggle').style.display = 'flex';
+    }).catch(() => {});
   }
 
   function copyShareLink(btn) {
@@ -1902,6 +1961,40 @@
     document.getElementById('upload-btn').disabled = false;
     document.getElementById('gw-toggle-wrap').style.display = ext === 'json' ? 'block' : 'none';
     alert2('upload-alert', '', '');
+  }
+
+  // ── AI workout generation (TEST) ──────────────────────────
+  function toggleAiGen() {
+    document.getElementById('ai-gen-panel').classList.toggle('open');
+  }
+
+  async function generateWorkoutWithAI() {
+    const desc = document.getElementById('ai-gen-desc').value.trim();
+    if (!desc) return;
+    const btn = document.getElementById('ai-gen-btn');
+    const orig = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Genererer…';
+    alert2('ai-gen-alert', '', '');
+    try {
+      const fd = new FormData();
+      fd.append('description', desc);
+      const r = await fetch('/api/generate-workout', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (r.ok) {
+        const json = JSON.stringify(d.workoutDef, null, 2);
+        const fileName = (d.workoutDef.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
+        const file = new File([json], fileName, { type: 'application/json' });
+        await setFile(file);
+        document.getElementById('ai-gen-panel').classList.remove('open');
+        document.getElementById('ai-gen-desc').value = '';
+      } else {
+        alert2('ai-gen-alert', d.detail || 'Kunne ikke generere økt', 'error');
+      }
+    } catch(e) {
+      alert2('ai-gen-alert', 'Nettverksfeil', 'error');
+    } finally {
+      btn.disabled = false; btn.innerHTML = orig;
+    }
   }
 
   function onGroupToggle(cb) {

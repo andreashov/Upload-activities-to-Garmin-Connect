@@ -3,6 +3,7 @@ from __future__ import annotations
 import json as json_module
 import logging
 import os
+import re
 import shutil
 import tempfile
 import uuid
@@ -18,6 +19,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse as StarletteJSONResponse
 
+import requests
+
 import garminconnect
 
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +31,11 @@ app = FastAPI(title="Garmin Workout Scheduler")
 TOKEN_STORE = Path(os.getenv("TOKEN_DIR", str(Path(__file__).parent / "data" / "garmin_tokens")))
 APP_PIN = os.getenv("APP_PIN", "")
 GROUP_WORKOUT_FILE = Path(__file__).parent / "data" / "group_workout.json"
+
+# ── AI workout generation (TEST — fjern denne seksjonen for å kutte funksjonen) ──
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+AI_WORKOUT_GEN_ENABLED = bool(GEMINI_API_KEY)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
 # session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
 _sessions: dict[str, Optional[garminconnect.Garmin]] = {}
@@ -109,6 +117,103 @@ def _load_group_workout() -> Optional[dict]:
         return data
     except Exception:
         return None
+
+
+_WORKOUT_GEN_PROMPT = """Du er en assistent som lager treningsøkt-filer i Garmin Connect sitt JSON-format for "workout-service".
+
+Svar KUN med gyldig JSON — ingen markdown-formatering, ingen forklaringer, ingen kodeblokk-merker.
+
+Skjemaet ser slik ut (bruk nøyaktig disse feltnavnene og strukturen):
+
+{
+  "workoutName": "Navn på økten",
+  "description": "Kort beskrivelse av økten (kan være null)",
+  "sportType": {"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1},
+  "subSportType": null,
+  "estimatedDurationInSecs": 2880,
+  "workoutSegments": [
+    {
+      "segmentOrder": 1,
+      "sportType": {"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1},
+      "workoutSteps": [ ... se eksempel under ... ]
+    }
+  ]
+}
+
+sportTypeKey kan være "running" (id 1), "cycling" (id 2) eller "swimming" (id 5) — velg ut fra beskrivelsen, bruk "running" hvis uklart.
+
+Hvert steg i workoutSteps er enten et vanlig steg (ExecutableStepDTO) eller en gjentakelsesgruppe (RepeatGroupDTO).
+
+Vanlig steg (ExecutableStepDTO) — eksempel for 5 minutters løpsintervall uten måltall:
+{
+  "type": "ExecutableStepDTO",
+  "stepId": 3,
+  "stepOrder": 3,
+  "stepType": {"stepTypeId": 3, "stepTypeKey": "interval"},
+  "childStepId": 1,
+  "description": null,
+  "endCondition": {"conditionTypeId": 2, "conditionTypeKey": "time"},
+  "endConditionValue": 300.0,
+  "endConditionCompare": null,
+  "endConditionZone": null,
+  "targetType": {"workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target"},
+  "targetValueOne": null,
+  "targetValueTwo": null,
+  "zoneNumber": null
+}
+
+stepTypeKey-verdier å bruke: "warmup" (id 1, oppvarming), "cooldown" (id 2, avkjøling/nedjogg), "interval" (id 3, drag/løpsdel), "recovery" (id 4, restitusjon/pause mellom drag), "rest" (id 5, hvile), "repeat" (id 6, gjentakelse).
+
+endCondition-typer:
+- Fast varighet i sekunder: {"conditionTypeId": 2, "conditionTypeKey": "time"} med endConditionValue = antall sekunder (som flyttall, f.eks. 300.0)
+- Fast distanse i meter*100: {"conditionTypeId": 3, "conditionTypeKey": "distance"} med endConditionValue = meter * 100 (f.eks. 1000 m = 100000.0)
+- Åpen/valgfri (avsluttes med rundeknapp på klokken — typisk for oppvarming og nedjogg): {"conditionTypeId": 1, "conditionTypeKey": "lap.button"} med endConditionValue = null
+
+For steg uten spesifikt måltall (fart, puls, etc.): bruk targetType {"workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target"} og sett targetValueOne/targetValueTwo/zoneNumber til null.
+
+Gjentakelsesgruppe (RepeatGroupDTO) — eksempel på "5 x (5 min løp + 2 min pause)":
+{
+  "type": "RepeatGroupDTO",
+  "stepId": 2,
+  "stepOrder": 2,
+  "stepType": {"stepTypeId": 6, "stepTypeKey": "repeat"},
+  "childStepId": 1,
+  "numberOfIterations": 5,
+  "workoutSteps": [
+    { ...interval-steg som over... },
+    { ...recovery-steg, samme struktur men stepType "recovery" (id 4)... }
+  ],
+  "endCondition": {"conditionTypeId": 7, "conditionTypeKey": "iterations"},
+  "endConditionValue": 5.0,
+  "endConditionCompare": null,
+  "smartRepeat": false,
+  "skipLastRestStep": true
+}
+
+"skipLastRestStep": true betyr at den siste pausen/restitusjonen i siste runde hoppes over (vanlig for intervalløkter — du går rett fra siste drag til nedjogg). Sett til true med mindre beskrivelsen sier noe annet.
+
+Sett childStepId til samme verdi for steg som hører sammen i en gruppe (f.eks. 1 for hele gjentakelsesgruppen og dens barn), og null for frittstående steg som oppvarming/nedjogg. stepId og stepOrder skal øke fortløpende gjennom hele økten.
+
+estimatedDurationInSecs skal være et realistisk anslag på total varighet i sekunder, basert på summen av alle steg (bruk en fornuftig standardverdi for "lap.button"-steg, f.eks. 600 sekunder for oppvarming/nedjogg).
+
+Lag nå en treningsøkt basert på denne beskrivelsen, og svar KUN med JSON-objektet:
+
+"""
+
+
+def _generate_workout_with_ai(description: str) -> dict:
+    prompt = _WORKOUT_GEN_PROMPT + description.strip()
+    resp = requests.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        params={"key": GEMINI_API_KEY},
+        json={"contents": [{"parts": [{"text": prompt}]}]},
+        timeout=60,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE).strip()
+    return json_module.loads(text)
 
 
 def _api_post(client: garminconnect.Garmin, path: str, data: dict) -> dict:
@@ -224,7 +329,7 @@ async def get_status(request: Request):
             _sessions[sid] = None
             return JSONResponse({"loggedIn": False})
 
-    r = JSONResponse({"loggedIn": True, "displayName": name})
+    r = JSONResponse({"loggedIn": True, "displayName": name, "aiWorkoutGenEnabled": AI_WORKOUT_GEN_ENABLED})
     if not APP_PIN:
         _set_cookie(r, sid)
     return r
@@ -263,6 +368,24 @@ async def logout(request: Request):
         _sessions[sid] = None
         shutil.rmtree(_token_dir(sid), ignore_errors=True)
     return {"status": "ok"}
+
+
+# ── AI workout generation (TEST — fjern denne seksjonen for å kutte funksjonen) ──
+
+@app.post("/api/generate-workout")
+async def generate_workout(request: Request, description: str = Form(...)):
+    if not AI_WORKOUT_GEN_ENABLED:
+        raise HTTPException(status_code=404, detail="Funksjonen er ikke aktivert")
+    if _get_client(request) is None:
+        raise HTTPException(status_code=401, detail="Ikke innlogget")
+    if not description.strip():
+        raise HTTPException(status_code=400, detail="Beskriv økten du vil generere")
+    try:
+        workout_def = _generate_workout_with_ai(description)
+    except Exception as exc:
+        logger.exception("AI workout generation failed")
+        raise HTTPException(status_code=500, detail=f"Kunne ikke generere økt: {exc}")
+    return {"status": "ok", "workoutDef": workout_def}
 
 
 # ── Upload ────────────────────────────────────────────────────────────────────
