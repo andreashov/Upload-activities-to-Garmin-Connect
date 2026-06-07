@@ -195,14 +195,44 @@ Gjentakelsesgruppe (RepeatGroupDTO) — eksempel på "5 x (5 min løp + 2 min pa
 Sett childStepId til samme verdi for steg som hører sammen i en gruppe (f.eks. 1 for hele gjentakelsesgruppen og dens barn), og null for frittstående steg som oppvarming/nedjogg. stepId og stepOrder skal øke fortløpende gjennom hele økten.
 
 estimatedDurationInSecs skal være et realistisk anslag på total varighet i sekunder, basert på summen av alle steg (bruk en fornuftig standardverdi for "lap.button"-steg, f.eks. 600 sekunder for oppvarming/nedjogg).
+"""
 
+# Redigerbar "oppskrift" — regler/preferanser for hvordan øktene skal bygges.
+# Sett miljøvariabelen AI_WORKOUT_RECIPE for å overstyre uten kodeendring/redeploy
+# (du kan endre den når som helst i Railway sine innstillinger).
+_DEFAULT_AI_WORKOUT_RECIPE = """Regler for hvordan øktene skal bygges:
+
+- Bruk alltid RepeatGroupDTO for gjentatte identiske drag — aldri flat liste med gjentakelser.
+- stepId og stepOrder er globalt sekvensielle for alle steg, inkludert barn i grupper.
+- Aldri to pauser på rad. Standard pauselengde: 1/3 av dragtid, med mindre annet er oppgitt.
+- skipLastRestStep: true — kun når bolken etterfølges av noe som ikke er et intervalldrag (nedjogg, cooldown, slutt på økt).
+- skipLastRestStep: false — når bolken etterfølges av en ny intervall-bolk, slik at siste pause blir overgangspause mellom blokkene. Ikke legg til en ekstra frittstående pause i tillegg.
+- Oppvarming og nedjogg er åpne (lap.button, endConditionValue: null) som standard — avsluttes når utøver trykker lap. "Ca. X min" = åpen. Eksplisitt "X min" = bruk det som fast varighet.
+- Ingen pulsmål som standard — styres på fart/følelse. Legg kun til HR-mål når det eksplisitt bes om. Sonesystem: Olympiatoppen (sone 3 ≈ 82-87 % av maks HR).
+- Sonebasert HR-mål: sett zoneNumber + workoutTargetTypeKey "heart.rate.zone" med targetValueOne/Two = null. Faste BPM: bruk targetValueOne/targetValueTwo.
+- description i selve økten skal være maks 200 tegn — kort og konkret, leses på en liten klokkeskjerm.
+- Alltid metrisk: km, min/km, sekunder.
+"""
+
+
+def _ai_workout_recipe() -> str:
+    return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
+
+
+_WORKOUT_GEN_PROMPT_TAIL = """
 Lag nå en treningsøkt basert på denne beskrivelsen, og svar KUN med JSON-objektet:
 
 """
 
 
 def _generate_workout_with_ai(description: str) -> dict:
-    prompt = _WORKOUT_GEN_PROMPT + description.strip()
+    prompt = (
+        _WORKOUT_GEN_PROMPT
+        + "\n"
+        + _ai_workout_recipe()
+        + _WORKOUT_GEN_PROMPT_TAIL
+        + description.strip()
+    )
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
