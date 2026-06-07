@@ -279,8 +279,13 @@
       color: rgba(0,0,0,0.75);
     }
 
-    /* Installer: square pill, icon only */
-    #install-btn { padding: 7px 13px; gap: 0; font-size: 20px; font-weight: 300; line-height: 1; }
+    /* Installer: round button, icon only — matches profile button size */
+    #install-btn {
+      width: 34px; height: 34px; padding: 0; gap: 0;
+      border-radius: 50%;
+      justify-content: center;
+      font-size: 20px; font-weight: 300; line-height: 1;
+    }
 
     /* ── PWA install button — mobile only ───────────────────── */
     #install-btn { display: none; }
@@ -2254,6 +2259,30 @@
   }
 
   // ── Workout renderer ──────────────────────────────────────
+  // Estimate a step's duration in seconds. Time-based steps store seconds
+  // directly; distance-based steps store meters*100 and have no inherent
+  // duration, so we estimate using the target pace (m/s) when available,
+  // falling back to a ~5:00 min/km running pace.
+  function _stepSecs(step) {
+    const key = step.endCondition?.conditionTypeKey;
+    const val = step.endConditionValue;
+    if (!val) return 0;
+    if (key === 'time') return val;
+    if (key === 'distance') {
+      const meters = val / 100;
+      const targetKey = step.targetType?.workoutTargetTypeKey;
+      let speed = null;
+      if (targetKey === 'pace.zone' || targetKey === 'speed.zone') {
+        const v1 = step.targetValueOne, v2 = step.targetValueTwo;
+        if (v1 && v2) speed = (v1 + v2) / 2;
+        else if (v1) speed = v1;
+      }
+      if (!speed) speed = 3.33; // fallback: ~5:00 min/km
+      return meters / speed;
+    }
+    return 0; // lap.button / open-ended — duration unknown
+  }
+
   function _fmtDur(secs, condKey) {
     if (condKey === 'lap.button') return 'Runde-tastetrykk';
     if (!secs) return '';
@@ -2314,11 +2343,16 @@
     const children = group.workoutSteps || [];
     const skipLast = !!(group.skipLastRestStep || group.smartRepeat);
     let roundSecs = 0;
-    children.forEach(c => { roundSecs += c.endConditionValue || 0; });
-    const lastStepSecs = skipLast ? (children[children.length - 1]?.endConditionValue || 0) : 0;
+    let isEstimate = false;
+    children.forEach(c => {
+      roundSecs += _stepSecs(c);
+      if (c.endCondition?.conditionTypeKey === 'distance') isEstimate = true;
+    });
+    const lastStepSecs = skipLast ? _stepSecs(children[children.length - 1]) : 0;
     const totalSecs = roundSecs * reps - lastStepSecs;
-    const totalFmt = _fmtDur(totalSecs, 'time');
-    const perFmt   = _fmtDur(roundSecs, 'time');
+    const tilde     = isEstimate ? '~' : '';
+    const totalFmt  = tilde + _fmtDur(totalSecs, 'time');
+    const perFmt    = tilde + _fmtDur(roundSecs, 'time');
     const stepsHtml = children.map(c => _renderStep(c, true, false)).join('');
     const skipLabel = skipLast ? _stepLabel(children[children.length - 1]) : null;
     return `<div class="ws-repeat">
@@ -2343,9 +2377,9 @@
     steps.forEach(s => {
       if (s.type === 'RepeatGroupDTO') {
         const n = s.numberOfIterations || 1;
-        (s.workoutSteps || []).forEach(c => { totalSecs += (c.endConditionValue || 0) * n; });
+        (s.workoutSteps || []).forEach(c => { totalSecs += _stepSecs(c) * n; });
       } else {
-        totalSecs += s.endConditionValue || 0;
+        totalSecs += _stepSecs(s);
       }
     });
 
