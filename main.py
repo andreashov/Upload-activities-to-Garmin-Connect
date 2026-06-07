@@ -37,16 +37,8 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 AI_WORKOUT_GEN_ENABLED = bool(GROQ_API_KEY)
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
-# session_id (uuid hex) → PIN verified
-_sessions: dict[str, bool] = {}
-
-# Appen er laget for én bruker/konto, så Garmin-innloggingen deles mellom alle
-# PIN-godkjente økter i stedet for å være bundet til én sesjons-cookie. Cookien
-# kan forsvinne (f.eks. i installerte PWA-er), og da ble den lagrede Garmin-
-# innloggingen tidligere foreldreløs — noe som tvang fram en ny Garmin-innlogging.
-GARMIN_TOKEN_DIR = TOKEN_STORE / "garmin"
-_garmin_client: Optional[garminconnect.Garmin] = None
-_garmin_display_name: Optional[str] = None
+# session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
+_sessions: dict[str, Optional[garminconnect.Garmin]] = {}
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -56,7 +48,7 @@ def _sid(request: Request) -> str:
 
 
 def _get_client(request: Request) -> Optional[garminconnect.Garmin]:
-    return _garmin_client if _sid(request) in _sessions else None
+    return _sessions.get(_sid(request))
 
 
 def _set_cookie(response, sid: str) -> None:
@@ -67,20 +59,26 @@ def _set_cookie(response, sid: str) -> None:
     )
 
 
-def _save_tokens(client: garminconnect.Garmin) -> None:
+def _token_dir(sid: str) -> Path:
+    return TOKEN_STORE / sid
+
+
+def _save_tokens(sid: str, client: garminconnect.Garmin) -> None:
     try:
-        GARMIN_TOKEN_DIR.mkdir(parents=True, exist_ok=True)
-        client.garth.dump(str(GARMIN_TOKEN_DIR))
+        d = _token_dir(sid)
+        d.mkdir(parents=True, exist_ok=True)
+        client.garth.dump(str(d))
     except Exception:
-        logger.warning("Kunne ikke lagre Garmin-tokens")
+        logger.warning("Kunne ikke lagre tokens for session %s", sid[:8])
 
 
-def _restore_client() -> Optional[garminconnect.Garmin]:
-    if not GARMIN_TOKEN_DIR.exists():
+def _restore_client(sid: str) -> Optional[garminconnect.Garmin]:
+    d = _token_dir(sid)
+    if not d.exists():
         return None
     try:
         client = garminconnect.Garmin()
-        client.garth.load(str(GARMIN_TOKEN_DIR))
+        client.garth.load(str(d))
         client.get_full_name()
         return client
     except Exception:
@@ -303,14 +301,15 @@ app.add_middleware(PinMiddleware)
 
 @app.on_event("startup")
 async def startup():
-    global _garmin_client, _garmin_display_name
-    client = _restore_client()
-    if client:
-        _garmin_client = client
-        name_file = GARMIN_TOKEN_DIR / "display_name.txt"
-        if name_file.exists():
-            _garmin_display_name = name_file.read_text().strip()
-        logger.info("Restored Garmin-innlogging fra lagrede tokens")
+    if not TOKEN_STORE.exists():
+        return
+    for d in TOKEN_STORE.iterdir():
+        if d.is_dir():
+            sid = d.name
+            client = _restore_client(sid)
+            if client:
+                _sessions[sid] = client
+                logger.info("Restored session %s…", sid[:8])
 
 
 # ── Public ────────────────────────────────────────────────────────────────────
@@ -326,14 +325,14 @@ async def health():
 async def verify_pin(pin: str = Form(...)):
     if not APP_PIN:
         sid = uuid.uuid4().hex
-        _sessions[sid] = True
+        _sessions[sid] = None
         r = JSONResponse({"status": "ok", "pinRequired": False})
         _set_cookie(r, sid)
         return r
     if pin != APP_PIN:
         raise HTTPException(status_code=401, detail="Feil PIN-kode")
     sid = uuid.uuid4().hex
-    _sessions[sid] = True
+    _sessions[sid] = None
     r = JSONResponse({"status": "ok", "pinRequired": True})
     _set_cookie(r, sid)
     return r
@@ -343,39 +342,41 @@ async def verify_pin(pin: str = Form(...)):
 
 @app.get("/api/status")
 async def get_status(request: Request):
-    global _garmin_client, _garmin_display_name
     sid = _sid(request)
 
     # No-PIN mode: transparently create a session for new visitors
     if not APP_PIN and sid not in _sessions:
         sid = uuid.uuid4().hex
-        _sessions[sid] = True
+        _sessions[sid] = None
 
     if sid not in _sessions:
         return JSONResponse({"loggedIn": False, "pinRequired": bool(APP_PIN)})
 
-    # Lazy token restore (e.g. after server restart)
-    if _garmin_client is None:
-        _garmin_client = _restore_client()
+    client = _sessions[sid]
 
-    if _garmin_client is None:
+    # Lazy token restore (e.g. after server restart)
+    if client is None:
+        client = _restore_client(sid)
+        if client:
+            _sessions[sid] = client
+
+    if client is None:
         r = JSONResponse({"loggedIn": False})
         if not APP_PIN:
             _set_cookie(r, sid)
         return r
 
-    if _garmin_display_name is None:
-        name_file = GARMIN_TOKEN_DIR / "display_name.txt"
-        if name_file.exists():
-            _garmin_display_name = name_file.read_text().strip()
-        else:
-            try:
-                _garmin_display_name = _garmin_client.get_full_name()
-            except Exception:
-                _garmin_client = None
-                return JSONResponse({"loggedIn": False})
+    name_file = _token_dir(sid) / "display_name.txt"
+    if name_file.exists():
+        name = name_file.read_text().strip()
+    else:
+        try:
+            name = client.get_full_name()
+        except Exception:
+            _sessions[sid] = None
+            return JSONResponse({"loggedIn": False})
 
-    r = JSONResponse({"loggedIn": True, "displayName": _garmin_display_name, "aiWorkoutGenEnabled": AI_WORKOUT_GEN_ENABLED})
+    r = JSONResponse({"loggedIn": True, "displayName": name, "aiWorkoutGenEnabled": AI_WORKOUT_GEN_ENABLED})
     if not APP_PIN:
         _set_cookie(r, sid)
     return r
@@ -385,20 +386,18 @@ async def get_status(request: Request):
 
 @app.post("/api/login")
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
-    global _garmin_client, _garmin_display_name
     sid = _sid(request)
     if not sid:
         sid = uuid.uuid4().hex
-    _sessions[sid] = True
+    if sid not in _sessions:
+        _sessions[sid] = None
     try:
         client = garminconnect.Garmin(email=email, password=password)
         client.login()
         display_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
-        _save_tokens(client)
-        GARMIN_TOKEN_DIR.mkdir(parents=True, exist_ok=True)
-        (GARMIN_TOKEN_DIR / "display_name.txt").write_text(display_name)
-        _garmin_client = client
-        _garmin_display_name = display_name
+        _save_tokens(sid, client)
+        (_token_dir(sid) / "display_name.txt").write_text(display_name)
+        _sessions[sid] = client
         r = JSONResponse({"status": "ok", "displayName": display_name})
         _set_cookie(r, sid)
         return r
@@ -423,12 +422,10 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
 
 @app.post("/api/logout")
 async def logout(request: Request):
-    global _garmin_client, _garmin_display_name
     sid = _sid(request)
     if sid in _sessions:
-        _garmin_client = None
-        _garmin_display_name = None
-        shutil.rmtree(GARMIN_TOKEN_DIR, ignore_errors=True)
+        _sessions[sid] = None
+        shutil.rmtree(_token_dir(sid), ignore_errors=True)
     return {"status": "ok"}
 
 
