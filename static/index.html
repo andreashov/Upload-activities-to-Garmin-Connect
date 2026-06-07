@@ -827,6 +827,9 @@
       transition: all .22s;
       -webkit-tap-highlight-color: transparent;
       position: relative;
+      min-height: 196px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      box-sizing: border-box;
     }
     .dz:active, .dz.over {
       border-color: rgba(0,212,170,0.5);
@@ -957,6 +960,8 @@
       padding: clamp(14px, 4vh, 24px) 16px;
       background: rgba(123,47,255,0.035);
       margin-bottom: 14px;
+      min-height: 196px;
+      box-sizing: border-box;
     }
     .ai-gen-panel.open { display: flex; }
     .ai-gen-panel textarea {
