@@ -33,9 +33,9 @@ APP_PIN = os.getenv("APP_PIN", "")
 GROUP_WORKOUT_FILE = Path(__file__).parent / "data" / "group_workout.json"
 
 # ── AI workout generation (TEST — fjern denne seksjonen for å kutte funksjonen) ──
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-AI_WORKOUT_GEN_ENABLED = bool(GEMINI_API_KEY)
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+AI_WORKOUT_GEN_ENABLED = bool(GROQ_API_KEY)
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 # session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
 _sessions: dict[str, Optional[garminconnect.Garmin]] = {}
@@ -204,9 +204,13 @@ Lag nå en treningsøkt basert på denne beskrivelsen, og svar KUN med JSON-obje
 def _generate_workout_with_ai(description: str) -> dict:
     prompt = _WORKOUT_GEN_PROMPT + description.strip()
     resp = requests.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
-        params={"key": GEMINI_API_KEY},
-        json={"contents": [{"parts": [{"text": prompt}]}]},
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+        json={
+            "model": GROQ_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.3,
+        },
         timeout=60,
     )
     if not resp.ok:
@@ -214,9 +218,9 @@ def _generate_workout_with_ai(description: str) -> dict:
             err = resp.json().get("error", {}).get("message", resp.text)
         except Exception:
             err = resp.text
-        raise RuntimeError(f"Gemini API-feil ({resp.status_code}): {err}")
+        raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
-    text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    text = data["choices"][0]["message"]["content"].strip()
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE).strip()
     return json_module.loads(text)
 
