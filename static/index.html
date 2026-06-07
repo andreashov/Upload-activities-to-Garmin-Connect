@@ -2378,7 +2378,12 @@
     steps.forEach(s => {
       if (s.type === 'RepeatGroupDTO') {
         const n = s.numberOfIterations || 1;
-        (s.workoutSteps || []).forEach(c => { totalSecs += _stepSecs(c) * n; });
+        const children = s.workoutSteps || [];
+        const skipLast = !!(s.skipLastRestStep || s.smartRepeat);
+        let roundSecs = 0;
+        children.forEach(c => { roundSecs += _stepSecs(c); });
+        const lastStepSecs = skipLast ? _stepSecs(children[children.length - 1]) : 0;
+        totalSecs += roundSecs * n - lastStepSecs;
       } else {
         totalSecs += _stepSecs(s);
       }
