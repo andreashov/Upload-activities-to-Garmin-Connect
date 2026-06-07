@@ -244,6 +244,18 @@ def _generate_workout_with_ai(description: str) -> dict:
             err = resp.json().get("error", {}).get("message", resp.text)
         except Exception:
             err = resp.text
+        if resp.status_code == 429:
+            wait = ""
+            m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
+            if m:
+                h, mi, s = (int(m.group(1) or 0), int(m.group(2) or 0), float(m.group(3) or 0))
+                total_min = h * 60 + mi + (1 if s else 0)
+                if total_min > 0:
+                    wait = f" Prøv igjen om ca. {total_min} minutt{'er' if total_min != 1 else ''}."
+            raise RuntimeError(
+                "AI-generatoren har nådd dagens grense for antall forespørsler hos Groq."
+                + wait
+            )
         raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
     text = data["choices"][0]["message"]["content"].strip()
