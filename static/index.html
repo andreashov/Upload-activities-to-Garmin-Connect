@@ -1464,7 +1464,9 @@
     refreshDateDisplay();
   }
 
-  const _shareParam = new URLSearchParams(location.search).get('share');
+  const _shareParam = new URLSearchParams(location.search).get('share')
+    || (location.pathname.match(/^\/share\/([a-zA-Z0-9]+)/) || [])[1]
+    || null;
 
   async function init() {
     const r = await fetch('/api/status').catch(() => null);
@@ -1501,7 +1503,7 @@
     return `
       <div class="gw-date-line">${meta}</div>
       <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
-      ${shareUrl ? `<button class="gw-share-btn" id="share-btn" onclick="copyShareLink('${shareUrl}')">${shareSvg} Del lenke</button>` : ''}
+      ${shareUrl ? `<button class="gw-share-btn" id="share-btn" data-url="${shareUrl}" onclick="copyShareLink(this)">${shareSvg} Del lenke</button>` : ''}
       <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
       <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
   }
@@ -1662,10 +1664,10 @@
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
   }
 
-  function copyShareLink(url) {
-    const btn = document.getElementById('share-btn');
+  function copyShareLink(btn) {
+    const url = btn.dataset.url;
     if (navigator.share) {
-      navigator.share({ title: 'De Grønnes økt', url });
+      navigator.share({ url });
     } else {
       navigator.clipboard.writeText(url).then(() => {
         btn.classList.add('copied');
@@ -2177,7 +2179,7 @@
         return;
       }
 
-      const shareUrl = groupData.shareId ? `${location.origin}/?share=${groupData.shareId}` : null;
+      const shareUrl = groupData.shareId ? `${location.origin}/share/${groupData.shareId}` : null;
       document.getElementById('preview-content').innerHTML =
         _buildGroupContent(groupData, shareUrl, false);
     });
