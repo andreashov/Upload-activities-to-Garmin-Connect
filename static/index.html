@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Garmin Treningsplanlegger</title>
@@ -255,9 +255,32 @@
         0 1px 0 rgba(255,255,255,0.1) inset,
         0 2px 8px rgba(0,0,0,0.2);
     }
+    .pill.open {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
+      border-color: rgba(6,255,165,0.4);
+      color: rgba(0,0,0,0.85);
+      text-shadow: none;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.22) inset,
+        0 4px 16px rgba(6,255,165,0.28),
+        0 0 0 0.5px rgba(6,255,165,0.3);
+    }
+    .pill-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 17px; height: 17px; padding: 0 4px;
+      border-radius: 9px;
+      font-size: 11px; font-weight: 700; line-height: 1;
+      background: rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.9);
+      transition: background .15s, color .15s;
+    }
+    .pill.open .pill-badge {
+      background: rgba(0,0,0,0.2);
+      color: rgba(0,0,0,0.75);
+    }
 
-    /* Installer: same as Logg ut pill, icon only */
-    #install-btn { padding: 7px 10px; gap: 0; }
+    /* Installer: square pill, icon only */
+    #install-btn { padding: 7px 13px; gap: 0; font-size: 20px; font-weight: 300; line-height: 1; }
 
     /* ── PWA install button — mobile only ───────────────────── */
     #install-btn { display: none; }
@@ -371,26 +394,34 @@
     }
 
     .back-nav {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
     }
-    .back-return {
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: var(--t2); font-size: 12px; font-weight: 700;
-      padding: 6px 13px; border-radius: 100px; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: background .15s;
-      letter-spacing: 0.02em;
-    }
-    .back-return::before { content: '←'; font-size: 13px; }
-    .back-return:active { background: rgba(255,255,255,0.14); }
     .back-title {
       font-size: 14px; font-weight: 700;
       background: linear-gradient(135deg, #06ffa5 0%, #00d4aa 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
+    }
+    .back-close {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.07) 100%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-top-color: rgba(255,255,255,0.28);
+      border-bottom-color: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 4px 16px rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.75);
+      font-size: 16px; font-weight: 400; line-height: 1;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s;
+    }
+    .back-close:active {
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 100%);
     }
     .gw-date-line {
       font-size: 12px; color: var(--t2); margin-bottom: 14px; line-height: 1.5;
@@ -490,6 +521,12 @@
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .ws-children .ws-step:last-child { border-bottom: none; }
+    .ws-skip-info {
+      margin-top: 8px;
+      font-size: 12px; font-weight: 500;
+      color: var(--t2);
+      padding: 4px 0 2px 0;
+    }
 
 
 
@@ -1050,6 +1087,47 @@
     #login-section  { display: block; }
     #upload-section { display: none; }
     /* ── De Grønnes økt ─────────────────────────────────────── */
+    .gw-share-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 11px; margin-top: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      font-size: 13px; font-weight: 700; color: var(--t2);
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: background .15s, color .15s;
+    }
+    .gw-share-btn:active { background: rgba(255,255,255,0.12); color: var(--t1); }
+    .gw-share-btn.copied { color: var(--green); border-color: rgba(6,255,165,0.3); }
+
+    .share-open-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none;
+      color: var(--t3); font-size: 12px; font-weight: 600;
+      cursor: pointer; padding: 0; margin-bottom: 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .share-open-btn:active { color: var(--t1); }
+
+    /* Share link login state */
+    #login-section.share-mode .card-sub,
+    #login-section.share-mode .quote-wrap { display: none; }
+    .share-login-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .share-login-info .sli-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--green); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .share-login-info .sli-name {
+      font-size: 17px; font-weight: 700; color: var(--t1);
+      margin-bottom: 10px; line-height: 1.3;
+    }
+    .share-login-info .sli-cta {
+      font-size: 13px; color: var(--t2); line-height: 1.5;
+    }
+
     .gw-check-label {
       display: flex; align-items: center; gap: 10px;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -1123,7 +1201,7 @@
       input[type="email"],
       input[type="password"],
       input[type="date"],
-      input[type="number"] { padding: 11px 12px; font-size: 15px; }
+      input[type="number"] { padding: 11px 12px; font-size: 16px; }
 
       .dz { padding: clamp(10px, 2.5vh, 18px) 12px; margin-bottom: 10px; }
       .dz-icon { font-size: 28px; margin-bottom: 4px; }
@@ -1180,14 +1258,8 @@
 <header>
   <div id="user-info">
     <span id="display-name"></span>
-    <button class="pill" id="group-btn" onclick="showGroupSection()">De Grønnes økt</button>
-    <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-        <rect x="1" y="1" width="24" height="24" rx="6" fill="currentColor" opacity="0.18"/>
-        <line x1="13" y1="6" x2="13" y2="20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-        <line x1="6" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-      </svg>
-    </button>
+    <button class="pill" id="group-btn" onclick="document.getElementById('group-btn').classList.contains('open') ? closePreview() : showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
+    <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">+</button>
     <div id="install-tooltip" role="tooltip">
       <div class="tip-title">For å installere som app</div>
       <div class="tip-step">
@@ -1341,8 +1413,8 @@
     <!-- ── Back face (workout details) ── -->
     <div id="card-back">
       <div class="back-nav">
-        <button class="back-return" onclick="closePreview()">Tilbake</button>
         <span id="back-title" class="back-title"></span>
+        <button class="back-close" onclick="closePreview()" aria-label="Lukk">✕</button>
       </div>
       <div id="preview-content"></div>
     </div>
@@ -1392,13 +1464,90 @@
     refreshDateDisplay();
   }
 
+  const _shareParam = new URLSearchParams(location.search).get('share');
+
   async function init() {
     const r = await fetch('/api/status').catch(() => null);
     if (!r) { show('login'); return; }
     if (r.status === 401) { show('pin'); return; }
     const d = await r.json();
-    if (d.loggedIn) { setIn(d.displayName); return; }
+    _refreshGroupBtn();
+    if (d.loggedIn) {
+      setIn(d.displayName);
+      if (_shareParam) _openShareView(_shareParam);
+      return;
+    }
+    if (_shareParam) { _openShareViewAnon(_shareParam); return; }
     d.pinRequired ? show('pin') : show('login');
+  }
+
+  async function _refreshGroupBtn() {
+    try {
+      const r = await fetch('/api/group-workout');
+      const d = await r.json();
+      document.getElementById('group-badge').textContent = d.active ? '1' : '+';
+    } catch(e) {}
+  }
+
+  function _buildGroupContent(data, shareUrl, showBackBtn) {
+    const meta = `${_fmtDateLong(data.date)} · Lastet opp ${_fmtRelTime(data.uploadedAt)}`;
+    const shareSvg = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0">
+      <circle cx="12" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="12" cy="12.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="3" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="10.3" y1="3.4" x2="4.7" y2="6.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="4.7" y1="8.4" x2="10.3" y2="11.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>`;
+    return `
+      <div class="gw-date-line">${meta}</div>
+      <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
+      ${shareUrl ? `<button class="gw-share-btn" id="share-btn" onclick="copyShareLink('${shareUrl}')">${shareSvg} Del lenke</button>` : ''}
+      <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
+      <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
+  }
+
+  async function _openShareView(shareId) {
+    let data = null;
+    try {
+      const r = await fetch(`/api/share/${shareId}`);
+      if (r.ok) data = await r.json();
+    } catch(e) {}
+    _flipCard(true, () => {
+      document.getElementById('card-front').style.display = 'none';
+      document.getElementById('card-back').classList.add('visible');
+      document.getElementById('back-title').textContent = 'De Grønnes økt';
+      if (!data) {
+        document.getElementById('preview-content').innerHTML = `
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:36px;margin-bottom:10px">🔗</div>
+            <div style="font-size:14px;color:var(--t1);font-weight:600">Lenken er utløpt</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:6px">Ukens økt er allerede gjennomført</div>
+          </div>`;
+        return;
+      }
+      document.getElementById('preview-content').innerHTML =
+        _buildGroupContent(data, location.href, true);
+    });
+  }
+
+  async function _openShareViewAnon(shareId) {
+    let data = null;
+    try {
+      const r = await fetch(`/api/share/${shareId}`);
+      if (r.ok) data = await r.json();
+    } catch(e) {}
+    show('login');
+    if (!data) return;
+    const loginCard = document.getElementById('login-section');
+    loginCard.classList.add('share-mode');
+    const info = document.createElement('div');
+    info.className = 'share-login-info';
+    info.innerHTML = `
+      <div class="sli-label">De Grønnes økt &mdash; ${_fmtDateLong(data.date)}</div>
+      <div class="sli-name">${data.workoutName || 'Treningsøkt'}</div>
+      <div class="sli-cta">Logg inn med Garmin Connect&#8209;konto for å legge den til</div>`;
+    loginCard.insertBefore(info, loginCard.querySelector('form'));
+    _pendingShareId = shareId;
   }
 
   // ── Kipchoge quotes ───────────────────────────────────────
@@ -1498,14 +1647,32 @@
     ['pin','login','upload'].forEach(s =>
       document.getElementById(s + '-section').style.display = s === n ? 'block' : 'none');
     if (n === 'pin') setTimeout(() => document.getElementById('p0').focus(), 60);
-    if (n === 'login') startQuotes();
-    else stopQuotes();
+    if (n === 'login') {
+      const lc = document.getElementById('login-section');
+      if (!lc.classList.contains('share-mode')) startQuotes();
+    } else stopQuotes();
   }
+
+  let _pendingShareId = null;
 
   function setIn(name) {
     show('upload');
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('display-name').textContent = name;
+    if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
+  }
+
+  function copyShareLink(url) {
+    const btn = document.getElementById('share-btn');
+    if (navigator.share) {
+      navigator.share({ title: 'De Grønnes økt', url });
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copied');
+        btn.querySelector('span') ? btn.querySelector('span').textContent = 'Kopiert!' : btn.innerHTML = btn.innerHTML.replace('Del lenke', 'Kopiert!');
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = btn.innerHTML.replace('Kopiert!', 'Del lenke'); }, 2000);
+      });
+    }
   }
 
   // ── PIN boxes ─────────────────────────────────────────────
@@ -1759,6 +1926,7 @@
         const d = await r.json();
         if (r.ok) {
           alert2('upload-alert', d.message + '\n\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
+          document.getElementById('group-badge').textContent = '1';
           launchConfetti(); reset();
         } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
       } else {
@@ -1805,6 +1973,7 @@
 
   // ── Workout renderer ──────────────────────────────────────
   function _fmtDur(secs, condKey) {
+    if (condKey === 'lap.button') return 'Runde-tastetrykk';
     if (!secs) return '';
     if (condKey === 'distance') return `${(secs / 100).toFixed(0)} m`;
     const m = Math.floor(secs / 60), s = secs % 60;
@@ -1832,8 +2001,8 @@
 
   function _stepLabel(step) {
     return {
-      warmup: 'Oppvarming', cooldown: 'Nedvarming',
-      interval: 'Drag', recovery: 'Hvile/pause', rest: 'Hvile',
+      warmup: 'Oppvarming', cooldown: 'Avkjøling',
+      interval: 'Løp', recovery: 'Restitusjon', rest: 'Hvile',
     }[step.stepType?.stepTypeKey] || 'Steg';
   }
 
@@ -1861,17 +2030,23 @@
   function _renderRepeat(group) {
     const reps = group.numberOfIterations || 1;
     const children = group.workoutSteps || [];
+    const skipLast = !!(group.skipLastRestStep || group.smartRepeat);
     let roundSecs = 0;
     children.forEach(c => { roundSecs += c.endConditionValue || 0; });
-    const totalFmt = _fmtDur(roundSecs * reps, 'time');
+    const lastStepSecs = skipLast ? (children[children.length - 1]?.endConditionValue || 0) : 0;
+    const totalSecs = roundSecs * reps - lastStepSecs;
+    const totalFmt = _fmtDur(totalSecs, 'time');
     const perFmt   = _fmtDur(roundSecs, 'time');
+    const stepsHtml = children.map(c => _renderStep(c, true, false)).join('');
+    const skipLabel = skipLast ? _stepLabel(children[children.length - 1]) : null;
     return `<div class="ws-repeat">
       <div class="ws-repeat-hdr">
         <span class="ws-reps">${reps}×</span>
         <span class="ws-repeat-meta">${perFmt} per runde</span>
         <span class="ws-repeat-total">${totalFmt} totalt</span>
       </div>
-      <div class="ws-children">${children.map(c => _renderStep(c, true)).join('')}</div>
+      <div class="ws-children">${stepsHtml}</div>
+      ${skipLabel ? `<div class="ws-skip-info">Hopp over siste ${skipLabel}: På</div>` : ''}
     </div>`;
   }
 
@@ -1924,6 +2099,7 @@
   }
 
   function closePreview() {
+    document.getElementById('group-btn').classList.remove('open');
     _flipCard(false, () => {
       document.getElementById('card-back').classList.remove('visible');
       document.getElementById('card-front').style.display = '';
@@ -1978,7 +2154,10 @@
     try {
       const r = await fetch('/api/group-workout');
       groupData = await r.json();
+      document.getElementById('group-badge').textContent = groupData?.active ? '1' : '+';
     } catch(e) {}
+
+    document.getElementById('group-btn').classList.add('open');
 
     _flipCard(true, () => {
       document.getElementById('card-front').style.display = 'none';
@@ -1998,12 +2177,9 @@
         return;
       }
 
-      const meta = `${_fmtDateLong(groupData.date)} · Lastet opp ${_fmtRelTime(groupData.uploadedAt)}`;
-      document.getElementById('preview-content').innerHTML = `
-        <div class="gw-date-line">${meta}</div>
-        <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
-        <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
-        <div style="margin-top:20px">${_renderWorkout(groupData.workoutDef)}</div>`;
+      const shareUrl = groupData.shareId ? `${location.origin}/?share=${groupData.shareId}` : null;
+      document.getElementById('preview-content').innerHTML =
+        _buildGroupContent(groupData, shareUrl, false);
     });
   }
 
