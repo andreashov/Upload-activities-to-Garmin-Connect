@@ -917,26 +917,51 @@
     .dz-preview-link.visible { display: flex; }
 
     /* ── AI workout generation (TEST) ──────────────────────── */
-    .ai-gen-toggle {
+    .upload-mode-tabs {
+      display: none;
+      gap: 6px;
+      padding: 4px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 13px;
+    }
+    .upload-mode-tabs.visible { display: flex; }
+    .mode-tab {
+      flex: 1;
       display: flex; align-items: center; justify-content: center; gap: 6px;
-      margin-top: 10px;
-      font-size: 12px; font-weight: 700; color: var(--t2);
+      min-height: 36px;
+      border: none; border-radius: 10px;
+      background: transparent;
+      color: var(--t3);
+      font: inherit; font-size: 12.5px; font-weight: 700;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      transition: color .15s;
+      transition: background .18s, color .18s;
     }
-    .ai-gen-toggle:active { color: var(--t1); }
+    .mode-tab.active {
+      background: rgba(255,255,255,0.07);
+      color: var(--t1);
+    }
+    .mode-tab.active.ai {
+      background: linear-gradient(135deg, rgba(0,212,170,0.22) 0%, rgba(123,47,255,0.22) 100%);
+      color: #fff;
+    }
+
     .ai-gen-panel {
       display: none;
-      margin-top: 10px;
-      padding: 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 14px;
+      flex-direction: column;
+      flex: 1;
+      border: 1.5px dashed rgba(123,47,255,0.28);
+      border-radius: 16px;
+      padding: clamp(14px, 4vh, 24px) 16px;
+      background: rgba(123,47,255,0.035);
+      margin-bottom: 14px;
     }
-    .ai-gen-panel.open { display: block; }
+    .ai-gen-panel.open { display: flex; }
     .ai-gen-panel textarea {
       width: 100%;
+      flex: 1;
       min-height: 76px;
       padding: 11px 12px;
       background: rgba(255,255,255,0.05);
@@ -1375,6 +1400,12 @@
 
       <div class="upload-cols">
       <div class="upload-col-left">
+        <!-- Upload-mode tabs (TEST: file vs. AI) -->
+        <div class="upload-mode-tabs" id="upload-mode-tabs">
+          <button type="button" class="mode-tab active" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
+          <button type="button" class="mode-tab ai" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
+        </div>
+
         <!-- File picker -->
         <div class="dz" id="dz"
              onclick="document.getElementById('file-input').click()"
@@ -1407,9 +1438,6 @@
                onchange="onFileInput(this)">
 
         <!-- AI workout generation (TEST) -->
-        <div class="ai-gen-toggle" id="ai-gen-toggle" style="display:none" onclick="toggleAiGen()">
-          ✨ Eller beskriv økten med AI
-        </div>
         <div class="ai-gen-panel" id="ai-gen-panel">
           <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
           <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
@@ -1722,7 +1750,7 @@
     document.getElementById('display-name').textContent = name;
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
     fetch('/api/status').then(r => r.json()).then(d => {
-      if (d.aiWorkoutGenEnabled) document.getElementById('ai-gen-toggle').style.display = 'flex';
+      if (d.aiWorkoutGenEnabled) document.getElementById('upload-mode-tabs').classList.add('visible');
     }).catch(() => {});
   }
 
@@ -1964,8 +1992,12 @@
   }
 
   // ── AI workout generation (TEST) ──────────────────────────
-  function toggleAiGen() {
-    document.getElementById('ai-gen-panel').classList.toggle('open');
+  function setUploadMode(mode) {
+    const isAi = mode === 'ai';
+    document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
+    document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
+    document.getElementById('dz').style.display = isAi ? 'none' : '';
+    document.getElementById('ai-gen-panel').classList.toggle('open', isAi);
   }
 
   async function generateWorkoutWithAI() {
@@ -1985,7 +2017,7 @@
         const fileName = (d.workoutDef.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
         const file = new File([json], fileName, { type: 'application/json' });
         await setFile(file);
-        document.getElementById('ai-gen-panel').classList.remove('open');
+        setUploadMode('file');
         document.getElementById('ai-gen-desc').value = '';
       } else {
         alert2('ai-gen-alert', d.detail || 'Kunne ikke generere økt', 'error');
