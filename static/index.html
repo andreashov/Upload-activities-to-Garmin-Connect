@@ -1489,6 +1489,10 @@
     } catch(e) {}
   }
 
+  function _escAttr(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
   function _buildGroupContent(data, shareUrl, showBackBtn) {
     const meta = `${_fmtDateLong(data.date)} · Lastet opp ${_fmtRelTime(data.uploadedAt)}`;
     const shareSvg = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0">
@@ -1501,7 +1505,7 @@
     return `
       <div class="gw-date-line">${meta}</div>
       <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
-      ${shareUrl ? `<button class="gw-share-btn" id="share-btn" onclick="copyShareLink('${shareUrl}')">${shareSvg} Del lenke</button>` : ''}
+      ${shareUrl ? `<button class="gw-share-btn" id="share-btn" data-url="${shareUrl}" data-name="${_escAttr(data.workoutName || '')}" data-date="${_escAttr(_fmtDateLong(data.date))}" onclick="copyShareLink(this)">${shareSvg} Del lenke</button>` : ''}
       <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
       <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
   }
@@ -1662,12 +1666,15 @@
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
   }
 
-  function copyShareLink(url) {
-    const btn = document.getElementById('share-btn');
+  function copyShareLink(btn) {
+    const url = btn.dataset.url;
+    const name = btn.dataset.name;
+    const date = btn.dataset.date;
+    const text = `De Grønnes økt — ${date}: ${name}`;
     if (navigator.share) {
-      navigator.share({ title: 'De Grønnes økt', url });
+      navigator.share({ title: 'De Grønnes økt', text, url });
     } else {
-      navigator.clipboard.writeText(url).then(() => {
+      navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
         btn.classList.add('copied');
         btn.querySelector('span') ? btn.querySelector('span').textContent = 'Kopiert!' : btn.innerHTML = btn.innerHTML.replace('Del lenke', 'Kopiert!');
         setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = btn.innerHTML.replace('Kopiert!', 'Del lenke'); }, 2000);
