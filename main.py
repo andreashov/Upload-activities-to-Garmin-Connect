@@ -219,27 +219,23 @@ def _ai_workout_recipe() -> str:
     return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
 
 
-_WORKOUT_GEN_PROMPT_TAIL = """
-Lag nå en treningsøkt basert på denne beskrivelsen, og svar KUN med JSON-objektet:
-
-"""
-
-
 def _generate_workout_with_ai(description: str) -> dict:
-    prompt = (
+    system_prompt = (
         _WORKOUT_GEN_PROMPT
         + "\n"
         + _ai_workout_recipe()
-        + _WORKOUT_GEN_PROMPT_TAIL
-        + description.strip()
+        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
     )
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
         json={
             "model": GROQ_MODEL,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.3,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": description.strip()},
+            ],
+            "temperature": 0.1,
         },
         timeout=60,
     )
