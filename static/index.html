@@ -2287,6 +2287,7 @@
     if (condKey === 'lap.button') return 'Runde-tastetrykk';
     if (!secs) return '';
     if (condKey === 'distance') return `${(secs / 100).toFixed(0)} m`;
+    secs = Math.round(secs);
     const m = Math.floor(secs / 60), s = secs % 60;
     if (m === 0) return `${s} sek`;
     if (s === 0) return `${m} min`;
