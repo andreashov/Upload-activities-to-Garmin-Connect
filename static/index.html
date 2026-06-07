@@ -279,8 +279,13 @@
       color: rgba(0,0,0,0.75);
     }
 
-    /* Installer: square pill, icon only */
-    #install-btn { padding: 7px 13px; gap: 0; font-size: 20px; font-weight: 300; line-height: 1; }
+    /* Installer: round button, icon only — matches profile button size */
+    #install-btn {
+      width: 34px; height: 34px; padding: 0; gap: 0;
+      border-radius: 50%;
+      justify-content: center;
+      font-size: 20px; font-weight: 300; line-height: 1;
+    }
 
     /* ── PWA install button — mobile only ───────────────────── */
     #install-btn { display: none; }
@@ -291,7 +296,7 @@
       display: none;
       position: fixed;
       top: calc(max(16px, env(safe-area-inset-top)) + 52px);
-      right: 14px;
+      right: 58px;
       z-index: 300;
       width: 230px;
       backdrop-filter: blur(28px) saturate(180%) brightness(1.1);
@@ -359,6 +364,110 @@
     .tip-icon {
       font-size: 14px; line-height: 1;
     }
+
+    /* ── Profile button + dropdown ───────────────────────────── */
+    #profile-btn {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.18) 0%,
+        rgba(255,255,255,0.08) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.3);
+      border-bottom-color: rgba(255,255,255,0.07);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.14) inset,
+        0 4px 16px rgba(0,0,0,0.25),
+        0 0 0 0.5px rgba(255,255,255,0.07);
+      transition: background .15s, box-shadow .15s;
+    }
+    #profile-btn:active {
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.26) 0%,
+        rgba(255,255,255,0.13) 100%);
+    }
+    #profile-btn.open {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
+      border-color: rgba(6,255,165,0.4);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.22) inset,
+        0 4px 16px rgba(6,255,165,0.28),
+        0 0 0 0.5px rgba(6,255,165,0.3);
+    }
+    #profile-btn.open #profile-initial { color: rgba(0,0,0,0.8); text-shadow: none; }
+    #profile-initial {
+      font-size: 14px; font-weight: 800;
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    #profile-menu {
+      display: none;
+      position: fixed;
+      top: calc(max(16px, env(safe-area-inset-top)) + 52px);
+      right: 14px;
+      z-index: 300;
+      width: 200px;
+      backdrop-filter: blur(28px) saturate(180%) brightness(1.1);
+      -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.1);
+      background: linear-gradient(160deg,
+        rgba(255,255,255,0.16) 0%,
+        rgba(255,255,255,0.08) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.32);
+      border-radius: 16px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.14) inset,
+        0 8px 32px rgba(0,0,0,0.4),
+        0 2px 12px rgba(0,0,0,0.25);
+      padding: 8px;
+      animation: tip-in .2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    #profile-menu.open { display: block; }
+    #profile-menu::before {
+      content: '';
+      position: absolute;
+      top: -7px; right: 16px;
+      width: 13px; height: 13px;
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.10) 100%);
+      border-top: 1px solid rgba(255,255,255,0.28);
+      border-left: 1px solid rgba(255,255,255,0.28);
+      border-radius: 2px 0 0 0;
+      transform: rotate(45deg);
+    }
+    .profile-menu-name {
+      padding: 10px 12px 8px;
+      font-size: 13px; font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .profile-menu-item {
+      display: flex; align-items: center; gap: 9px;
+      width: 100%;
+      padding: 10px 12px;
+      border: none; border-radius: 10px;
+      background: transparent;
+      font: inherit; font-size: 13.5px; font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      text-align: left;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s;
+    }
+    .profile-menu-item:active { background: rgba(255,255,255,0.1); }
+    .profile-menu-icon { font-size: 14px; opacity: 0.7; }
 
     /* ── Card flip animation ─────────────────────────────────── */
     @keyframes card-flip-out {
@@ -581,9 +690,18 @@
         display: flex;
         flex-direction: column;
       }
-      .upload-col-left .dz {
+      .upload-col-left .upload-mode-tabs {
+        min-height: 54px;
+        margin-bottom: 12px;
+      }
+      .upload-col-left .upload-mode-tabs .mode-tab {
+        min-height: 0;
+      }
+      .upload-col-left .dz,
+      .upload-col-left .ai-gen-panel {
         flex: 1;
         margin-bottom: 0;
+        min-height: 0;
       }
       .upload-col-right {
         display: flex;
@@ -1336,7 +1454,6 @@
 
 <header>
   <div id="user-info">
-    <span id="display-name"></span>
     <button class="pill" id="group-btn" onclick="document.getElementById('group-btn').classList.contains('open') ? closePreview() : showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
     <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">+</button>
     <div id="install-tooltip" role="tooltip">
@@ -1350,7 +1467,15 @@
         <div class="tip-text">Velg <b>Legg til på Hjem-skjermen</b></div>
       </div>
     </div>
-    <button class="pill" onclick="logout()">Logg ut</button>
+    <button id="profile-btn" onclick="toggleProfileMenu(event)" aria-label="Profil og innstillinger">
+      <span id="profile-initial"></span>
+    </button>
+    <div id="profile-menu" role="menu">
+      <div class="profile-menu-name" id="profile-menu-name"></div>
+      <button class="profile-menu-item" role="menuitem" onclick="logout()">
+        <span class="profile-menu-icon">↪</span> Logg ut
+      </button>
+    </div>
   </div>
 </header>
 
@@ -1752,7 +1877,8 @@
   function setIn(name) {
     show('upload');
     document.getElementById('user-info').style.display = 'flex';
-    document.getElementById('display-name').textContent = name;
+    document.getElementById('profile-initial').textContent = (name || '').charAt(0).toUpperCase();
+    document.getElementById('profile-menu-name').textContent = name;
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
     fetch('/api/status').then(r => r.json()).then(d => {
       if (d.aiWorkoutGenEnabled) document.getElementById('upload-mode-tabs').classList.add('visible');
@@ -1936,6 +2062,32 @@
     }
   }, true);
 
+  // ── Profile menu ──────────────────────────────────────────
+  const _profileBtn = document.getElementById('profile-btn');
+  const _profileMenu = document.getElementById('profile-menu');
+
+  function _closeProfileMenu() {
+    _profileBtn.classList.remove('open');
+    _profileMenu.classList.remove('open');
+  }
+
+  function toggleProfileMenu(event) {
+    event.stopPropagation();
+    if (_profileMenu.classList.contains('open')) {
+      _closeProfileMenu();
+    } else {
+      _closeTooltip();
+      _profileBtn.classList.add('open');
+      _profileMenu.classList.add('open');
+    }
+  }
+
+  document.addEventListener('click', e => {
+    if (!_profileBtn.contains(e.target) && !_profileMenu.contains(e.target)) {
+      _closeProfileMenu();
+    }
+  }, true);
+
   // ── File parsing ──────────────────────────────────────────
   let _parsedJson = null;
 
@@ -2107,10 +2259,35 @@
   }
 
   // ── Workout renderer ──────────────────────────────────────
+  // Estimate a step's duration in seconds. Time-based steps store seconds
+  // directly; distance-based steps store meters*100 and have no inherent
+  // duration, so we estimate using the target pace (m/s) when available,
+  // falling back to a ~5:00 min/km running pace.
+  function _stepSecs(step) {
+    const key = step.endCondition?.conditionTypeKey;
+    const val = step.endConditionValue;
+    if (!val) return 0;
+    if (key === 'time') return val;
+    if (key === 'distance') {
+      const meters = val / 100;
+      const targetKey = step.targetType?.workoutTargetTypeKey;
+      let speed = null;
+      if (targetKey === 'pace.zone' || targetKey === 'speed.zone') {
+        const v1 = step.targetValueOne, v2 = step.targetValueTwo;
+        if (v1 && v2) speed = (v1 + v2) / 2;
+        else if (v1) speed = v1;
+      }
+      if (!speed) speed = 3.33; // fallback: ~5:00 min/km
+      return meters / speed;
+    }
+    return 0; // lap.button / open-ended — duration unknown
+  }
+
   function _fmtDur(secs, condKey) {
     if (condKey === 'lap.button') return 'Runde-tastetrykk';
     if (!secs) return '';
     if (condKey === 'distance') return `${(secs / 100).toFixed(0)} m`;
+    secs = Math.round(secs);
     const m = Math.floor(secs / 60), s = secs % 60;
     if (m === 0) return `${s} sek`;
     if (s === 0) return `${m} min`;
@@ -2167,11 +2344,16 @@
     const children = group.workoutSteps || [];
     const skipLast = !!(group.skipLastRestStep || group.smartRepeat);
     let roundSecs = 0;
-    children.forEach(c => { roundSecs += c.endConditionValue || 0; });
-    const lastStepSecs = skipLast ? (children[children.length - 1]?.endConditionValue || 0) : 0;
+    let isEstimate = false;
+    children.forEach(c => {
+      roundSecs += _stepSecs(c);
+      if (c.endCondition?.conditionTypeKey === 'distance') isEstimate = true;
+    });
+    const lastStepSecs = skipLast ? _stepSecs(children[children.length - 1]) : 0;
     const totalSecs = roundSecs * reps - lastStepSecs;
-    const totalFmt = _fmtDur(totalSecs, 'time');
-    const perFmt   = _fmtDur(roundSecs, 'time');
+    const tilde     = isEstimate ? '~' : '';
+    const totalFmt  = tilde + _fmtDur(totalSecs, 'time');
+    const perFmt    = tilde + _fmtDur(roundSecs, 'time');
     const stepsHtml = children.map(c => _renderStep(c, true, false)).join('');
     const skipLabel = skipLast ? _stepLabel(children[children.length - 1]) : null;
     return `<div class="ws-repeat">
@@ -2196,9 +2378,14 @@
     steps.forEach(s => {
       if (s.type === 'RepeatGroupDTO') {
         const n = s.numberOfIterations || 1;
-        (s.workoutSteps || []).forEach(c => { totalSecs += (c.endConditionValue || 0) * n; });
+        const children = s.workoutSteps || [];
+        const skipLast = !!(s.skipLastRestStep || s.smartRepeat);
+        let roundSecs = 0;
+        children.forEach(c => { roundSecs += _stepSecs(c); });
+        const lastStepSecs = skipLast ? _stepSecs(children[children.length - 1]) : 0;
+        totalSecs += roundSecs * n - lastStepSecs;
       } else {
-        totalSecs += s.endConditionValue || 0;
+        totalSecs += _stepSecs(s);
       }
     });
 

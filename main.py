@@ -219,27 +219,23 @@ def _ai_workout_recipe() -> str:
     return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
 
 
-_WORKOUT_GEN_PROMPT_TAIL = """
-Lag nå en treningsøkt basert på denne beskrivelsen, og svar KUN med JSON-objektet:
-
-"""
-
-
 def _generate_workout_with_ai(description: str) -> dict:
-    prompt = (
+    system_prompt = (
         _WORKOUT_GEN_PROMPT
         + "\n"
         + _ai_workout_recipe()
-        + _WORKOUT_GEN_PROMPT_TAIL
-        + description.strip()
+        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
     )
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
         json={
             "model": GROQ_MODEL,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.3,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": description.strip()},
+            ],
+            "temperature": 0.1,
         },
         timeout=60,
     )
@@ -248,6 +244,18 @@ def _generate_workout_with_ai(description: str) -> dict:
             err = resp.json().get("error", {}).get("message", resp.text)
         except Exception:
             err = resp.text
+        if resp.status_code == 429:
+            wait = ""
+            m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
+            if m:
+                h, mi, s = (int(m.group(1) or 0), int(m.group(2) or 0), float(m.group(3) or 0))
+                total_min = h * 60 + mi + (1 if s else 0)
+                if total_min > 0:
+                    wait = f" Prøv igjen om ca. {total_min} minutt{'er' if total_min != 1 else ''}."
+            raise RuntimeError(
+                "AI-generatoren har nådd dagens grense for antall forespørsler hos Groq."
+                + wait
+            )
         raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
     text = data["choices"][0]["message"]["content"].strip()
@@ -397,7 +405,19 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         raise HTTPException(status_code=401, detail="Feil e-post eller passord")
     except Exception as exc:
         logger.exception("Login failed")
-        raise HTTPException(status_code=500, detail=str(exc))
+        msg = str(exc)
+        if "HTTP 403" in msg or "strategies exhausted" in msg:
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Garmin avviste innloggingsforsøket (HTTP 403). Dette skjer "
+                    "vanligvis når Garmin midlertidig blokkerer innlogging fra "
+                    "tjenerens IP-adresse eller krever en sikkerhetssjekk — det "
+                    "er ikke noe galt med brukernavn/passord. Vent noen minutter "
+                    "og prøv igjen."
+                ),
+            )
+        raise HTTPException(status_code=500, detail=msg)
 
 
 @app.post("/api/logout")

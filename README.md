@@ -14,22 +14,35 @@ Gå til [railway.app](https://railway.app) og logg inn med GitHub.
 - Velg **Deploy from GitHub repo**
 - Velg `Upload-activities-to-Garmin-Connect`
 
-### 3. Sett miljøvariabler
+### 3. Legg til et persistent volum (viktig — unngår gjentatte Garmin-innlogginger)
+Uten dette nullstilles den lagrede Garmin-innloggingen hver gang appen redeployes,
+og du må logge inn med brukernavn/passord på nytt — fra serverens IP-adresse.
+Garmin tolker dette som «innlogging fra nytt sted», og gjentatte ganger kan det
+**sperre kontoen din** (slik at du må nullstille passordet).
+
+- Klikk på tjenesten din → fanen **Settings** → seksjonen **Volumes**
+- Klikk **+ New Volume**
+- Sett **Mount path** til `/data`
+
+### 4. Sett miljøvariabler
 Klikk på tjenesten din → fanen **Variables**, og legg til:
 
 | Variabel | Verdi | Beskrivelse |
 |----------|-------|-------------|
 | `APP_PIN` | f.eks. `2847` | PIN-kode for å beskytte appen |
+| `TOKEN_DIR` | `/data/garmin_tokens` | Hvor Garmin-innloggingen lagres — **må peke inn i volumet** fra steg 3 |
 
-### 4. Deploy
+### 5. Deploy
 Railway deployer automatisk og gir deg en URL som `ditt-prosjekt.up.railway.app`.
 
-### 5. Legg til på hjemskjermen (mobil)
+### 6. Legg til på hjemskjermen (mobil)
 - **iPhone**: Åpne URL i Safari → Del-knapp → «Legg til på Hjem-skjerm»
 - **Android**: Åpne URL i Chrome → meny → «Legg til på startskjerm»
 
-> **Merk om innlogging:** Garmin-tokens lagres i containeren og overlever vanlig drift.
-> Etter en ny deploy (når du oppdaterer koden) må du logge inn i Garmin én gang til.
+> **Merk om innlogging:** Med volum + `TOKEN_DIR` satt riktig overlever Garmin-innloggingen
+> alle fremtidige deploys og omstarter — du logger kun inn én gang, uansett.
+> Uten dette oppsettet må du logge inn på nytt etter hver deploy, noe som over tid
+> kan utløse en sikkerhetssperre fra Garmin (se advarselen i steg 3).
 
 ---
 
