@@ -52,9 +52,13 @@ def _get_client(request: Request) -> Optional[garminconnect.Garmin]:
 
 
 def _set_cookie(response, sid: str) -> None:
+    # samesite="lax" (ikke "strict"): "strict" sender ikke cookien ved den
+    # første navigeringen når appen åpnes som installert PWA fra hjemskjermen
+    # — den telles som en ekstern navigering. Da fant ikke serveren økten, og
+    # man ble bedt om å logge inn på nytt hver gang, selv om cookien lå lagret.
     response.set_cookie(
         "sid", sid,
-        httponly=True, samesite="strict",
+        httponly=True, samesite="lax",
         max_age=60 * 60 * 24 * 30,
     )
 
