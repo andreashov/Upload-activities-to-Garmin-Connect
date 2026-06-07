@@ -1930,7 +1930,7 @@
         const r = await fetch('/api/group-workout/set', { method: 'POST', body: fd });
         const d = await r.json();
         if (r.ok) {
-          alert2('upload-alert', d.message + '\n\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
+          alert2('upload-alert', d.message + '\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
           document.getElementById('group-badge').textContent = '1';
           launchConfetti(); reset();
         } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');

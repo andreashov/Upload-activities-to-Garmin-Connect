@@ -419,9 +419,7 @@ async def set_group_workout(
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
     _save_group_workout(workout_def, scheduled_date)
-    d = date_type.fromisoformat(scheduled_date)
-    date_no = d.strftime("%-d. %B").lower()
-    return {"status": "ok", "message": f"De Grønnes økt er delt ✓ — {date_no}"}
+    return {"status": "ok", "message": f"De Grønnes økt er delt ✓ — {_fmt_date_no(scheduled_date)}"}
 
 
 @app.get("/api/group-workout")
