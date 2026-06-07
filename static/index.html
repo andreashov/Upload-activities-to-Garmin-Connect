@@ -2286,7 +2286,7 @@
   // Estimate a step's duration in seconds. Time-based steps store seconds
   // directly; distance-based steps store meters*100 and have no inherent
   // duration, so we estimate using the target pace (m/s) when available,
-  // falling back to a ~5:00 min/km running pace.
+  // falling back to a ~4:00 min/km running pace.
   function _stepSecs(step) {
     const key = step.endCondition?.conditionTypeKey;
     const val = step.endConditionValue;
@@ -2301,7 +2301,7 @@
         if (v1 && v2) speed = (v1 + v2) / 2;
         else if (v1) speed = v1;
       }
-      if (!speed) speed = 3.33; // fallback: ~5:00 min/km
+      if (!speed) speed = 4.17; // fallback: ~4:00 min/km
       return meters / speed;
     }
     return 0; // lap.button / open-ended — duration unknown
