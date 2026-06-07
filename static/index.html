@@ -1255,6 +1255,11 @@
       stroke-dashoffset: 800;
       animation: ecg-draw 3.2s cubic-bezier(0.4,0,0.2,1) infinite;
     }
+    .ecg-blip {
+      filter:
+        drop-shadow(0 0 3px rgba(255,255,255,0.95))
+        drop-shadow(0 0 8px rgba(0,255,200,0.75));
+    }
     @keyframes ecg-draw {
       0%   { stroke-dashoffset: 800; opacity: 0; }
       6%   { stroke-dashoffset: 800; opacity: 1; }
@@ -1617,13 +1622,22 @@
             <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
           </linearGradient>
         </defs>
-        <path class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="2.2"
+        <path id="ecg-line" class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="2.2"
           stroke-linecap="round" stroke-linejoin="round"
           d="M0,24 L12,24 L16,20 L19,24 L21,24 L23,4 L25,44 L27,24 L34,28 L46,24 L84,24
              L96,24 L100,20 L103,24 L105,24 L107,4 L109,44 L111,24 L118,28 L130,24 L168,24
              L180,24 L184,20 L187,24 L189,24 L191,4 L193,44 L195,24 L202,28 L214,24 L252,24
              L264,24 L268,20 L271,24 L273,24 L275,4 L277,44 L279,24 L286,28 L298,24 L336,24
              L348,24 L352,20 L355,24 L357,24 L359,4 L361,44 L363,24 L370,28 L382,24 L400,24"/>
+        <circle class="ecg-blip" r="3.2" fill="#ffffff">
+          <animateMotion dur="3.2s" repeatCount="indefinite" calcMode="spline"
+            keyPoints="0;0;1;1;0" keyTimes="0;0.06;0.75;0.9;1"
+            keySplines="0.4 0 0.2 1; 0.4 0 0.2 1; 0.4 0 0.2 1; 0.4 0 0.2 1">
+            <mpath href="#ecg-line" xlink:href="#ecg-line"/>
+          </animateMotion>
+          <animate attributeName="opacity" dur="3.2s" repeatCount="indefinite"
+            values="0;1;1;0;0" keyTimes="0;0.06;0.75;0.9;1"/>
+        </circle>
       </svg>
     </div><!-- /#card-front -->
 
