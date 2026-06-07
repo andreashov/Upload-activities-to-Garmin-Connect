@@ -10,8 +10,10 @@ from datetime import datetime, date as date_type
 from pathlib import Path
 from typing import Optional
 
+from html import escape as html_escape
+
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse as StarletteJSONResponse
@@ -85,6 +87,16 @@ def _save_group_workout(workout_def: dict, scheduled_date: str) -> None:
         "uploadedAt": datetime.utcnow().isoformat(),
         "shareId": share_id,
     }, ensure_ascii=False))
+
+
+_NO_WEEKDAYS = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
+_NO_MONTHS = ["januar", "februar", "mars", "april", "mai", "juni",
+              "juli", "august", "september", "oktober", "november", "desember"]
+
+
+def _fmt_date_no(iso: str) -> str:
+    d = date_type.fromisoformat(iso)
+    return f"{_NO_WEEKDAYS[d.weekday()]} {d.day}. {_NO_MONTHS[d.month - 1]}"
 
 
 def _load_group_workout() -> Optional[dict]:
@@ -450,6 +462,29 @@ async def claim_group_workout(request: Request):
         raise HTTPException(status_code=404, detail="Ingen aktiv gruppeøkt")
     content = json_module.dumps(data["workoutDef"]).encode()
     return await _upload_json_workout(client, content, data["date"])
+
+
+@app.get("/share/{share_id}", response_class=HTMLResponse)
+async def share_page(share_id: str):
+    html = (Path(__file__).parent / "static" / "index.html").read_text()
+    data = _load_group_workout()
+    if data and data.get("shareId") == share_id:
+        title = f"De Grønnes økt — {_fmt_date_no(data['date'])}"
+        description = data.get("workoutName", "Treningsøkt")
+        url = f"/share/{share_id}"
+        meta = (
+            f'<meta property="og:title" content="{html_escape(title)}">\n'
+            f'  <meta property="og:description" content="{html_escape(description)}">\n'
+            f'  <meta property="og:type" content="website">\n'
+            f'  <meta property="og:url" content="{html_escape(url)}">\n'
+            f'  <meta name="twitter:card" content="summary">\n'
+        )
+        html = html.replace("</head>", meta + "</head>", 1)
+        html = html.replace(
+            "<title>Garmin Treningsplanlegger</title>",
+            f"<title>{html_escape(title)}</title>",
+        )
+    return HTMLResponse(html)
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
