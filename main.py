@@ -326,16 +326,19 @@ async def health():
 # ── PIN ───────────────────────────────────────────────────────────────────────
 
 @app.post("/api/pin")
-async def verify_pin(pin: str = Form(...)):
+async def verify_pin(request: Request, pin: str = Form(...)):
+    # Gjenbruk en eksisterende sid fra cookien (hvis den finnes) i stedet for
+    # alltid å lage en ny — ellers blir den lagrede Garmin-innloggingen, som
+    # ligger i en mappe knyttet til sid-en, foreldreløs hver gang serveren
+    # restartes (f.eks. ved en deploy) og man må taste PIN-koden på nytt.
+    sid = _sid(request) or uuid.uuid4().hex
     if not APP_PIN:
-        sid = uuid.uuid4().hex
         _sessions[sid] = None
         r = JSONResponse({"status": "ok", "pinRequired": False})
         _set_cookie(r, sid)
         return r
     if pin != APP_PIN:
         raise HTTPException(status_code=401, detail="Feil PIN-kode")
-    sid = uuid.uuid4().hex
     _sessions[sid] = None
     r = JSONResponse({"status": "ok", "pinRequired": True})
     _set_cookie(r, sid)
