@@ -337,7 +337,7 @@ async def _upload_json_workout(
                 logger.warning("direct schedule failed: %s", exc)
 
     if scheduled:
-        message = f"Treningsøkt lagt til i Garmin-kalenderen din: {scheduled_date} ✓"
+        message = f"Treningsøkt lagt til i Garmin-kalenderen din\n{_fmt_date_no(scheduled_date)} ✓"
     else:
         message = f"Treningsøkt opprettet i Garmin Connect (ID: {workout_id})"
 
@@ -419,9 +419,7 @@ async def set_group_workout(
     except json_module.JSONDecodeError as exc:
         raise HTTPException(status_code=400, detail=f"Ugyldig JSON: {exc}")
     _save_group_workout(workout_def, scheduled_date)
-    d = date_type.fromisoformat(scheduled_date)
-    date_no = d.strftime("%-d. %B").lower()
-    return {"status": "ok", "message": f"De Grønnes økt er delt ✓ — {date_no}"}
+    return {"status": "ok", "message": f"De Grønnes økt er delt ✓ — {_fmt_date_no(scheduled_date)}"}
 
 
 @app.get("/api/group-workout")
