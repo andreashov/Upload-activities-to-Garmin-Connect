@@ -1405,14 +1405,14 @@
       <div class="login-icon"><img src="/apple-touch-icon.png" alt=""></div>
       <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
 
+      <!-- Upload-mode tabs (TEST: file vs. AI) -->
+      <div class="upload-mode-tabs" id="upload-mode-tabs">
+        <button type="button" class="mode-tab active" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
+        <button type="button" class="mode-tab ai" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
+      </div>
+
       <div class="upload-cols">
       <div class="upload-col-left">
-        <!-- Upload-mode tabs (TEST: file vs. AI) -->
-        <div class="upload-mode-tabs" id="upload-mode-tabs">
-          <button type="button" class="mode-tab active" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
-          <button type="button" class="mode-tab ai" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
-        </div>
-
         <!-- File picker -->
         <div class="dz" id="dz"
              onclick="document.getElementById('file-input').click()"
