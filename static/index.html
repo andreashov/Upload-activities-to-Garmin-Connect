@@ -697,10 +697,13 @@
       .upload-col-left .upload-mode-tabs .mode-tab {
         min-height: 0;
       }
-      .upload-col-left .dz,
-      .upload-col-left .ai-gen-panel {
+      .upload-col-left .upload-stage {
         flex: 1;
         margin-bottom: 0;
+        min-height: 0;
+      }
+      .upload-col-left .upload-stage > .dz,
+      .upload-col-left .upload-stage > .ai-gen-panel {
         min-height: 0;
       }
       .upload-col-right {
@@ -934,6 +937,23 @@
     }
     .dp.sel span { color: rgba(0,212,170,0.7); }
 
+    /* ── Upload stage (overlays file-picker and AI panel so the card
+       never resizes when switching modes — the grid track sizes itself
+       to the taller of the two, and both always occupy it) ────────── */
+    .upload-stage {
+      display: grid;
+      margin-bottom: 14px;
+    }
+    .upload-stage > .dz,
+    .upload-stage > .ai-gen-panel {
+      grid-area: 1 / 1;
+      margin-bottom: 0;
+    }
+    .upload-stage > .stage-hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
     /* ── Drop zone ───────────────────────────────────────── */
     .dz {
       border: 1.5px dashed rgba(255,255,255,0.14);
@@ -941,7 +961,6 @@
       padding: clamp(14px, 4vh, 28px) 16px;
       text-align: center; cursor: pointer;
       background: rgba(255,255,255,0.022);
-      margin-bottom: 14px;
       transition: all .22s;
       -webkit-tap-highlight-color: transparent;
       position: relative;
@@ -1070,18 +1089,15 @@
     }
 
     .ai-gen-panel {
-      display: none;
+      display: flex;
       flex-direction: column;
-      flex: 1;
       border: 1.5px dashed rgba(123,47,255,0.28);
       border-radius: 16px;
       padding: clamp(8px, 2vh, 14px) 16px;
       background: rgba(123,47,255,0.035);
-      margin-bottom: 14px;
       min-height: 156px;
       box-sizing: border-box;
     }
-    .ai-gen-panel.open { display: flex; }
     .ai-gen-panel textarea {
       width: 100%;
       flex: 1;
@@ -1425,7 +1441,8 @@
       input[type="date"],
       input[type="number"] { padding: 11px 12px; font-size: 16px; }
 
-      .dz { padding: clamp(10px, 2.5vh, 18px) 12px; margin-bottom: 10px; }
+      .upload-stage { margin-bottom: 10px; }
+      .dz { padding: clamp(10px, 2.5vh, 18px) 12px; }
       .dz-icon { font-size: 28px; margin-bottom: 4px; }
       .dz-main { font-size: 13px; }
 
@@ -1453,7 +1470,8 @@
       .card-title { font-size: 18px; margin-bottom: 6px; }
       .quote-wrap { min-height: 42px; margin-bottom: 8px; }
       .quote { font-size: 12px; }
-      .dz { padding: 8px 10px; margin-bottom: 8px; }
+      .upload-stage { margin-bottom: 8px; }
+      .dz { padding: 8px 10px; }
       .dz-icon { font-size: 22px; margin-bottom: 2px; }
       input[type="email"],
       input[type="password"] { padding: 9px 10px; }
@@ -1574,43 +1592,46 @@
           <button type="button" class="mode-tab ai" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
         </div>
 
-        <!-- File picker -->
-        <div class="dz" id="dz"
-             onclick="document.getElementById('file-input').click()"
-             ondragover="onDragOver(event)"
-             ondragleave="onDragLeave(event)"
-             ondrop="onDrop(event)">
-          <span class="dz-icon">📂</span>
-          <div class="dz-main">Trykk for å velge fil</div>
-          <div class="dz-hint">
-            <b>JSON</b> for planlagte fremtidige økter
-            &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
+        <!-- Upload stage: file picker and AI panel overlay each other so
+             the card never resizes when switching modes (see .upload-stage) -->
+        <div class="upload-stage">
+          <div class="dz" id="dz"
+               onclick="document.getElementById('file-input').click()"
+               ondragover="onDragOver(event)"
+               ondragleave="onDragLeave(event)"
+               ondrop="onDrop(event)">
+            <span class="dz-icon">📂</span>
+            <div class="dz-main">Trykk for å velge fil</div>
+            <div class="dz-hint">
+              <b>JSON</b> for planlagte fremtidige økter
+              &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
+            </div>
+            <!-- Selected state -->
+            <div class="dz-selected">
+              <div class="dz-file-row">
+                <div class="dz-badge" id="file-badge">JSON</div>
+                <div class="dz-change" onclick="document.getElementById('file-input').click(); event.stopPropagation()">Bytt</div>
+              </div>
+              <input class="dz-name-input" id="activity-name" type="text"
+                     placeholder="Navn på økt"
+                     onclick="event.stopPropagation()"
+                     onkeydown="event.stopPropagation()">
+              <div class="dz-preview-link" id="preview-btn-row"
+                   onclick="openPreview(); event.stopPropagation()">
+                Vis detaljer om økten
+              </div>
+            </div>
           </div>
-          <!-- Selected state -->
-          <div class="dz-selected">
-            <div class="dz-file-row">
-              <div class="dz-badge" id="file-badge">JSON</div>
-              <div class="dz-change" onclick="document.getElementById('file-input').click(); event.stopPropagation()">Bytt</div>
-            </div>
-            <input class="dz-name-input" id="activity-name" type="text"
-                   placeholder="Navn på økt"
-                   onclick="event.stopPropagation()"
-                   onkeydown="event.stopPropagation()">
-            <div class="dz-preview-link" id="preview-btn-row"
-                 onclick="openPreview(); event.stopPropagation()">
-              Vis detaljer om økten
-            </div>
+
+          <!-- AI workout generation (TEST) -->
+          <div class="ai-gen-panel stage-hidden" id="ai-gen-panel">
+            <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
+            <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
+            <div class="alert" id="ai-gen-alert"></div>
           </div>
         </div>
         <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
                onchange="onFileInput(this)">
-
-        <!-- AI workout generation (TEST) -->
-        <div class="ai-gen-panel" id="ai-gen-panel">
-          <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
-          <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
-          <div class="alert" id="ai-gen-alert"></div>
-        </div>
       </div>
 
       <div class="upload-col-right">
@@ -2224,8 +2245,8 @@
     const isAi = mode === 'ai';
     document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
     document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
-    document.getElementById('dz').style.display = isAi ? 'none' : '';
-    document.getElementById('ai-gen-panel').classList.toggle('open', isAi);
+    document.getElementById('dz').classList.toggle('stage-hidden', isAi);
+    document.getElementById('ai-gen-panel').classList.toggle('stage-hidden', !isAi);
   }
 
   async function generateWorkoutWithAI() {
