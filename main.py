@@ -40,6 +40,12 @@ GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 # session_id (uuid hex) → Garmin client (None = PIN ok, not yet logged in to Garmin)
 _sessions: dict[str, Optional[garminconnect.Garmin]] = {}
 
+# session_id → (client mid-login, display name) — set when Garmin challenges
+# the login with a one-time verification code (MFA). Garmin does this far more
+# often when sign-ins keep coming from "new" places, e.g. a server whose IP
+# changes on every redeploy — see _restore_client/_save_tokens.
+_pending_mfa: dict[str, tuple[garminconnect.Garmin, str]] = {}
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -391,6 +397,16 @@ async def get_status(request: Request):
 
 # ── Login / Logout ────────────────────────────────────────────────────────────
 
+def _finish_garmin_login(sid: str, client: garminconnect.Garmin, display_name: str) -> JSONResponse:
+    _pending_mfa.pop(sid, None)
+    _save_tokens(sid, client)
+    (_token_dir(sid) / "display_name.txt").write_text(display_name)
+    _sessions[sid] = client
+    r = JSONResponse({"status": "ok", "displayName": display_name})
+    _set_cookie(r, sid)
+    return r
+
+
 @app.post("/api/login")
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     sid = _sid(request)
@@ -398,16 +414,22 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         sid = uuid.uuid4().hex
     if sid not in _sessions:
         _sessions[sid] = None
+    display_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
     try:
-        client = garminconnect.Garmin(email=email, password=password)
-        client.login()
-        display_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
-        _save_tokens(sid, client)
-        (_token_dir(sid) / "display_name.txt").write_text(display_name)
-        _sessions[sid] = client
-        r = JSONResponse({"status": "ok", "displayName": display_name})
-        _set_cookie(r, sid)
-        return r
+        # return_on_mfa=True: Garmin challenges sign-ins from "new" places
+        # (e.g. a server whose IP changes on every redeploy) with a one-time
+        # verification code sent by e-mail/SMS. Without this flag the library
+        # raises a generic GarminConnectAuthenticationError ("MFA Required but
+        # no prompt_mfa mechanism supplied"), which looked exactly like a wrong
+        # password — leaving the user stuck retrying (or resetting) for nothing.
+        client = garminconnect.Garmin(email=email, password=password, return_on_mfa=True)
+        mfa_status, _ = client.login()
+        if mfa_status == "needs_mfa":
+            _pending_mfa[sid] = (client, display_name)
+            r = JSONResponse({"status": "mfa_required"})
+            _set_cookie(r, sid)
+            return r
+        return _finish_garmin_login(sid, client, display_name)
     except garminconnect.GarminConnectAuthenticationError:
         raise HTTPException(status_code=401, detail="Feil e-post eller passord")
     except Exception as exc:
@@ -427,9 +449,31 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         raise HTTPException(status_code=500, detail=msg)
 
 
+@app.post("/api/login-mfa")
+async def login_mfa(request: Request, code: str = Form(...)):
+    sid = _sid(request)
+    pending = _pending_mfa.get(sid)
+    if not pending:
+        raise HTTPException(
+            status_code=400,
+            detail="Ingen pågående innlogging. Skriv inn e-post og passord på nytt.",
+        )
+    client, display_name = pending
+    try:
+        client.resume_login(None, code.strip())
+    except garminconnect.GarminConnectAuthenticationError:
+        raise HTTPException(status_code=401, detail="Feil engangskode — prøv igjen")
+    except Exception as exc:
+        logger.exception("MFA resume failed")
+        _pending_mfa.pop(sid, None)
+        raise HTTPException(status_code=500, detail=str(exc))
+    return _finish_garmin_login(sid, client, display_name)
+
+
 @app.post("/api/logout")
 async def logout(request: Request):
     sid = _sid(request)
+    _pending_mfa.pop(sid, None)
     if sid in _sessions:
         _sessions[sid] = None
         shutil.rmtree(_token_dir(sid), ignore_errors=True)

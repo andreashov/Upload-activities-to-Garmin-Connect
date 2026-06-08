@@ -1531,7 +1531,7 @@
       <div class="quote" id="q0"></div>
       <div class="quote" id="q1"></div>
     </div>
-    <form onsubmit="doLogin(event)">
+    <form id="login-credentials-form" onsubmit="doLogin(event)">
       <div class="field">
         <input type="email" id="email" placeholder="E-post"
                required autocomplete="email">
@@ -1541,6 +1541,19 @@
                required autocomplete="current-password">
       </div>
       <button type="submit" class="btn" id="login-btn">Logg inn</button>
+    </form>
+    <form id="login-mfa-form" style="display:none" onsubmit="doMfa(event)">
+      <div class="card-sub" style="margin-top:0">
+        Garmin har sendt deg en engangskode (på e-post eller SMS) — skriv den inn under
+      </div>
+      <div class="field">
+        <input type="text" id="mfa-code" placeholder="Engangskode" required
+               inputmode="numeric" autocomplete="one-time-code">
+      </div>
+      <button type="submit" class="btn" id="mfa-btn">Bekreft</button>
+      <div style="text-align:center; margin-top:14px">
+        <span class="dz-change" style="margin-left:0" onclick="cancelMfa()">Tilbake til innlogging</span>
+      </div>
     </form>
     <div class="alert" id="login-alert"></div>
   </div>
@@ -1999,6 +2012,21 @@
     }
   }
 
+  function showMfaForm() {
+    document.getElementById('login-credentials-form').style.display = 'none';
+    document.getElementById('login-mfa-form').style.display = 'block';
+    alert2('login-alert', '', '');
+    const code = document.getElementById('mfa-code');
+    code.value = '';
+    setTimeout(() => code.focus(), 60);
+  }
+
+  function cancelMfa() {
+    document.getElementById('login-mfa-form').style.display = 'none';
+    document.getElementById('login-credentials-form').style.display = 'block';
+    alert2('login-alert', '', '');
+  }
+
   async function doLogin(e) {
     e.preventDefault();
     const b = document.getElementById('login-btn');
@@ -2010,11 +2038,28 @@
       fd.append('password', document.getElementById('password').value);
       const r = await fetch('/api/login', { method: 'POST', body: fd });
       const d = await r.json();
-      if (r.ok) { setIn(d.displayName); }
+      if (r.ok && d.status === 'mfa_required') { showMfaForm(); }
+      else if (r.ok) { setIn(d.displayName); }
       else if (r.status === 401 && d.detail === 'Krever PIN') { show('pin'); }
       else { alert2('login-alert', d.detail || 'Innlogging feilet', 'error'); }
     } catch(e) { alert2('login-alert', 'Nettverksfeil', 'error'); }
     finally { b.disabled = false; b.innerHTML = 'Logg inn'; }
+  }
+
+  async function doMfa(e) {
+    e.preventDefault();
+    const b = document.getElementById('mfa-btn');
+    alert2('login-alert', '', '');
+    b.disabled = true; b.innerHTML = '<span class="spinner"></span>Bekrefter…';
+    try {
+      const fd = new FormData();
+      fd.append('code', document.getElementById('mfa-code').value);
+      const r = await fetch('/api/login-mfa', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (r.ok) { cancelMfa(); setIn(d.displayName); }
+      else { alert2('login-alert', d.detail || 'Bekreftelse feilet', 'error'); }
+    } catch(e) { alert2('login-alert', 'Nettverksfeil', 'error'); }
+    finally { b.disabled = false; b.innerHTML = 'Bekreft'; }
   }
 
   async function logout() {
@@ -2027,6 +2072,7 @@
     document.getElementById('upload-btn').disabled = true;
     alert2('upload-alert', '', '');
     document.getElementById('user-info').style.display = 'none';
+    cancelMfa();
     show('login');
   }
 
