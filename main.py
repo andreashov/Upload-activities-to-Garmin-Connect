@@ -77,7 +77,7 @@ def _save_tokens(sid: str, client: garminconnect.Garmin) -> None:
     try:
         d = _token_dir(sid)
         d.mkdir(parents=True, exist_ok=True)
-        client.garth.dump(str(d))
+        client.client.dump(str(d))
     except Exception:
         logger.warning("Kunne ikke lagre tokens for session %s", sid[:8])
 
@@ -88,8 +88,11 @@ def _restore_client(sid: str) -> Optional[garminconnect.Garmin]:
         return None
     try:
         client = garminconnect.Garmin()
-        client.garth.load(str(d))
-        client.get_full_name()
+        # login(tokenstore=...) loads the saved tokens, refreshes them if
+        # needed, and fetches the profile — which both populates
+        # display_name/full_name and proves the tokens are still valid
+        # against Garmin's API (a bare token load can't tell us that).
+        client.login(tokenstore=str(d))
         return client
     except Exception:
         return None
