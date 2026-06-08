@@ -232,13 +232,7 @@ def _ai_workout_recipe() -> str:
     return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
 
 
-def _generate_workout_with_ai(description: str) -> dict:
-    system_prompt = (
-        _WORKOUT_GEN_PROMPT
-        + "\n"
-        + _ai_workout_recipe()
-        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
-    )
+def _ask_ai_for_workout_json(system_prompt: str, description: str) -> str:
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
@@ -249,6 +243,10 @@ def _generate_workout_with_ai(description: str) -> dict:
                 {"role": "user", "content": description.strip()},
             ],
             "temperature": 0.1,
+            # Tvinger modellen til å returnere syntaktisk gyldig JSON — uten
+            # denne hender det at den glemmer komma/anførselstegn og svaret
+            # ikke lar seg parse (json.loads feiler med "Expecting ',' ...").
+            "response_format": {"type": "json_object"},
         },
         timeout=60,
     )
@@ -272,8 +270,28 @@ def _generate_workout_with_ai(description: str) -> dict:
         raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
     text = data["choices"][0]["message"]["content"].strip()
-    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE).strip()
-    return json_module.loads(text)
+    return re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE).strip()
+
+
+def _generate_workout_with_ai(description: str) -> dict:
+    system_prompt = (
+        _WORKOUT_GEN_PROMPT
+        + "\n"
+        + _ai_workout_recipe()
+        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
+    )
+    last_parse_error: Optional[Exception] = None
+    for attempt in range(2):
+        text = _ask_ai_for_workout_json(system_prompt, description)
+        try:
+            return json_module.loads(text)
+        except json_module.JSONDecodeError as exc:
+            last_parse_error = exc
+            logger.warning("AI returnerte ugyldig JSON (forsøk %d/2): %s", attempt + 1, exc)
+    raise RuntimeError(
+        "AI-en svarte med ugyldig JSON og dette skjedde to ganger på rad — "
+        "prøv igjen, eller omformuler beskrivelsen."
+    ) from last_parse_error
 
 
 def _api_post(client: garminconnect.Garmin, path: str, data: dict) -> dict:
