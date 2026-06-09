@@ -664,19 +664,25 @@
       #upload-section {
         padding: 24px 28px 28px;
       }
-      #upload-section .login-icon {
-        display: inline-block;
-        vertical-align: middle;
+      #upload-section .card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      #upload-section .card-header .login-icon {
+        flex-shrink: 0;
         margin-bottom: 0;
-        margin-right: 14px;
         width: 44px; height: 44px;
         border-radius: 12px;
       }
-      #upload-section .card-title {
-        display: inline-block;
-        vertical-align: middle;
+      #upload-section .card-header .card-title {
+        margin-bottom: 0;
         text-align: left !important;
-        margin-bottom: 20px;
+        font-size: 20px;
+      }
+      #upload-section .card-header .card-title em {
+        font-size: 14px;
       }
 
       /* Two-column content */
@@ -1581,8 +1587,10 @@
 
     <!-- ── Front face ── -->
     <div id="card-front">
-      <div class="login-icon"><img src="/apple-touch-icon.png" alt=""></div>
-      <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
+      <div class="card-header">
+        <div class="login-icon"><img src="/apple-touch-icon.png" alt=""></div>
+        <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
+      </div>
 
       <div class="upload-cols">
       <div class="upload-col-left">
