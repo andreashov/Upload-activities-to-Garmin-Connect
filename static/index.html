@@ -211,7 +211,7 @@
     /* ── Header ──────────────────────────────────────────── */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: flex-end;
+      display: flex; align-items: center; justify-content: center;
       padding: 12px 16px;
       padding-top: max(12px, env(safe-area-inset-top));
       background: transparent;
@@ -220,6 +220,7 @@
 
     #user-info {
       display: none; align-items: center; gap: 10px;
+      max-width: 440px; width: 100%; justify-content: flex-end;
       font-size: 14px; font-weight: 600;
       color: rgba(255,255,255,0.88);
       pointer-events: all;
