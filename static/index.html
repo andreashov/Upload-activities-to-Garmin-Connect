@@ -1217,6 +1217,9 @@
       min-width: 0;
       box-sizing: border-box;
     }
+    /* Gap between panels visible during slide transition */
+    .mode-panel-slide:first-child { padding-right: 10px; }
+    .mode-panel-slide:last-child  { padding-left:  10px; }
 
     .ai-gen-panel {
       display: flex;
@@ -1737,16 +1740,25 @@
         <!-- Upload-mode tabs (TEST: file vs. AI) -->
         <div class="upload-mode-tabs" id="upload-mode-tabs">
           <div class="tab-pill" id="tab-pill"></div>
-          <button type="button" class="mode-tab active" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
-          <button type="button" class="mode-tab ai" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
+          <button type="button" class="mode-tab ai active" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
+          <button type="button" class="mode-tab" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
         </div>
 
         <!-- Sliding panels: File and AI side by side -->
         <div class="mode-panels-wrapper" id="mode-panels-wrapper">
           <div class="mode-panels-inner" id="mode-panels-inner">
 
-            <!-- Panel 0: File picker -->
-            <div class="mode-panel-slide" id="panel-file">
+            <!-- Panel 0: AI workout generation -->
+            <div class="mode-panel-slide" id="panel-ai">
+              <div class="ai-gen-panel" id="ai-gen-panel">
+                <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
+                <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
+                <div class="alert" id="ai-gen-alert"></div>
+              </div>
+            </div>
+
+            <!-- Panel 1: File picker -->
+            <div class="mode-panel-slide" id="panel-file" inert>
               <div class="dz" id="dz"
                    onclick="document.getElementById('file-input').click()"
                    ondragover="onDragOver(event)"
@@ -1776,15 +1788,6 @@
               </div>
               <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
                      onchange="onFileInput(this)">
-            </div>
-
-            <!-- Panel 1: AI workout generation (TEST) -->
-            <div class="mode-panel-slide" id="panel-ai" inert>
-              <div class="ai-gen-panel" id="ai-gen-panel">
-                <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
-                <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
-                <div class="alert" id="ai-gen-alert"></div>
-              </div>
             </div>
 
           </div>
@@ -2401,7 +2404,8 @@
   }
 
   // ── AI workout generation (TEST) ──────────────────────────
-  let _currentUploadMode = 'file';
+  // AI is the default/left mode; file upload is right
+  let _currentUploadMode = 'ai';
 
   function setUploadMode(mode) {
     const isAi = mode === 'ai';
@@ -2410,21 +2414,21 @@
     document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
     document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
 
-    // Slide pill
+    // Slide pill: AI=left (0), File=right (pillOffset)
     const pill = document.getElementById('tab-pill');
     const tabs = document.getElementById('upload-mode-tabs');
     if (pill && tabs) {
       const pillW = parseFloat(tabs.style.getPropertyValue('--pill-w')) || (tabs.offsetWidth - 14) / 2;
       pill.style.transition = '';
-      pill.style.transform = isAi ? `translateX(${pillW + 6}px)` : 'translateX(0px)';
+      pill.style.transform = isAi ? 'translateX(0px)' : `translateX(${pillW + 6}px)`;
       pill.classList.toggle('ai-active', isAi);
     }
 
-    // Slide content panels
+    // Slide content panels: AI=panel 0 (translateX 0), File=panel 1 (translateX -50%)
     const inner = document.getElementById('mode-panels-inner');
     if (inner) {
       inner.style.transition = '';
-      inner.style.transform = isAi ? 'translateX(-50%)' : 'translateX(0)';
+      inner.style.transform = isAi ? 'translateX(0)' : 'translateX(-50%)';
     }
 
     // Inert for accessibility: disable interaction with off-screen panel
@@ -2443,12 +2447,12 @@
     if (!tabs || !pill) return;
 
     function sizePill() {
-      const pillW = Math.round((tabs.offsetWidth - 14) / 2); // 14 = 2*4px padding + 6px gap
+      const pillW = Math.round((tabs.offsetWidth - 14) / 2);
       tabs.style.setProperty('--pill-w', pillW + 'px');
       pill.style.width = pillW + 'px';
       const isAi = _currentUploadMode === 'ai';
       pill.style.transition = 'none';
-      pill.style.transform = isAi ? `translateX(${pillW + 6}px)` : 'translateX(0px)';
+      pill.style.transform = isAi ? 'translateX(0px)' : `translateX(${pillW + 6}px)`;
       requestAnimationFrame(() => { pill.style.transition = ''; });
     }
 
@@ -2456,6 +2460,7 @@
     window.addEventListener('resize', sizePill);
 
     // ── Drag the tab toggle ──
+    // ratio=0 → AI (left), ratio=1 → File (right)
     tabs.addEventListener('pointerdown', e => {
       if (e.button !== 0) return;
 
@@ -2465,7 +2470,7 @@
 
       _tabDrag = {
         startX: e.clientX,
-        baseTranslate: _currentUploadMode === 'ai' ? pillOffset : 0,
+        baseTranslate: _currentUploadMode === 'ai' ? 0 : pillOffset,
         pillOffset,
         wrapperW,
         moved: false,
@@ -2485,7 +2490,7 @@
 
         pill.style.transition = 'none';
         pill.style.transform = `translateX(${clamped}px)`;
-        pill.classList.toggle('ai-active', ratio > 0.5);
+        pill.classList.toggle('ai-active', ratio < 0.5);
 
         const inner = document.getElementById('mode-panels-inner');
         inner.style.transition = 'none';
@@ -2507,7 +2512,7 @@
 
         pill.style.transition = '';
         document.getElementById('mode-panels-inner').style.transition = '';
-        setUploadMode(ratio >= 0.5 ? 'ai' : 'file');
+        setUploadMode(ratio >= 0.5 ? 'file' : 'ai');
       }
 
       document.addEventListener('pointermove', onMove, { passive: false });
