@@ -1740,7 +1740,7 @@
         <!-- Upload-mode tabs (TEST: file vs. AI) -->
         <div class="upload-mode-tabs" id="upload-mode-tabs">
           <div class="tab-pill" id="tab-pill"></div>
-          <button type="button" class="mode-tab ai active" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
+          <button type="button" class="mode-tab ai active" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Lag med AI</button>
           <button type="button" class="mode-tab" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
         </div>
 
@@ -1808,8 +1808,8 @@
             </div>
           </div>
         </div>
-        <!-- Set as group workout — only shown for JSON files -->
-        <div class="field" id="gw-toggle-wrap" style="display:none">
+        <!-- Set as group workout -->
+        <div class="field" id="gw-toggle-wrap">
           <label class="gw-check-label">
             <input type="checkbox" id="set-as-group" onchange="onGroupToggle(this)">
             <span class="gw-check-box"></span>
@@ -2399,7 +2399,7 @@
     document.getElementById('preview-btn-row').classList.toggle('visible', !!_parsedJson);
     document.getElementById('dz').classList.add('has-file');
     document.getElementById('upload-btn').disabled = false;
-    document.getElementById('gw-toggle-wrap').style.display = ext === 'json' ? 'block' : 'none';
+    // gw-toggle-wrap is always visible
     alert2('upload-alert', '', '');
   }
 
@@ -2804,7 +2804,7 @@
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
     document.getElementById('upload-btn').disabled = true;
-    document.getElementById('gw-toggle-wrap').style.display = 'none';
+    // gw-toggle-wrap stays visible
     const cb = document.getElementById('set-as-group');
     cb.checked = false;
     document.getElementById('upload-btn').textContent = 'Last opp til Garmin';
