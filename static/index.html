@@ -212,8 +212,7 @@
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: flex-end;
-      padding: 16px 20px;
-      padding-top: max(16px, env(safe-area-inset-top));
+      padding: max(env(safe-area-inset-top), 60px) 16px 0;
       background: transparent;
       pointer-events: none;
     }
@@ -672,31 +671,19 @@
         justify-content: flex-end;
       }
 
-      /* Upload section header row */
+      /* Upload section header row — landscape-specific sizing */
       #upload-section {
         padding: 24px 28px 28px;
       }
       #upload-section .card-header {
-        display: flex;
-        align-items: center;
-        gap: 14px;
         margin-bottom: 20px;
       }
       #upload-section .card-header .login-icon {
-        flex-shrink: 0;
-        margin: 0;
         width: 44px; height: 44px;
         border-radius: 12px;
       }
-      #upload-section .card-header .card-title {
-        margin-bottom: 0;
-        text-align: left !important;
-        font-size: 20px;
-      }
-      #upload-section .card-header .card-title em {
-        font-size: 14px;
-        text-align: left !important;
-      }
+      #upload-section .card-header .card-title { font-size: 20px; }
+      #upload-section .card-header .card-title em { font-size: 14px; }
 
       /* Two-column content */
       .upload-cols {
@@ -801,9 +788,24 @@
 
     #pin-section .card-title,
     #login-section .card-title,
-    #login-section .card-sub,
-    #upload-section .card-title,
-    #upload-section .card-title em { text-align: center; }
+    #login-section .card-sub { text-align: center; }
+
+    /* Upload section: logo + title always in a left-aligned flex row */
+    #upload-section .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: clamp(12px, 2.5vh, 20px);
+    }
+    #upload-section .card-header .login-icon {
+      flex-shrink: 0;
+      margin: 0;
+    }
+    #upload-section .card-header .card-title,
+    #upload-section .card-header .card-title em {
+      margin-bottom: 0;
+      text-align: left !important;
+    }
 
     #pin-section label,
     #login-section label,
