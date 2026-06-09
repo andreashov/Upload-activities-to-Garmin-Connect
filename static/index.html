@@ -660,6 +660,18 @@
       main { padding: 20px; }
       main > .card { max-width: 820px; }
 
+      /* Align buttons with the card's top edge and right edge */
+      header {
+        padding: 20px;
+        padding-top: max(20px, env(safe-area-inset-top));
+        justify-content: center;
+      }
+      header #user-info {
+        max-width: 820px;
+        width: 100%;
+        justify-content: flex-end;
+      }
+
       /* Upload section header row */
       #upload-section {
         padding: 24px 28px 28px;
