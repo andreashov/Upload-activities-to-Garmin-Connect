@@ -711,13 +711,24 @@
       .upload-col-left .upload-mode-tabs .mode-tab {
         min-height: 0;
       }
-      .upload-col-left .upload-stage {
+      .upload-col-left .mode-panels-wrapper {
         flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
         margin-bottom: 0;
+      }
+      .upload-col-left .mode-panels-inner {
+        flex: 1;
         min-height: 0;
       }
-      .upload-col-left .upload-stage > .dz,
-      .upload-col-left .upload-stage > .ai-gen-panel {
+      .upload-col-left .mode-panel-slide {
+        display: flex;
+        flex-direction: column;
+      }
+      .upload-col-left .dz,
+      .upload-col-left .ai-gen-panel {
+        flex: 1;
         min-height: 0;
       }
       .upload-col-right {
@@ -1145,8 +1156,30 @@
       border-bottom-color: rgba(255,255,255,0.13);
       border-radius: 14px;
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.20);
+      position: relative;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .upload-mode-tabs.visible { display: flex; }
+    .tab-pill {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      border-radius: 9px;
+      background: rgba(255,255,255,0.085);
+      pointer-events: none;
+      will-change: transform;
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                  background 0.32s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.1) inset;
+    }
+    .tab-pill.ai-active {
+      background: linear-gradient(135deg, rgba(0,212,170,0.22) 0%, rgba(123,47,255,0.22) 100%);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 0 12px rgba(123,47,255,0.18),
+                  0 1px 0 rgba(255,255,255,0.1) inset;
+    }
     .mode-tab {
       flex: 1;
       display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -1157,23 +1190,32 @@
       font: inherit; font-size: 12.5px; font-weight: 700;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      transition: background .18s, color .18s, box-shadow .18s;
+      transition: color .22s;
+      position: relative;
+      z-index: 1;
     }
     .mode-tab.active {
-      background: linear-gradient(170deg,
-        rgba(255,255,255,0.18) 0%,
-        rgba(255,255,255,0.08) 100%);
       color: var(--t1);
-      box-shadow:
-        inset 0 1.5px 0 rgba(255,255,255,0.22),
-        0 2px 8px rgba(0,0,0,0.20);
     }
     .mode-tab.active.ai {
-      background: linear-gradient(135deg, rgba(0,212,170,0.28) 0%, rgba(123,47,255,0.28) 100%);
-      box-shadow:
-        inset 0 1.5px 0 rgba(255,255,255,0.22),
-        0 2px 8px rgba(123,47,255,0.18);
       color: #fff;
+    }
+
+    /* Sliding panels */
+    .mode-panels-wrapper {
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .mode-panels-inner {
+      display: flex;
+      width: 200%;
+      will-change: transform;
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mode-panel-slide {
+      width: 50%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .ai-gen-panel {
@@ -1536,8 +1578,8 @@
       input[type="date"],
       input[type="number"] { padding: 11px 12px; font-size: 16px; }
 
-      .upload-stage { margin-bottom: 10px; }
       .dz { padding: clamp(10px, 2.5vh, 18px) 12px; }
+      .mode-panels-wrapper { margin-bottom: 10px; }
       .dz-icon { font-size: 28px; margin-bottom: 4px; }
       .dz-main { font-size: 13px; }
 
@@ -1565,7 +1607,7 @@
       .card-title { font-size: 18px; margin-bottom: 6px; }
       .quote-wrap { min-height: 42px; margin-bottom: 8px; }
       .quote { font-size: 12px; }
-      .upload-stage { margin-bottom: 8px; }
+      .mode-panels-wrapper { margin-bottom: 8px; }
       .dz { padding: 8px 10px; }
       .dz-icon { font-size: 22px; margin-bottom: 2px; }
       input[type="email"],
@@ -1685,50 +1727,59 @@
       <div class="upload-col-left">
         <!-- Upload-mode tabs (TEST: file vs. AI) -->
         <div class="upload-mode-tabs" id="upload-mode-tabs">
+          <div class="tab-pill" id="tab-pill"></div>
           <button type="button" class="mode-tab active" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
           <button type="button" class="mode-tab ai" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Beskriv med AI</button>
         </div>
 
-        <!-- Upload stage: file picker and AI panel overlay each other so
-             the card never resizes when switching modes (see .upload-stage) -->
-        <div class="upload-stage">
-          <div class="dz" id="dz"
-               onclick="document.getElementById('file-input').click()"
-               ondragover="onDragOver(event)"
-               ondragleave="onDragLeave(event)"
-               ondrop="onDrop(event)">
-            <span class="dz-icon">📂</span>
-            <div class="dz-main">Trykk for å velge fil</div>
-            <div class="dz-hint">
-              <b>JSON</b> for planlagte fremtidige økter
-              &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
-            </div>
-            <!-- Selected state -->
-            <div class="dz-selected">
-              <div class="dz-file-row">
-                <div class="dz-badge" id="file-badge">JSON</div>
-                <div class="dz-change" onclick="document.getElementById('file-input').click(); event.stopPropagation()">Bytt</div>
-              </div>
-              <input class="dz-name-input" id="activity-name" type="text"
-                     placeholder="Navn på økt"
-                     onclick="event.stopPropagation()"
-                     onkeydown="event.stopPropagation()">
-              <div class="dz-preview-link" id="preview-btn-row"
-                   onclick="openPreview(); event.stopPropagation()">
-                Vis detaljer om økten
-              </div>
-            </div>
-          </div>
+        <!-- Sliding panels: File and AI side by side -->
+        <div class="mode-panels-wrapper" id="mode-panels-wrapper">
+          <div class="mode-panels-inner" id="mode-panels-inner">
 
-          <!-- AI workout generation (TEST) -->
-          <div class="ai-gen-panel stage-hidden" id="ai-gen-panel">
-            <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
-            <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
-            <div class="alert" id="ai-gen-alert"></div>
+            <!-- Panel 0: File picker -->
+            <div class="mode-panel-slide" id="panel-file">
+              <div class="dz" id="dz"
+                   onclick="document.getElementById('file-input').click()"
+                   ondragover="onDragOver(event)"
+                   ondragleave="onDragLeave(event)"
+                   ondrop="onDrop(event)">
+                <span class="dz-icon">📂</span>
+                <div class="dz-main">Trykk for å velge fil</div>
+                <div class="dz-hint">
+                  <b>JSON</b> for planlagte fremtidige økter
+                  &nbsp;·&nbsp; FIT / TCX / GPX for aktiviteter
+                </div>
+                <!-- Selected state -->
+                <div class="dz-selected">
+                  <div class="dz-file-row">
+                    <div class="dz-badge" id="file-badge">JSON</div>
+                    <div class="dz-change" onclick="document.getElementById('file-input').click(); event.stopPropagation()">Bytt</div>
+                  </div>
+                  <input class="dz-name-input" id="activity-name" type="text"
+                         placeholder="Navn på økt"
+                         onclick="event.stopPropagation()"
+                         onkeydown="event.stopPropagation()">
+                  <div class="dz-preview-link" id="preview-btn-row"
+                       onclick="openPreview(); event.stopPropagation()">
+                    Vis detaljer om økten
+                  </div>
+                </div>
+              </div>
+              <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
+                     onchange="onFileInput(this)">
+            </div>
+
+            <!-- Panel 1: AI workout generation (TEST) -->
+            <div class="mode-panel-slide" id="panel-ai" inert>
+              <div class="ai-gen-panel" id="ai-gen-panel">
+                <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
+                <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
+                <div class="alert" id="ai-gen-alert"></div>
+              </div>
+            </div>
+
           </div>
         </div>
-        <input type="file" id="file-input" accept=".json,.fit,.tcx,.gpx"
-               onchange="onFileInput(this)">
       </div>
 
       <div class="upload-col-right">
@@ -2037,7 +2088,10 @@
     document.getElementById('profile-menu-name').textContent = name;
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
     fetch('/api/status').then(r => r.json()).then(d => {
-      if (d.aiWorkoutGenEnabled) document.getElementById('upload-mode-tabs').classList.add('visible');
+      if (d.aiWorkoutGenEnabled) {
+        document.getElementById('upload-mode-tabs').classList.add('visible');
+        initTabPill();
+      }
     }).catch(() => {});
   }
 
@@ -2338,12 +2392,119 @@
   }
 
   // ── AI workout generation (TEST) ──────────────────────────
+  let _currentUploadMode = 'file';
+
   function setUploadMode(mode) {
     const isAi = mode === 'ai';
+    _currentUploadMode = mode;
+
     document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
     document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
-    document.getElementById('dz').classList.toggle('stage-hidden', isAi);
-    document.getElementById('ai-gen-panel').classList.toggle('stage-hidden', !isAi);
+
+    // Slide pill
+    const pill = document.getElementById('tab-pill');
+    const tabs = document.getElementById('upload-mode-tabs');
+    if (pill && tabs) {
+      const pillW = parseFloat(tabs.style.getPropertyValue('--pill-w')) || (tabs.offsetWidth - 14) / 2;
+      pill.style.transition = '';
+      pill.style.transform = isAi ? `translateX(${pillW + 6}px)` : 'translateX(0px)';
+      pill.classList.toggle('ai-active', isAi);
+    }
+
+    // Slide content panels
+    const inner = document.getElementById('mode-panels-inner');
+    if (inner) {
+      inner.style.transition = '';
+      inner.style.transform = isAi ? 'translateX(-50%)' : 'translateX(0)';
+    }
+
+    // Inert for accessibility: disable interaction with off-screen panel
+    const filePanel = document.getElementById('panel-file');
+    const aiPanel   = document.getElementById('panel-ai');
+    if (filePanel) filePanel.inert = isAi;
+    if (aiPanel)   aiPanel.inert   = !isAi;
+  }
+
+  // Initialise pill width and drag behaviour
+  let _tabDrag = null;
+
+  function initTabPill() {
+    const tabs = document.getElementById('upload-mode-tabs');
+    const pill = document.getElementById('tab-pill');
+    if (!tabs || !pill) return;
+
+    function sizePill() {
+      const pillW = Math.round((tabs.offsetWidth - 14) / 2); // 14 = 2*4px padding + 6px gap
+      tabs.style.setProperty('--pill-w', pillW + 'px');
+      pill.style.width = pillW + 'px';
+      const isAi = _currentUploadMode === 'ai';
+      pill.style.transition = 'none';
+      pill.style.transform = isAi ? `translateX(${pillW + 6}px)` : 'translateX(0px)';
+      requestAnimationFrame(() => { pill.style.transition = ''; });
+    }
+
+    sizePill();
+    window.addEventListener('resize', sizePill);
+
+    // ── Drag the tab toggle ──
+    tabs.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+
+      const pillW = parseFloat(pill.style.width) || (tabs.offsetWidth - 14) / 2;
+      const pillOffset = pillW + 6;
+      const wrapperW = document.getElementById('mode-panels-wrapper').offsetWidth;
+
+      _tabDrag = {
+        startX: e.clientX,
+        baseTranslate: _currentUploadMode === 'ai' ? pillOffset : 0,
+        pillOffset,
+        wrapperW,
+        moved: false,
+        pointerId: e.pointerId
+      };
+
+      function onMove(ev) {
+        if (!_tabDrag || ev.pointerId !== _tabDrag.pointerId) return;
+        const dx = ev.clientX - _tabDrag.startX;
+        if (Math.abs(dx) < 4 && !_tabDrag.moved) return;
+        _tabDrag.moved = true;
+        ev.preventDefault();
+
+        const raw = _tabDrag.baseTranslate + dx;
+        const clamped = Math.max(0, Math.min(_tabDrag.pillOffset, raw));
+        const ratio = clamped / _tabDrag.pillOffset;
+
+        pill.style.transition = 'none';
+        pill.style.transform = `translateX(${clamped}px)`;
+        pill.classList.toggle('ai-active', ratio > 0.5);
+
+        const inner = document.getElementById('mode-panels-inner');
+        inner.style.transition = 'none';
+        inner.style.transform = `translateX(${-_tabDrag.wrapperW * ratio}px)`;
+      }
+
+      function onUp(ev) {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup',   onUp);
+        document.removeEventListener('pointercancel', onUp);
+
+        if (!_tabDrag || !_tabDrag.moved) { _tabDrag = null; return; }
+        const { pillOffset } = _tabDrag;
+        _tabDrag = null;
+
+        const m = pill.style.transform.match(/translateX\(([^)]+)px\)/);
+        const curX = m ? parseFloat(m[1]) : 0;
+        const ratio = curX / pillOffset;
+
+        pill.style.transition = '';
+        document.getElementById('mode-panels-inner').style.transition = '';
+        setUploadMode(ratio >= 0.5 ? 'ai' : 'file');
+      }
+
+      document.addEventListener('pointermove', onMove, { passive: false });
+      document.addEventListener('pointerup',   onUp);
+      document.addEventListener('pointercancel', onUp);
+    });
   }
 
   async function generateWorkoutWithAI() {
