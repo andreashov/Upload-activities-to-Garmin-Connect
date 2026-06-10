@@ -323,7 +323,8 @@ def _generate_workout_with_ai(description: str) -> dict:
         _WORKOUT_GEN_PROMPT
         + "\n"
         + _ai_workout_recipe()
-        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
+        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer. "
+        "Skriv kompakt JSON uten innrykk og linjeskift (store økter blir ellers unødig lange)."
     )
     last_parse_error: Optional[Exception] = None
     # Forsøk 1 og 2 med tvungen JSON-modus; siste forsøk uten, siden Groq
