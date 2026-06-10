@@ -1639,25 +1639,12 @@
     }
 
     .gw-check-label {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
       width: 100%; box-sizing: border-box;
-      padding: 12px 14px;
-      background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      border: 1px solid rgba(255,255,255,0.28);
-      border-top-color: rgba(255,255,255,0.55);
-      border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 16px;
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        0 6px 18px rgba(0,0,0,0.25);
+      padding: 4px 0;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
       font-size: 14px; font-weight: 600; color: var(--t1);
       text-transform: none; letter-spacing: normal; margin-bottom: 0;
-      transition: background .15s, border-color .15s;
     }
     .gw-check-label input[type="checkbox"] { display: none; }
     .gw-check-box {
@@ -1687,9 +1674,7 @@
       content: '✓'; font-size: 12px; font-weight: 800; color: var(--green);
     }
     .gw-check-label:has(input:checked) {
-      background: linear-gradient(160deg, rgba(6,255,165,0.12) 0%, rgba(6,255,165,0.04) 100%);
-      border-color: rgba(6,255,165,0.40);
-      border-top-color: rgba(6,255,165,0.55);
+      color: var(--green);
     }
 
     /* ── Mobile: kompakt for å unngå scrolling ───────────── */
