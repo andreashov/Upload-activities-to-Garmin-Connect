@@ -232,29 +232,47 @@ def _ai_workout_recipe() -> str:
     return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
 
 
-def _ask_ai_for_workout_json(system_prompt: str, description: str) -> str:
+def _extract_json_object(text: str) -> str:
+    """Klipp ut selve JSON-objektet fra et svar som kan inneholde
+    kodeblokk-merker eller tekst før/etter objektet."""
+    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE).strip()
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        return text[start : end + 1]
+    return text
+
+
+def _ask_ai_for_workout_json(system_prompt: str, description: str, force_json: bool = True) -> str:
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": description.strip()},
+        ],
+        "temperature": 0.1,
+    }
+    if force_json:
+        # Tvinger modellen til å returnere syntaktisk gyldig JSON — uten
+        # denne hender det at den glemmer komma/anførselstegn og svaret
+        # ikke lar seg parse (json.loads feiler med "Expecting ',' ...").
+        payload["response_format"] = {"type": "json_object"}
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
-        json={
-            "model": GROQ_MODEL,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": description.strip()},
-            ],
-            "temperature": 0.1,
-            # Tvinger modellen til å returnere syntaktisk gyldig JSON — uten
-            # denne hender det at den glemmer komma/anførselstegn og svaret
-            # ikke lar seg parse (json.loads feiler med "Expecting ',' ...").
-            "response_format": {"type": "json_object"},
-        },
+        json=payload,
         timeout=60,
     )
     if not resp.ok:
         try:
-            err = resp.json().get("error", {}).get("message", resp.text)
+            err_obj = resp.json().get("error", {})
+            err = err_obj.get("message", resp.text)
         except Exception:
-            err = resp.text
+            err_obj, err = {}, resp.text
+        # Groq svarer 400 "Failed to generate JSON" når json_object-modusen
+        # ikke godkjenner modellens svar — men legger ved selve teksten i
+        # failed_generation, som ofte er parsebar likevel.
+        if resp.status_code == 400 and err_obj.get("failed_generation"):
+            return _extract_json_object(err_obj["failed_generation"])
         if resp.status_code == 429:
             wait = ""
             m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
@@ -269,8 +287,7 @@ def _ask_ai_for_workout_json(system_prompt: str, description: str) -> str:
             )
         raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
-    text = data["choices"][0]["message"]["content"].strip()
-    return re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE).strip()
+    return _extract_json_object(data["choices"][0]["message"]["content"])
 
 
 def _generate_workout_with_ai(description: str) -> dict:
@@ -281,15 +298,18 @@ def _generate_workout_with_ai(description: str) -> dict:
         + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
     )
     last_parse_error: Optional[Exception] = None
-    for attempt in range(2):
-        text = _ask_ai_for_workout_json(system_prompt, description)
+    # Forsøk 1 og 2 med tvungen JSON-modus; siste forsøk uten, siden Groq
+    # av og til avviser lange svar i json_object-modus ("Failed to generate
+    # JSON") selv om modellen kan levere parsebar JSON i fritekst-modus.
+    for attempt, force_json in enumerate([True, True, False]):
+        text = _ask_ai_for_workout_json(system_prompt, description, force_json=force_json)
         try:
             return json_module.loads(text)
         except json_module.JSONDecodeError as exc:
             last_parse_error = exc
-            logger.warning("AI returnerte ugyldig JSON (forsøk %d/2): %s", attempt + 1, exc)
+            logger.warning("AI returnerte ugyldig JSON (forsøk %d/3): %s", attempt + 1, exc)
     raise RuntimeError(
-        "AI-en svarte med ugyldig JSON og dette skjedde to ganger på rad — "
+        "AI-en svarte med ugyldig JSON tre ganger på rad — "
         "prøv igjen, eller omformuler beskrivelsen."
     ) from last_parse_error
 
