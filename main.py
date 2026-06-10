@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import tempfile
+import time
 import uuid
 from datetime import datetime, date as date_type
 from pathlib import Path
@@ -232,6 +233,16 @@ def _ai_workout_recipe() -> str:
     return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
 
 
+class _GroqRateLimit(RuntimeError):
+    """429 fra Groq. per_minute skiller forbigående per-minutt-grenser
+    (kan ventes ut automatisk) fra dags-grenser (må vente til i morgen)."""
+
+    def __init__(self, message: str, retry_after: float, per_minute: bool):
+        super().__init__(message)
+        self.retry_after = retry_after
+        self.per_minute = per_minute
+
+
 def _extract_json_object(text: str) -> str:
     """Klipp ut selve JSON-objektet fra et svar som kan inneholde
     kodeblokk-merker eller tekst før/etter objektet."""
@@ -274,17 +285,34 @@ def _ask_ai_for_workout_json(system_prompt: str, description: str, force_json: b
         if resp.status_code == 400 and err_obj.get("failed_generation"):
             return _extract_json_object(err_obj["failed_generation"])
         if resp.status_code == 429:
-            wait = ""
-            m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
-            if m:
-                h, mi, s = (int(m.group(1) or 0), int(m.group(2) or 0), float(m.group(3) or 0))
-                total_min = h * 60 + mi + (1 if s else 0)
-                if total_min > 0:
+            logger.warning("Groq 429: %s", err)
+            retry_after = 0.0
+            try:
+                retry_after = float(resp.headers.get("retry-after", ""))
+            except ValueError:
+                m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
+                if m:
+                    retry_after = (
+                        int(m.group(1) or 0) * 3600
+                        + int(m.group(2) or 0) * 60
+                        + float(m.group(3) or 0)
+                    )
+            # Groq oppgir hvilken grense som er truffet: per-minutt (TPM/RPM)
+            # er forbigående og noe annet enn dags-grensene (TPD/RPD).
+            per_minute = "per minute" in err.lower()
+            if per_minute:
+                secs = int(retry_after) + 1 if retry_after else 0
+                msg = (
+                    "AI-tjenesten (Groq) har fått for mange forespørsler på kort tid."
+                    + (f" Prøv igjen om ca. {secs} sekunder." if secs else " Prøv igjen om litt.")
+                )
+            else:
+                wait = ""
+                if retry_after:
+                    total_min = max(1, round(retry_after / 60))
                     wait = f" Prøv igjen om ca. {total_min} minutt{'er' if total_min != 1 else ''}."
-            raise RuntimeError(
-                "AI-generatoren har nådd dagens grense for antall forespørsler hos Groq."
-                + wait
-            )
+                msg = "AI-generatoren har nådd dagens grense hos Groq." + wait
+            raise _GroqRateLimit(msg, retry_after, per_minute)
         raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
     return _extract_json_object(data["choices"][0]["message"]["content"])
@@ -302,7 +330,16 @@ def _generate_workout_with_ai(description: str) -> dict:
     # av og til avviser lange svar i json_object-modus ("Failed to generate
     # JSON") selv om modellen kan levere parsebar JSON i fritekst-modus.
     for attempt, force_json in enumerate([True, True, False]):
-        text = _ask_ai_for_workout_json(system_prompt, description, force_json=force_json)
+        try:
+            text = _ask_ai_for_workout_json(system_prompt, description, force_json=force_json)
+        except _GroqRateLimit as exc:
+            # Per-minutt-grense med kort ventetid: vent og prøv igjen i stedet
+            # for å avbryte — skjer lett når retry-forsøkene over kommer tett.
+            if not (exc.per_minute and 0 < exc.retry_after <= 30):
+                raise
+            logger.warning("Groq per-minutt-grense — venter %.1fs og prøver igjen", exc.retry_after)
+            time.sleep(exc.retry_after + 0.5)
+            text = _ask_ai_for_workout_json(system_prompt, description, force_json=force_json)
         try:
             return json_module.loads(text)
         except json_module.JSONDecodeError as exc:
