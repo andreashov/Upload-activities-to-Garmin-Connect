@@ -1450,6 +1450,7 @@
     .slide-confirm-fill {
       position: absolute; top: 0; left: 0; bottom: 0;
       width: 60px;
+      overflow: hidden;
       background: linear-gradient(90deg, rgba(0,212,170,0.30) 0%, rgba(58,134,255,0.08) 100%);
       border-radius: 28px;
       transition: width .45s cubic-bezier(0.22,1,0.36,1), background .25s;
@@ -1460,6 +1461,22 @@
     }
     .slide-confirm.dragging .slide-confirm-fill {
       transition: background .25s;
+    }
+    .slide-confirm-fill::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%);
+      background-size: 200% 100%;
+      background-position: 200% 0;
+      opacity: 0;
+    }
+    .slide-confirm.busy .slide-confirm-fill::after {
+      opacity: 1;
+      animation: slide-fill-sweep 1.5s ease-in-out infinite;
+    }
+    @keyframes slide-fill-sweep {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
     .slide-confirm-label {
       position: absolute; inset: 0;
@@ -1518,11 +1535,31 @@
       cursor: default;
     }
     .slide-confirm.busy .slide-confirm-icon {
-      animation: slide-icon-pulse 1.6s cubic-bezier(0.45,0,0.55,1) infinite;
+      opacity: 0;
+      transform: scale(0.6);
     }
-    @keyframes slide-icon-pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .35; transform: scale(0.82); }
+    .slide-confirm-spinner {
+      position: absolute;
+      inset: 0; margin: auto;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 3px solid rgba(58,134,255,0.18);
+      border-top-color: var(--blue);
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+    }
+    .slide-confirm.btn-group .slide-confirm-spinner {
+      border-color: rgba(6,255,165,0.18);
+      border-top-color: var(--green);
+    }
+    .slide-confirm.busy .slide-confirm-spinner {
+      opacity: 1;
+      animation: slide-spinner-spin .8s linear infinite;
+    }
+    @keyframes slide-spinner-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
 
     /* ── Alerts ──────────────────────────────────────────── */
@@ -2038,6 +2075,7 @@
             <svg class="slide-confirm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            <div class="slide-confirm-spinner"></div>
           </div>
         </div>
         <div class="alert" id="upload-alert"></div>
