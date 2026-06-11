@@ -756,7 +756,7 @@
         flex-direction: column;
       }
       .upload-col-right .field { margin-bottom: 12px; }
-      #upload-btn { margin-top: auto; }
+      #upload-slide { margin-top: auto; }
 
       /* Login and PIN sections: stay narrow, centered */
       #login-section,
@@ -1083,7 +1083,9 @@
 
     /* ── Drop zone ───────────────────────────────────────── */
     .dz {
-      border: 1.5px dashed rgba(255,255,255,0.20);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-top-color: rgba(255,255,255,0.55);
+      border-bottom-color: rgba(255,255,255,0.30);
       border-radius: 20px;
       padding: clamp(14px, 4vh, 28px) 16px;
       text-align: center; cursor: pointer;
@@ -1289,7 +1291,7 @@
     /* Sliding panels */
     .mode-panels-wrapper {
       overflow: hidden;
-      margin-bottom: 14px;
+      margin: 0 -8px 14px;
     }
     .mode-panels-inner {
       display: flex;
@@ -1299,6 +1301,7 @@
     }
     .mode-panel-slide {
       width: 50%;
+      padding: 0 8px;
       min-width: 0;
       box-sizing: border-box;
     }
@@ -1418,6 +1421,94 @@
       box-shadow: 0 2px 12px rgba(0,212,170,0.2);
     }
     .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Slide to confirm (iOS "slide to answer" style) ─────── */
+    .slide-confirm {
+      position: relative;
+      width: 100%; height: 56px; margin-top: 10px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-top-color: rgba(255,255,255,0.55);
+      border-bottom-color: rgba(255,255,255,0.30);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.45),
+        inset 0 -1px 1px rgba(255,255,255,0.25),
+        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
+        0 6px 18px rgba(0,0,0,0.25);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      transition: opacity .2s;
+    }
+    .slide-confirm.disabled { opacity: .45; pointer-events: none; }
+    .slide-confirm-fill {
+      position: absolute; top: 0; left: 0; bottom: 0;
+      width: 56px;
+      background: linear-gradient(160deg, var(--teal) 0%, var(--blue) 100%);
+      border-radius: 28px;
+      transition: width .3s cubic-bezier(0.4,0,0.2,1), background .25s;
+      pointer-events: none;
+    }
+    .slide-confirm.btn-group .slide-confirm-fill {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
+    }
+    .slide-confirm-label {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14.5px; font-weight: 700; letter-spacing: -0.1px;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity .15s;
+      background: linear-gradient(90deg,
+        var(--t2) 0%, var(--t2) 35%, #fff 50%, var(--t2) 65%, var(--t2) 100%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      animation: slide-shimmer 2.6s linear infinite;
+    }
+    @keyframes slide-shimmer {
+      0%   { background-position: 250% 0; }
+      100% { background-position: -250% 0; }
+    }
+    .slide-confirm-thumb {
+      position: absolute; top: 4px; left: 4px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #ffffff 0%, rgba(255,255,255,0.85) 100%);
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.30),
+        0 1px 2px rgba(0,0,0,0.20),
+        inset 0 1px 1px rgba(255,255,255,0.9),
+        inset 0 -2px 3px rgba(0,0,0,0.08);
+      cursor: grab;
+      z-index: 2;
+      transition: left .3s cubic-bezier(0.4,0,0.2,1), box-shadow .15s;
+    }
+    .slide-confirm-thumb.dragging {
+      transition: none;
+      cursor: grabbing;
+      box-shadow:
+        0 4px 16px rgba(0,0,0,0.35),
+        inset 0 1px 1px rgba(255,255,255,0.9),
+        inset 0 -2px 3px rgba(0,0,0,0.08);
+    }
+    .slide-confirm-arrow {
+      font-size: 22px; font-weight: 700; line-height: 1;
+      color: var(--blue);
+      transform: translateX(1px);
+    }
+    .slide-confirm.btn-group .slide-confirm-arrow { color: #00b37a; }
+    .slide-confirm-spinner {
+      display: none; margin: 0;
+      border-color: rgba(0,0,0,0.15); border-top-color: var(--blue);
+    }
+    .slide-confirm.btn-group .slide-confirm-spinner { border-top-color: #00b37a; }
+    .slide-confirm.busy .slide-confirm-arrow { display: none; }
+    .slide-confirm.busy .slide-confirm-spinner { display: inline-block; }
+    .slide-confirm.busy .slide-confirm-thumb { cursor: default; }
 
     /* ── Alerts ──────────────────────────────────────────── */
     .alert {
@@ -1951,9 +2042,14 @@
             <span>Sett som De Grønnes økt</span>
           </label>
         </div>
-        <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
-          Last opp til Garmin
-        </button>
+        <div class="slide-confirm disabled" id="upload-slide">
+          <div class="slide-confirm-fill" id="slide-confirm-fill"></div>
+          <span class="slide-confirm-label" id="slide-confirm-label">Skyv for å laste opp</span>
+          <div class="slide-confirm-thumb" id="slide-confirm-thumb">
+            <span class="slide-confirm-arrow">›</span>
+            <span class="spinner slide-confirm-spinner" id="slide-confirm-spinner"></span>
+          </div>
+        </div>
         <div class="alert" id="upload-alert"></div>
       </div>
       </div><!-- /.upload-cols -->
@@ -2389,7 +2485,8 @@
     document.getElementById('dz').classList.remove('has-file');
     document.getElementById('activity-name').value = '';
     document.getElementById('preview-btn-row').classList.remove('visible');
-    document.getElementById('upload-btn').disabled = true;
+    setSlideEnabled(false);
+    resetSlide();
     alert2('upload-alert', '', '');
     document.getElementById('user-info').style.display = 'none';
     cancelMfa();
@@ -2533,7 +2630,7 @@
     document.getElementById('activity-name').placeholder = parsedName ? 'Rediger navn…' : f.name;
     document.getElementById('preview-btn-row').classList.toggle('visible', !!_parsedJson);
     document.getElementById('dz').classList.add('has-file');
-    document.getElementById('upload-btn').disabled = false;
+    setSlideEnabled(true);
     // gw-toggle-wrap is always visible
     alert2('upload-alert', '', '');
   }
@@ -2686,22 +2783,87 @@
   }
 
   function onGroupToggle(cb) {
-    const btn = document.getElementById('upload-btn');
-    btn.textContent = cb.checked ? 'Del som De Grønnes økt' : 'Last opp til Garmin';
-    btn.classList.toggle('btn-group', cb.checked);
+    const slide = document.getElementById('upload-slide');
+    setSlideLabel(cb.checked ? 'Skyv for å dele' : 'Skyv for å laste opp');
+    slide.classList.toggle('btn-group', cb.checked);
   }
 
+  // ── Slide to confirm (iOS "slide to answer" style) ─────────
+  function setSlideLabel(text) {
+    document.getElementById('slide-confirm-label').textContent = text;
+  }
+
+  function setSlideEnabled(enabled) {
+    document.getElementById('upload-slide').classList.toggle('disabled', !enabled);
+  }
+
+  function resetSlide() {
+    const slide = document.getElementById('upload-slide');
+    const thumb = document.getElementById('slide-confirm-thumb');
+    const fill = document.getElementById('slide-confirm-fill');
+    slide.classList.remove('busy');
+    thumb.style.left = '4px';
+    fill.style.width = '56px';
+    document.getElementById('slide-confirm-label').style.opacity = '1';
+  }
+
+  (function initSlideConfirm() {
+    const slide = document.getElementById('upload-slide');
+    const thumb = document.getElementById('slide-confirm-thumb');
+    const fill = document.getElementById('slide-confirm-fill');
+    const label = document.getElementById('slide-confirm-label');
+    let dragging = false, startX = 0, startLeft = 4, maxLeft = 0;
+
+    thumb.addEventListener('pointerdown', (e) => {
+      if (slide.classList.contains('disabled') || slide.classList.contains('busy')) return;
+      dragging = true;
+      startX = e.clientX;
+      startLeft = parseFloat(thumb.style.left) || 4;
+      maxLeft = slide.offsetWidth - thumb.offsetWidth - 8;
+      thumb.classList.add('dragging');
+      thumb.setPointerCapture(e.pointerId);
+    });
+
+    thumb.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      let left = startLeft + (e.clientX - startX);
+      left = Math.max(4, Math.min(maxLeft, left));
+      thumb.style.left = left + 'px';
+      fill.style.width = (left + thumb.offsetWidth + 4) + 'px';
+      const ratio = (left - 4) / Math.max(1, maxLeft - 4);
+      label.style.opacity = String(Math.max(0, 1 - ratio * 1.4));
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      thumb.classList.remove('dragging');
+      const left = parseFloat(thumb.style.left) || 4;
+      const ratio = (left - 4) / Math.max(1, maxLeft - 4);
+      if (ratio > 0.72) {
+        thumb.style.left = maxLeft + 'px';
+        fill.style.width = '100%';
+        label.style.opacity = '0';
+        slide.classList.add('busy');
+        doUpload();
+      } else {
+        resetSlide();
+      }
+    }
+
+    thumb.addEventListener('pointerup', endDrag);
+    thumb.addEventListener('pointercancel', endDrag);
+  })();
+
   async function doUpload() {
-    if (!sel) return;
+    if (!sel) { resetSlide(); return; }
     const isGroup = document.getElementById('set-as-group').checked;
     if (isGroup && !dateInput.value) {
       alert2('upload-alert', 'Du må velge dato for å dele som De Grønnes økt', 'error');
+      resetSlide();
       return;
     }
-    const b = document.getElementById('upload-btn');
     const dv = dateInput.value;
-    const origLabel = b.textContent;
-    b.disabled = true; b.innerHTML = '<span class="spinner"></span>' + (isGroup ? 'Deler…' : 'Laster opp…');
     alert2('upload-alert', '', '');
     try {
       const fd = new FormData();
@@ -2714,7 +2876,7 @@
           alert2('upload-alert', d.message + '\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
           document.getElementById('group-badge').textContent = '1';
           launchConfetti(); reset();
-        } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
+        } else { alert2('upload-alert', d.detail || 'Deling feilet', 'error'); resetSlide(); }
       } else {
         const actName = document.getElementById('activity-name')?.value?.trim();
         if (actName) fd.append('activity_name', actName);
@@ -2723,13 +2885,13 @@
         if (r.ok) {
           alert2('upload-alert', d.message, d.scheduled ? 'success' : 'warning');
           if (d.scheduled) { launchConfetti(); reset(); }
-          else launchConfetti();
+          else { launchConfetti(); resetSlide(); }
         } else {
           alert2('upload-alert', d.detail || 'Opplasting feilet', 'error');
+          resetSlide();
         }
       }
-    } catch(e) { alert2('upload-alert', 'Nettverksfeil', 'error'); }
-    finally { b.disabled = !sel; b.textContent = origLabel; }
+    } catch(e) { alert2('upload-alert', 'Nettverksfeil', 'error'); resetSlide(); }
   }
 
   // ── Card flip ─────────────────────────────────────────────
@@ -2938,11 +3100,13 @@
     dateInput.value = '';
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
-    document.getElementById('upload-btn').disabled = true;
+    setSlideEnabled(false);
+    resetSlide();
     // gw-toggle-wrap stays visible
     const cb = document.getElementById('set-as-group');
     cb.checked = false;
-    document.getElementById('upload-btn').textContent = 'Last opp til Garmin';
+    document.getElementById('upload-slide').classList.remove('btn-group');
+    setSlideLabel('Skyv for å laste opp');
     refreshDateDisplay();
   }
 
