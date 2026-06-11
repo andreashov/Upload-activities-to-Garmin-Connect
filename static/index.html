@@ -1429,7 +1429,7 @@
     /* ── Slide to confirm (iOS "slide to answer" style) ─────── */
     .slide-confirm {
       position: relative;
-      width: 100%; height: 64px; margin-top: 18px;
+      width: 100%; height: 76px; margin-top: 18px;
       border-radius: 32px;
       overflow: hidden;
       background: linear-gradient(160deg, rgba(18,24,38,0.65) 0%, rgba(8,11,20,0.6) 100%);
@@ -1482,11 +1482,11 @@
     }
     .slide-confirm-thumb {
       position: absolute; top: 4px; left: 4px;
-      width: 56px; height: 56px;
+      width: 68px; height: 68px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       background: linear-gradient(160deg, rgba(255,255,255,0.98) 0%, rgba(222,228,240,0.94) 100%);
-      color: var(--teal);
+      color: var(--blue);
       box-shadow:
         inset 0 1.5px 1px rgba(255,255,255,0.9),
         inset 0 -2px 3px rgba(0,0,0,0.06),
@@ -1499,11 +1499,12 @@
       transition: transform .45s cubic-bezier(0.22,1,0.36,1), color .25s, box-shadow .15s;
     }
     .slide-confirm-icon {
-      width: 22px; height: 22px;
+      width: 26px; height: 26px;
       display: block;
+      transition: opacity .25s, transform .25s;
     }
     .slide-confirm.btn-group .slide-confirm-thumb {
-      color: #06b87a;
+      color: var(--green);
     }
     .slide-confirm-thumb.dragging {
       transition: color .25s, box-shadow .15s;
@@ -1515,11 +1516,13 @@
     }
     .slide-confirm.busy .slide-confirm-thumb {
       cursor: default;
-      animation: slide-thumb-pulse 1s ease-in-out infinite;
     }
-    @keyframes slide-thumb-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .55; }
+    .slide-confirm.busy .slide-confirm-icon {
+      animation: slide-icon-pulse 1.6s cubic-bezier(0.45,0,0.55,1) infinite;
+    }
+    @keyframes slide-icon-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .35; transform: scale(0.82); }
     }
 
     /* ── Alerts ──────────────────────────────────────────── */
