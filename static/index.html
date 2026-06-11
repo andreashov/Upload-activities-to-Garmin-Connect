@@ -1425,8 +1425,8 @@
     /* ── Slide to confirm (iOS "slide to answer" style) ─────── */
     .slide-confirm {
       position: relative;
-      width: 100%; height: 56px; margin-top: 10px;
-      border-radius: 28px;
+      width: 100%; height: 64px; margin-top: 18px;
+      border-radius: 32px;
       overflow: hidden;
       background: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
       backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
@@ -1446,10 +1446,13 @@
     .slide-confirm.disabled { opacity: .45; pointer-events: none; }
     .slide-confirm-fill {
       position: absolute; top: 0; left: 0; bottom: 0;
-      width: 56px;
+      width: 100%;
+      transform: scaleX(0.10);
+      transform-origin: left center;
       background: linear-gradient(160deg, var(--teal) 0%, var(--blue) 100%);
-      border-radius: 28px;
-      transition: width .3s cubic-bezier(0.4,0,0.2,1), background .25s;
+      border-radius: 32px;
+      transition: transform .4s cubic-bezier(0.34,1.46,0.64,1), background .25s;
+      will-change: transform;
       pointer-events: none;
     }
     .slide-confirm.btn-group .slide-confirm-fill {
@@ -1458,7 +1461,7 @@
     .slide-confirm-label {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14.5px; font-weight: 700; letter-spacing: -0.1px;
+      font-size: 15px; font-weight: 700; letter-spacing: -0.1px;
       pointer-events: none;
       white-space: nowrap;
       transition: opacity .15s;
@@ -1474,38 +1477,45 @@
     }
     .slide-confirm-thumb {
       position: absolute; top: 4px; left: 4px;
-      width: 48px; height: 48px;
+      width: 56px; height: 56px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(160deg, #ffffff 0%, rgba(255,255,255,0.85) 100%);
+      background: linear-gradient(160deg, var(--teal) 0%, var(--blue) 100%);
       box-shadow:
-        0 2px 8px rgba(0,0,0,0.30),
-        0 1px 2px rgba(0,0,0,0.20),
-        inset 0 1px 1px rgba(255,255,255,0.9),
-        inset 0 -2px 3px rgba(0,0,0,0.08);
+        inset 0 1.5px 1px rgba(255,255,255,0.55),
+        inset 0 -1px 1px rgba(255,255,255,0.20),
+        inset 0 -8px 14px -8px rgba(255,255,255,0.18),
+        0 3px 10px rgba(0,0,0,0.30),
+        0 1px 2px rgba(0,0,0,0.20);
       cursor: grab;
       z-index: 2;
-      transition: left .3s cubic-bezier(0.4,0,0.2,1), box-shadow .15s;
+      transform: translateX(0);
+      will-change: transform;
+      transition: transform .4s cubic-bezier(0.34,1.46,0.64,1), background .25s, box-shadow .15s;
+    }
+    .slide-confirm.btn-group .slide-confirm-thumb {
+      background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
     }
     .slide-confirm-thumb.dragging {
-      transition: none;
+      transition: background .25s, box-shadow .15s;
       cursor: grabbing;
       box-shadow:
-        0 4px 16px rgba(0,0,0,0.35),
-        inset 0 1px 1px rgba(255,255,255,0.9),
-        inset 0 -2px 3px rgba(0,0,0,0.08);
+        inset 0 1.5px 1px rgba(255,255,255,0.55),
+        inset 0 -1px 1px rgba(255,255,255,0.20),
+        inset 0 -8px 14px -8px rgba(255,255,255,0.18),
+        0 6px 18px rgba(0,0,0,0.35);
     }
     .slide-confirm-arrow {
-      font-size: 22px; font-weight: 700; line-height: 1;
-      color: var(--blue);
+      font-size: 26px; font-weight: 700; line-height: 1;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.25);
       transform: translateX(1px);
     }
-    .slide-confirm.btn-group .slide-confirm-arrow { color: #00b37a; }
     .slide-confirm-spinner {
       display: none; margin: 0;
-      border-color: rgba(0,0,0,0.15); border-top-color: var(--blue);
+      width: 16px; height: 16px;
+      border-color: rgba(255,255,255,0.35); border-top-color: #fff;
     }
-    .slide-confirm.btn-group .slide-confirm-spinner { border-top-color: #00b37a; }
     .slide-confirm.busy .slide-confirm-arrow { display: none; }
     .slide-confirm.busy .slide-confirm-spinner { display: inline-block; }
     .slide-confirm.busy .slide-confirm-thumb { cursor: default; }
@@ -2802,8 +2812,9 @@
     const thumb = document.getElementById('slide-confirm-thumb');
     const fill = document.getElementById('slide-confirm-fill');
     slide.classList.remove('busy');
-    thumb.style.left = '4px';
-    fill.style.width = '56px';
+    thumb.style.transform = 'translateX(0px)';
+    fill.style.transform = `scaleX(${(thumb.offsetWidth + 4) / slide.offsetWidth})`;
+    thumb.dataset.dx = '0';
     document.getElementById('slide-confirm-label').style.opacity = '1';
   }
 
@@ -2812,25 +2823,26 @@
     const thumb = document.getElementById('slide-confirm-thumb');
     const fill = document.getElementById('slide-confirm-fill');
     const label = document.getElementById('slide-confirm-label');
-    let dragging = false, startX = 0, startLeft = 4, maxLeft = 0;
+    let dragging = false, startX = 0, startDx = 0, maxDx = 0;
 
     thumb.addEventListener('pointerdown', (e) => {
       if (slide.classList.contains('disabled') || slide.classList.contains('busy')) return;
       dragging = true;
       startX = e.clientX;
-      startLeft = parseFloat(thumb.style.left) || 4;
-      maxLeft = slide.offsetWidth - thumb.offsetWidth - 8;
+      startDx = parseFloat(thumb.dataset.dx) || 0;
+      maxDx = slide.offsetWidth - thumb.offsetWidth - 8;
       thumb.classList.add('dragging');
       thumb.setPointerCapture(e.pointerId);
     });
 
     thumb.addEventListener('pointermove', (e) => {
       if (!dragging) return;
-      let left = startLeft + (e.clientX - startX);
-      left = Math.max(4, Math.min(maxLeft, left));
-      thumb.style.left = left + 'px';
-      fill.style.width = (left + thumb.offsetWidth + 4) + 'px';
-      const ratio = (left - 4) / Math.max(1, maxLeft - 4);
+      let dx = startDx + (e.clientX - startX);
+      dx = Math.max(0, Math.min(maxDx, dx));
+      thumb.dataset.dx = String(dx);
+      thumb.style.transform = `translateX(${dx}px)`;
+      fill.style.transform = `scaleX(${(thumb.offsetWidth + 4 + dx) / slide.offsetWidth})`;
+      const ratio = dx / Math.max(1, maxDx);
       label.style.opacity = String(Math.max(0, 1 - ratio * 1.4));
     });
 
@@ -2838,11 +2850,12 @@
       if (!dragging) return;
       dragging = false;
       thumb.classList.remove('dragging');
-      const left = parseFloat(thumb.style.left) || 4;
-      const ratio = (left - 4) / Math.max(1, maxLeft - 4);
+      const dx = parseFloat(thumb.dataset.dx) || 0;
+      const ratio = dx / Math.max(1, maxDx);
       if (ratio > 0.72) {
-        thumb.style.left = maxLeft + 'px';
-        fill.style.width = '100%';
+        thumb.dataset.dx = String(maxDx);
+        thumb.style.transform = `translateX(${maxDx}px)`;
+        fill.style.transform = 'scaleX(1)';
         label.style.opacity = '0';
         slide.classList.add('busy');
         doUpload();
