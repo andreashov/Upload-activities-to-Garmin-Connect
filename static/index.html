@@ -1306,14 +1306,16 @@
     .ai-gen-panel {
       display: flex;
       flex-direction: column;
+      height: 100%;
       min-height: 156px;
       box-sizing: border-box;
     }
     .ai-gen-row {
       display: flex;
-      align-items: flex-end;
+      align-items: stretch;
       gap: 8px;
       flex: 1;
+      min-height: 0;
     }
     .ai-gen-row textarea {
       flex: 1;
@@ -1352,6 +1354,7 @@
     .ai-gen-btn {
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
+      align-self: flex-end;
       width: 48px; height: 48px;
       background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
       border: none; border-radius: 16px;
