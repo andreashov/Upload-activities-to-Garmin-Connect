@@ -757,7 +757,6 @@
       }
       .upload-col-right .field { margin-bottom: 12px; }
       #upload-btn { margin-top: auto; }
-      .ai-gen-btn { margin-top: auto; }
 
       /* Login and PIN sections: stay narrow, centered */
       #login-section,
@@ -1310,9 +1309,15 @@
       min-height: 156px;
       box-sizing: border-box;
     }
-    .ai-gen-panel textarea {
-      width: 100%;
+    .ai-gen-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
       flex: 1;
+    }
+    .ai-gen-row textarea {
+      flex: 1;
+      min-width: 0;
       min-height: 76px;
       box-sizing: border-box;
       padding: 13px 14px;
@@ -1345,11 +1350,12 @@
         0 0 0 3px rgba(0,212,170,0.10);
     }
     .ai-gen-btn {
-      display: flex; align-items: center; justify-content: center; gap: 7px;
-      width: 100%; min-height: 52px; margin-top: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      width: 48px; height: 48px;
       background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
-      border: none; border-radius: 18px;
-      color: #fff; font-size: 15px; font-weight: 700; letter-spacing: -0.15px;
+      border: none; border-radius: 16px;
+      color: #fff; font-size: 19px; line-height: 1;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       position: relative; overflow: hidden;
@@ -1362,6 +1368,7 @@
         0 0 0 0.5px rgba(123,47,255,0.22);
       transition: transform .12s, box-shadow .12s, opacity .15s;
     }
+    .ai-gen-btn .spinner { margin-right: 0; }
     .ai-gen-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
     .ai-gen-btn:active:not(:disabled) {
       transform: scale(0.975);
@@ -1874,8 +1881,10 @@
             <!-- Panel 0: AI workout generation -->
             <div class="mode-panel-slide" id="panel-ai">
               <div class="ai-gen-panel" id="ai-gen-panel">
-                <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
-                <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
+                <div class="ai-gen-row">
+                  <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
+                  <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()" aria-label="Generer økt" title="Generer økt">✨</button>
+                </div>
                 <div class="alert" id="ai-gen-alert"></div>
               </div>
             </div>
@@ -2649,7 +2658,7 @@
     if (!desc) return;
     const btn = document.getElementById('ai-gen-btn');
     const orig = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Genererer…';
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
     alert2('ai-gen-alert', '', '');
     try {
       const fd = new FormData();
