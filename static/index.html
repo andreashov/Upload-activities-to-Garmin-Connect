@@ -1446,13 +1446,10 @@
     .slide-confirm.disabled { opacity: .45; pointer-events: none; }
     .slide-confirm-fill {
       position: absolute; top: 0; left: 0; bottom: 0;
-      width: 100%;
-      transform: scaleX(0.10);
-      transform-origin: left center;
+      width: 60px;
       background: linear-gradient(160deg, var(--teal) 0%, var(--blue) 100%);
       border-radius: 28px;
-      transition: transform .45s cubic-bezier(0.22,1,0.36,1), background .25s;
-      will-change: transform;
+      transition: width .45s cubic-bezier(0.22,1,0.36,1), background .25s;
       pointer-events: none;
     }
     .slide-confirm.btn-group .slide-confirm-fill {
@@ -2724,7 +2721,7 @@
     const fill = document.getElementById('slide-confirm-fill');
     slide.classList.remove('busy');
     thumb.style.transform = 'translateX(0px)';
-    fill.style.transform = `scaleX(${(thumb.offsetWidth + 4) / slide.offsetWidth})`;
+    fill.style.width = (thumb.offsetWidth + 4) + 'px';
     thumb.dataset.dx = '0';
     document.getElementById('slide-confirm-label').style.opacity = '1';
   }
@@ -2753,7 +2750,7 @@
       dx = Math.max(0, Math.min(maxDx, dx));
       thumb.dataset.dx = String(dx);
       thumb.style.transform = `translateX(${dx}px)`;
-      fill.style.transform = `scaleX(${(thumb.offsetWidth + 4 + dx) / slide.offsetWidth})`;
+      fill.style.width = (thumb.offsetWidth + 4 + dx) + 'px';
       const ratio = dx / Math.max(1, maxDx);
       label.style.opacity = String(Math.max(0, 1 - ratio * 1.4));
     });
@@ -2768,7 +2765,7 @@
       if (ratio > 0.72) {
         thumb.dataset.dx = String(maxDx);
         thumb.style.transform = `translateX(${maxDx}px)`;
-        fill.style.transform = 'scaleX(1)';
+        fill.style.width = '100%';
         label.style.opacity = '0';
         slide.classList.add('busy');
         doUpload();
