@@ -813,6 +813,19 @@
       );
     }
 
+    /* Hovedsiden: fjern den store glass-firkanten bak innholdet */
+    #upload-section.card {
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: none;
+      box-shadow: none;
+    }
+    #upload-section.card::before,
+    #upload-section.card::after {
+      content: none;
+    }
+
     .card-title {
       font-size: clamp(21px, 5.5vw, 26px); font-weight: 800; letter-spacing: -0.6px;
       line-height: 1.2;
