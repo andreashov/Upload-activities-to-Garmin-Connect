@@ -1515,18 +1515,49 @@
 
     /* ── Alerts ──────────────────────────────────────────── */
     .alert {
-      display: none;
-      padding: 12px 14px; border-radius: 12px;
-      margin-top: 12px;
-      font-size: 13px; line-height: 1.5;
-      border: 1px solid;
-      white-space: pre-line;
+      display: flex;
+      align-items: center; justify-content: center;
+      position: absolute; inset: 0;
+      z-index: 50;
+      padding: 24px;
+      background: rgba(8,10,20,0.45);
+      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      border-radius: 32px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      cursor: pointer;
+      transition: opacity .25s ease, visibility .25s;
     }
-    .alert .alert-line1 { font-weight: 700; }
-    .alert .alert-line2 { opacity: 0.8; font-weight: 500; }
-    .alert-success { background: rgba(6,255,165,0.07); border-color: rgba(6,255,165,0.22); color: #06ffa5; }
-    .alert-error   { background: rgba(255,0,110,0.07); border-color: rgba(255,0,110,0.22); color: #ff4d8d; }
-    .alert-warning { background: rgba(255,190,0,0.07); border-color: rgba(255,190,0,0.22); color: #ffbe00; }
+    .alert.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .alert-box {
+      max-width: 100%;
+      padding: 16px 20px;
+      border-radius: 18px;
+      font-size: 13px; line-height: 1.5;
+      text-align: center;
+      white-space: pre-line;
+      border: 1px solid;
+      background: rgba(20,24,34,0.55);
+      backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+      box-shadow:
+        0 12px 32px rgba(0,0,0,0.35),
+        inset 0 1px 1px rgba(255,255,255,0.15);
+      transform: scale(0.9) translateY(6px);
+      transition: transform .3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .alert.show .alert-box { transform: scale(1) translateY(0); }
+    .alert-box .alert-line1 { font-weight: 700; }
+    .alert-box .alert-line2 { opacity: 0.8; font-weight: 500; }
+    .alert-box.alert-success { border-color: rgba(6,255,165,0.35); color: #06ffa5; }
+    .alert-box.alert-error   { border-color: rgba(255,77,141,0.35); color: #ff4d8d; }
+    .alert-box.alert-warning { border-color: rgba(255,190,0,0.35); color: #ffbe00; }
 
     .spinner {
       display: inline-block; width: 13px; height: 13px;
@@ -1774,7 +1805,7 @@
       .field { margin-bottom: clamp(6px, 1.5vh, 12px); }
       .btn { min-height: 46px; font-size: 14px; margin-top: 6px; }
 
-      .alert { margin-top: 8px; padding: 10px 12px; font-size: 12px; }
+      .alert-box { padding: 12px 16px; font-size: 12px; }
 
       .pin-box { width: 76px; height: 64px; font-size: 26px; }
     }
@@ -2088,7 +2119,7 @@
       <div class="gw-date-line">${meta}</div>
       <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
       ${shareUrl ? `<button class="gw-share-btn" id="share-btn" data-url="${shareUrl}" onclick="copyShareLink(this)">${shareSvg} Del lenke</button>` : ''}
-      <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
+      <div class="alert" id="group-alert"></div>
       <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
   }
 
@@ -3034,16 +3065,18 @@
 
   function alert2(id, msg, type) {
     const el = document.getElementById(id);
-    if (!msg) { el.style.display = 'none'; return; }
+    if (!msg) { el.classList.remove('show'); return; }
     const lines = msg.split('\n');
+    let html;
     if (lines.length > 1) {
-      el.innerHTML = `<span class="alert-line1">${_escHtml(lines[0])}</span>\n` +
+      html = `<span class="alert-line1">${_escHtml(lines[0])}</span>\n` +
         lines.slice(1).map(l => `<span class="alert-line2">${_escHtml(l)}</span>`).join('\n');
     } else {
-      el.textContent = msg;
+      html = _escHtml(msg);
     }
-    el.className = 'alert alert-' + type;
-    el.style.display = 'block';
+    el.innerHTML = `<div class="alert-box alert-${type}">${html}</div>`;
+    el.onclick = () => el.classList.remove('show');
+    el.classList.add('show');
   }
 
   function _escHtml(s) {
@@ -3104,21 +3137,18 @@
     const b = document.getElementById('claim-btn');
     if (!b) return;
     b.disabled = true; b.innerHTML = '<span class="spinner"></span>Legger til…';
-    const alertEl = document.getElementById('group-alert');
-    alertEl.style.display = 'none';
+    alert2('group-alert', '', '');
     try {
       const r = await fetch('/api/group-workout/claim', { method: 'POST' });
       const d = await r.json();
       if (r.ok) {
-        alertEl.textContent = d.message || 'Lagt til i Garmin!';
-        alertEl.className = 'alert alert-success'; alertEl.style.display = 'block';
+        alert2('group-alert', d.message || 'Lagt til i Garmin!', 'success');
         launchConfetti();
       } else {
-        alertEl.textContent = d.detail || 'Noe gikk galt';
-        alertEl.className = 'alert alert-error'; alertEl.style.display = 'block';
+        alert2('group-alert', d.detail || 'Noe gikk galt', 'error');
       }
     } catch(e) {
-      alertEl.textContent = 'Nettverksfeil'; alertEl.className = 'alert alert-error'; alertEl.style.display = 'block';
+      alert2('group-alert', 'Nettverksfeil', 'error');
     } finally { b.disabled = false; b.innerHTML = 'Legg til i min Garmin'; }
   }
 </script>
