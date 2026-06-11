@@ -1451,7 +1451,7 @@
       transform-origin: left center;
       background: linear-gradient(160deg, var(--teal) 0%, var(--blue) 100%);
       border-radius: 32px;
-      transition: transform .4s cubic-bezier(0.34,1.46,0.64,1), background .25s;
+      transition: transform .45s cubic-bezier(0.22,1,0.36,1), background .25s;
       will-change: transform;
       pointer-events: none;
     }
@@ -1491,7 +1491,7 @@
       z-index: 2;
       transform: translateX(0);
       will-change: transform;
-      transition: transform .4s cubic-bezier(0.34,1.46,0.64,1), background .25s, box-shadow .15s;
+      transition: transform .45s cubic-bezier(0.22,1,0.36,1), background .25s, box-shadow .15s;
     }
     .slide-confirm.btn-group .slide-confirm-thumb {
       background: linear-gradient(135deg, #06ffa5 0%, #00b37a 100%);
@@ -1622,64 +1622,6 @@
       color: rgba(0,212,170,0.9);
       margin-top: 5px; letter-spacing: 0.05em;
     }
-
-    /* ── ECG heartbeat ───────────────────────────────────── */
-    .ecg {
-      --ecg-dur: 3.4s;
-      display: block;
-      width: 100%;
-      height: 40px;
-      margin-top: 16px;
-      overflow: visible;
-      pointer-events: none;
-      opacity: 0.75;
-      filter:
-        drop-shadow(0 0 4px rgba(0,255,200,0.45))
-        drop-shadow(0 0 11px rgba(120,140,255,0.28));
-    }
-    /* On mobile, extend ECG edge-to-edge */
-    @media (max-width: 679px) {
-      .ecg {
-        width: calc(100% + 32px);
-        margin-left: -16px; margin-right: -16px;
-      }
-    }
-    /* Larger / landscape screens: the same SVG path is stretched over more
-       physical pixels, so slow the animation down to keep the perceived
-       speed consistent and unhurried. */
-    @media (min-width: 900px) {
-      .ecg { --ecg-dur: 5.6s; }
-    }
-    .ecg-path {
-      stroke-dasharray: 800, 9999;
-      stroke-dashoffset: 800;
-      animation: ecg-draw var(--ecg-dur) cubic-bezier(0.45,0.05,0.25,1) infinite;
-    }
-    .ecg-blip {
-      offset-path: path("M0,24 L12,24 L16,20 L19,24 L21,24 L23,4 L25,44 L27,24 L34,28 L46,24 L84,24 L96,24 L100,20 L103,24 L105,24 L107,4 L109,44 L111,24 L118,28 L130,24 L168,24 L180,24 L184,20 L187,24 L189,24 L191,4 L193,44 L195,24 L202,28 L214,24 L252,24 L264,24 L268,20 L271,24 L273,24 L275,4 L277,44 L279,24 L286,28 L298,24 L336,24 L348,24 L352,20 L355,24 L357,24 L359,4 L361,44 L363,24 L370,28 L382,24 L400,24");
-      offset-distance: 0%;
-      offset-rotate: 0deg;
-      animation: ecg-blip-move var(--ecg-dur) cubic-bezier(0.45,0.05,0.25,1) infinite;
-      filter:
-        drop-shadow(0 0 3px rgba(255,255,255,0.95))
-        drop-shadow(0 0 7px rgba(120,190,255,0.7))
-        drop-shadow(0 0 14px rgba(167,139,250,0.4));
-    }
-    @keyframes ecg-draw {
-      0%   { stroke-dashoffset: 800; opacity: 0; }
-      6%   { stroke-dashoffset: 800; opacity: 1; }
-      75%  { stroke-dashoffset: 0;   opacity: 1; }
-      90%  { stroke-dashoffset: 0;   opacity: 0; }
-      100% { stroke-dashoffset: 800; opacity: 0; }
-    }
-    @keyframes ecg-blip-move {
-      0%   { offset-distance: 0%;   opacity: 0; }
-      6%   { offset-distance: 0%;   opacity: 1; }
-      75%  { offset-distance: 100%; opacity: 1; }
-      90%  { offset-distance: 100%; opacity: 0; }
-      100% { offset-distance: 0%;   opacity: 0; }
-    }
-
 
     /* Fade aurora til svart i bunnen — speiler ::before-vignettet øverst */
     #bottom-vignette {
@@ -1841,8 +1783,6 @@
 
       .alert { margin-top: 8px; padding: 10px 12px; font-size: 12px; }
 
-      .ecg { height: 34px; margin-top: 10px; }
-
       .pin-box { width: 76px; height: 64px; font-size: 26px; }
     }
 
@@ -1859,7 +1799,6 @@
       input[type="email"],
       input[type="password"] { padding: 9px 10px; }
       .btn { min-height: 42px; }
-      .ecg { display: none; }
     }
   </style>
 </head>
@@ -2063,28 +2002,6 @@
         <div class="alert" id="upload-alert"></div>
       </div>
       </div><!-- /.upload-cols -->
-
-      <!-- ECG heartbeat line — spans full width below both columns -->
-      <svg class="ecg" viewBox="0 0 400 48" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="ecg-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="rgba(180,255,235,0.12)"/>
-            <stop offset="20%"  stop-color="#00ffcc"/>
-            <stop offset="45%"  stop-color="#38bdf8"/>
-            <stop offset="70%"  stop-color="#a78bfa"/>
-            <stop offset="92%"  stop-color="#00ffcc"/>
-            <stop offset="100%" stop-color="rgba(180,255,235,0.12)"/>
-          </linearGradient>
-        </defs>
-        <path id="ecg-line" class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="2.2"
-          stroke-linecap="round" stroke-linejoin="round"
-          d="M0,24 L12,24 L16,20 L19,24 L21,24 L23,4 L25,44 L27,24 L34,28 L46,24 L84,24
-             L96,24 L100,20 L103,24 L105,24 L107,4 L109,44 L111,24 L118,28 L130,24 L168,24
-             L180,24 L184,20 L187,24 L189,24 L191,4 L193,44 L195,24 L202,28 L214,24 L252,24
-             L264,24 L268,20 L271,24 L273,24 L275,4 L277,44 L279,24 L286,28 L298,24 L336,24
-             L348,24 L352,20 L355,24 L357,24 L359,4 L361,44 L363,24 L370,28 L382,24 L400,24"/>
-        <circle class="ecg-blip" r="3.2" fill="#ffffff"/>
-      </svg>
     </div><!-- /#card-front -->
 
     <!-- ── Back face (workout details) ── -->
