@@ -1398,20 +1398,6 @@
       color: var(--t1);
       border-bottom-left-radius: 4px;
     }
-    .ai-chat-footer {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .ai-chat-new-btn {
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.40);
-      font: inherit; font-size: 11.5px; font-weight: 600;
-      cursor: pointer;
-      padding: 2px 4px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .ai-chat-new-btn:hover { color: rgba(255,255,255,0.65); }
     .ai-gen-row textarea {
       flex: 1;
       min-width: 0;
@@ -2092,9 +2078,6 @@
                 <div class="ai-gen-row">
                   <textarea id="ai-gen-desc" placeholder="F.eks. «5x5 min hardt, 2 min jogg»"></textarea>
                   <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="sendChatMessage()" aria-label="Send" title="Send">✨</button>
-                </div>
-                <div class="ai-chat-footer">
-                  <button type="button" class="ai-chat-new-btn" id="ai-chat-new-btn" onclick="resetAiChat()">Ny chat</button>
                 </div>
                 <div class="alert" id="ai-gen-alert"></div>
               </div>
@@ -3002,15 +2985,6 @@
   function backToChat() {
     document.getElementById('upload-cols').classList.remove('ai-step-confirm');
     document.getElementById('upload-cols').classList.add('ai-step-chat');
-  }
-
-  function resetAiChat() {
-    _aiChatMessages = [];
-    _aiCurrentWorkout = null;
-    document.getElementById('ai-chat-messages').innerHTML = '';
-    document.getElementById('ai-gen-desc').value = '';
-    alert2('ai-gen-alert', '', '');
-    backToChat();
   }
 
   function onGroupToggle(cb) {
