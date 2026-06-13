@@ -3041,9 +3041,12 @@
       card.classList.remove('flip-out');
       onSwap();
       if (showBack) {
-        // card-back owns its own padding; height = full locked card height
+        // card-back owns its own padding; size to a reduced height so it
+        // doesn't span the full (fullscreen AI-chat) card height
+        const backH = Math.round(lockedH * 0.6);
         const back = document.getElementById('card-back');
-        back.style.height = lockedH + 'px';
+        back.style.height = backH + 'px';
+        card.style.height = backH + 'px';
         card.classList.add('showing-back');
       } else {
         card.classList.remove('showing-back');
