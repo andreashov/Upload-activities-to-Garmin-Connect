@@ -1330,7 +1330,8 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 360px;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding-right: 2px;
     }
@@ -2090,7 +2091,7 @@
               <div class="ai-gen-panel" id="ai-gen-panel">
                 <div class="ai-chat-messages" id="ai-chat-messages"></div>
                 <div class="ai-gen-row">
-                  <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
+                  <textarea id="ai-gen-desc" placeholder="F.eks. «5x5 min hardt, 2 min jogg»"></textarea>
                   <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="sendChatMessage()" aria-label="Send" title="Send">✨</button>
                 </div>
                 <div class="ai-chat-footer">
@@ -2467,6 +2468,8 @@
       if (d.aiWorkoutGenEnabled) {
         document.getElementById('upload-mode-tabs').classList.add('visible');
         initTabPill();
+        syncAiPanelHeight();
+        window.addEventListener('resize', syncAiPanelHeight);
       }
     }).catch(() => {});
   }
@@ -2772,6 +2775,13 @@
   // AI is the default/left mode; file upload is right
   let _currentUploadMode = 'ai';
 
+  function syncAiPanelHeight() {
+    const dz = document.getElementById('dz');
+    const panel = document.getElementById('ai-gen-panel');
+    if (!dz || !panel) return;
+    panel.style.height = dz.offsetHeight + 'px';
+  }
+
   function setUploadMode(mode) {
     const isAi = mode === 'ai';
     _currentUploadMode = mode;
@@ -2808,6 +2818,8 @@
     const aiPanel   = document.getElementById('panel-ai');
     if (filePanel) filePanel.inert = isAi;
     if (aiPanel)   aiPanel.inert   = !isAi;
+
+    setTimeout(syncAiPanelHeight, 50);
   }
 
   // Initialise pill width and drag behaviour
