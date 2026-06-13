@@ -1313,7 +1313,7 @@
       border-radius: 0;
       display: flex !important;
       flex-direction: column;
-      padding: max(72px, calc(env(safe-area-inset-top) + 60px)) 16px env(safe-area-inset-bottom);
+      padding: max(72px, calc(env(safe-area-inset-top) + 60px)) 16px 0;
       box-sizing: border-box;
       border: none;
       box-shadow: none;
@@ -1359,6 +1359,10 @@
     }
     #upload-section:has(.upload-cols.ai-step-chat) .card-header {
       flex-shrink: 0;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
+      flex-shrink: 0;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
     #upload-section:has(.upload-cols.ai-step-chat) .upload-mode-btn {
       top: 0;
