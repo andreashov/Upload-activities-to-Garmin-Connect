@@ -2778,8 +2778,24 @@
   function syncAiPanelHeight() {
     const dz = document.getElementById('dz');
     const panel = document.getElementById('ai-gen-panel');
-    if (!dz || !panel) return;
-    panel.style.height = dz.offsetHeight + 'px';
+    const cols = document.getElementById('upload-cols');
+    const colLeft = cols?.querySelector('.upload-col-left');
+    const colRight = cols?.querySelector('.upload-col-right');
+    if (!dz || !panel || !cols || !colLeft || !colRight) return;
+
+    const wasChat = cols.classList.contains('ai-step-chat');
+    const wasConfirm = cols.classList.contains('ai-step-confirm');
+    cols.classList.remove('ai-step-chat', 'ai-step-confirm');
+
+    const leftRect = colLeft.getBoundingClientRect();
+    const rightRect = colRight.getBoundingClientRect();
+    const stacked = rightRect.top >= leftRect.bottom - 1;
+    const extra = stacked ? (rightRect.bottom - leftRect.bottom) : 0;
+
+    if (wasChat) cols.classList.add('ai-step-chat');
+    if (wasConfirm) cols.classList.add('ai-step-confirm');
+
+    panel.style.height = (dz.offsetHeight + Math.max(0, extra)) + 'px';
   }
 
   function setUploadMode(mode) {
