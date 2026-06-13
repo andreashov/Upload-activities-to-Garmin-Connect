@@ -3247,11 +3247,18 @@
     if (key === 'cooldown') return '#7b2fff';
     if (key === 'recovery' || key === 'rest') return 'rgba(255,255,255,0.22)';
     const hr = step.targetValueOne;
-    if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr) {
-      if (hr < 155) return '#00d4aa';
-      if (hr < 165) return '#ffbe00';
-      if (hr < 175) return '#ff8c42';
-      return '#ff4d6d';
+    if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone') {
+      if (hr) {
+        if (hr < 155) return '#00d4aa';
+        if (hr < 165) return '#ffbe00';
+        if (hr < 175) return '#ff8c42';
+        return '#ff4d6d';
+      }
+      const zone = step.zoneNumber;
+      if (zone) {
+        const colors = ['#00d4aa', '#00d4aa', '#ffbe00', '#ff8c42', '#ff4d6d', '#ff4d6d'];
+        return colors[zone - 1] || '#00d4aa';
+      }
     }
     // short = all-out
     if ((step.endConditionValue || 999) <= 30) return '#ff4d6d';
@@ -3270,8 +3277,10 @@
     const label  = _stepLabel(step);
     const dur    = _fmtDur(step.endConditionValue, step.endCondition?.conditionTypeKey);
     const hr1    = step.targetValueOne, hr2 = step.targetValueTwo;
-    const hasHR  = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
-    const target = hasHR ? `${hr1}–${hr2} bpm` : '';
+    const isHR   = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone';
+    const target = isHR
+      ? (hr1 ? `${hr1}–${hr2} bpm` : (step.zoneNumber ? `Pulssone ${step.zoneNumber}` : ''))
+      : '';
     const desc   = step.description || '';
     return `<div class="ws-step">
       <div class="ws-bar" style="background:${color}"></div>
