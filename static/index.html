@@ -2765,6 +2765,7 @@
     const colLeft = cols?.querySelector('.upload-col-left');
     const colRight = cols?.querySelector('.upload-col-right');
     if (!dz || !panel || !cols || !colLeft || !colRight) return;
+    if (_currentUploadMode !== 'ai') return;
 
     const wasChat = cols.classList.contains('ai-step-chat');
     const wasConfirm = cols.classList.contains('ai-step-confirm');
@@ -2819,7 +2820,11 @@
     if (filePanel) filePanel.inert = isAi;
     if (aiPanel)   aiPanel.inert   = !isAi;
 
-    setTimeout(syncAiPanelHeight, 50);
+    if (isAi) {
+      setTimeout(syncAiPanelHeight, 50);
+    } else {
+      document.getElementById('ai-gen-panel').style.height = '';
+    }
   }
 
   // Initialise pill width and drag behaviour
