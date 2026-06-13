@@ -285,15 +285,7 @@
       color: rgba(0,0,0,0.75);
     }
 
-    /* Installer: round button, icon only — matches profile button size */
-    #install-btn {
-      width: 34px; height: 34px; padding: 0; gap: 0;
-      border-radius: 50%;
-      justify-content: center;
-      font-size: 20px; font-weight: 300; line-height: 1;
-    }
-
-    /* ── PWA install button — mobile only ───────────────────── */
+    /* ── PWA install menu item — mobile only ────────────────── */
     #install-btn { display: none; }
     @media (min-width: 680px) { #install-btn { display: none !important; } }
 
@@ -1943,23 +1935,25 @@
 <header>
   <div id="user-info">
     <button class="pill" id="group-btn" onclick="document.getElementById('group-btn').classList.contains('open') ? closePreview() : showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
-    <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">+</button>
-    <div id="install-tooltip" role="tooltip">
-      <div class="tip-title">For å installere som app</div>
-      <div class="tip-step">
-        <div class="tip-num">1</div>
-        <div class="tip-text">Trykk <b>Del</b>-knappen 📤 nederst i Safari</div>
-      </div>
-      <div class="tip-step">
-        <div class="tip-num">2</div>
-        <div class="tip-text">Velg <b>Legg til på Hjem-skjermen</b></div>
-      </div>
-    </div>
     <button id="profile-btn" onclick="toggleProfileMenu(event)" aria-label="Profil og innstillinger">
       <span id="profile-initial"></span>
     </button>
     <div id="profile-menu" role="menu">
       <div class="profile-menu-name" id="profile-menu-name"></div>
+      <button class="profile-menu-item" id="install-btn" role="menuitem" onclick="installPWA()">
+        <span class="profile-menu-icon">+</span> Installer app
+      </button>
+      <div id="install-tooltip" role="tooltip">
+        <div class="tip-title">For å installere som app</div>
+        <div class="tip-step">
+          <div class="tip-num">1</div>
+          <div class="tip-text">Trykk <b>Del</b>-knappen 📤 nederst i Safari</div>
+        </div>
+        <div class="tip-step">
+          <div class="tip-num">2</div>
+          <div class="tip-text">Velg <b>Legg til på Hjem-skjermen</b></div>
+        </div>
+      </div>
       <button class="profile-menu-item" role="menuitem" onclick="logout()">
         <span class="profile-menu-icon">↪</span> Logg ut
       </button>
