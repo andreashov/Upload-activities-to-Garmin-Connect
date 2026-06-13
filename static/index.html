@@ -292,11 +292,13 @@
     /* ── Install tooltip ─────────────────────────────────────── */
     #install-tooltip {
       display: none;
-      position: fixed;
-      top: calc(max(16px, env(safe-area-inset-top)) + 52px);
-      right: 58px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 10px;
       z-index: 300;
-      width: 230px;
+      width: auto;
       backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
       -webkit-backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
       background: radial-gradient(130% 70% at 12% 0%,
@@ -324,11 +326,11 @@
       from { opacity: 0; transform: translateY(-8px) scale(0.96); }
       to   { opacity: 1; transform: translateY(0)   scale(1); }
     }
-    /* Arrow pointing up-right */
+    /* Arrow pointing up-left, toward the install button */
     #install-tooltip::before {
       content: '';
       position: absolute;
-      top: -7px; right: 16px;
+      top: -7px; left: 20px;
       width: 13px; height: 13px;
       background: linear-gradient(135deg,
         rgba(255,255,255,0.18) 0%,
