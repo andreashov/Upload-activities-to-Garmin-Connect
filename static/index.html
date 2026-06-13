@@ -1304,7 +1304,7 @@
     }
 
     /* ── AI chat: take over the full screen ─────────────────── */
-    #upload-section:has(.upload-cols.ai-step-chat) {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) {
       position: fixed;
       inset: 0;
       width: 100%;
@@ -1321,7 +1321,7 @@
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
-    #upload-section:has(.upload-cols.ai-step-chat)::before {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible))::before {
       content: '';
       position: fixed;
       top: 0; left: 0; right: 0; height: 120px;
@@ -1329,7 +1329,7 @@
       z-index: 11;
       pointer-events: none;
     }
-    #upload-section:has(.upload-cols.ai-step-chat)::after {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible))::after {
       content: '';
       position: fixed;
       bottom: 0; left: 0; right: 0; height: 160px;
@@ -1337,45 +1337,45 @@
       z-index: 11;
       pointer-events: none;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) #card-front,
-    #upload-section:has(.upload-cols.ai-step-chat) .upload-cols,
-    #upload-section:has(.upload-cols.ai-step-chat) .upload-col-left,
-    #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-wrapper,
-    #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-inner,
-    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-panel {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) #card-front,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-cols,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-col-left,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panels-wrapper,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panels-inner,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-gen-panel {
       flex: 1;
       min-height: 0;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) #card-front,
-    #upload-section:has(.upload-cols.ai-step-chat) .upload-cols,
-    #upload-section:has(.upload-cols.ai-step-chat) .mode-panel-slide {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) #card-front,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-cols,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panel-slide {
       display: flex;
       flex-direction: column;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) #card-front {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) #card-front {
       position: relative;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-wrapper {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panels-wrapper {
       display: flex;
       flex-direction: column;
       margin: 0;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .card-header {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .card-header {
       flex-shrink: 0;
       position: relative;
       z-index: 12;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .ai-close-btn,
-    #upload-section:has(.upload-cols.ai-step-chat) .upload-mode-btn {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-close-btn,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-mode-btn {
       z-index: 13;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-gen-row {
       flex-shrink: 0;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-gen-row {
       padding-bottom: env(safe-area-inset-bottom);
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .upload-mode-btn {
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-mode-btn {
       top: 0;
       right: 0;
     }
