@@ -1414,6 +1414,8 @@
       flex: 1;
       min-width: 0;
       min-height: 37px;
+      max-height: 110px;
+      overflow-y: auto;
       box-sizing: border-box;
       padding: 8px 14px;
       background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
@@ -2465,6 +2467,8 @@
         initTabPill();
         syncAiPanelHeight();
         window.addEventListener('resize', syncAiPanelHeight);
+        const ta = document.getElementById('ai-gen-desc');
+        if (ta) ta.addEventListener('input', _resizeAiTextarea);
       }
     }).catch(() => {});
   }
@@ -2919,6 +2923,15 @@
   let _aiChatMessages = [];
   let _aiCurrentWorkout = null;
 
+  function _resizeAiTextarea() {
+    const ta = document.getElementById('ai-gen-desc');
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    const box = document.getElementById('ai-chat-messages');
+    if (box) box.scrollTop = box.scrollHeight;
+  }
+
   function _aiAppendMessage(role, text, workoutDef) {
     const box = document.getElementById('ai-chat-messages');
     const el = document.createElement('div');
@@ -2962,6 +2975,7 @@
     _aiAppendMessage('user', desc);
     _aiChatMessages.push({ role: 'user', content: desc });
     document.getElementById('ai-gen-desc').value = '';
+    _resizeAiTextarea();
 
     try {
       const fd = new FormData();
