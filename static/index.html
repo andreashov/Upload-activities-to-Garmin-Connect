@@ -1364,19 +1364,16 @@
     .upload-cols.ai-step-chat .upload-col-right { display: none; }
     .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
     .upload-cols.ai-step-confirm .upload-col-left { display: none; }
-    .ai-back-btn {
+    .ai-close-btn {
       display: none;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.45);
-      font: inherit; font-size: 12px; font-weight: 700;
-      cursor: pointer;
-      padding: 0 0 10px;
-      -webkit-tap-highlight-color: transparent;
-      text-align: left;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
     }
-    .ai-back-btn:hover { color: rgba(255,255,255,0.70); }
-    .upload-cols.ai-step-confirm .ai-back-btn { display: block; }
+    #card-front:has(.upload-cols.ai-step-confirm) .ai-close-btn {
+      display: flex;
+    }
     .ai-chat-msg {
       max-width: 88%;
       padding: 8px 12px;
@@ -2059,6 +2056,8 @@
         <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
       </div>
 
+      <button type="button" class="back-close ai-close-btn" id="ai-close-btn" onclick="backToChat()" aria-label="Lukk">✕</button>
+
       <div class="upload-cols ai-step-chat" id="upload-cols">
       <div class="upload-col-left">
         <!-- Upload-mode tabs (TEST: file vs. AI) -->
@@ -2122,7 +2121,6 @@
       </div>
 
       <div class="upload-col-right">
-        <button type="button" class="ai-back-btn" id="ai-back-btn" onclick="backToChat()">← Tilbake til chat</button>
         <!-- Date picker -->
         <div class="field">
           <div class="date-wrap" id="date-wrap">
