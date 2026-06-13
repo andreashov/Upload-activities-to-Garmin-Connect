@@ -1313,6 +1313,19 @@
       box-sizing: border-box;
     }
 
+    /* Flex chain so AI panel content can stretch to fill .upload-cols
+       height on all screen sizes, not just the desktop two-column layout */
+    @media (max-width: 679px) {
+      .upload-cols { display: flex; flex-direction: column; }
+    }
+    .upload-col-left, .upload-col-right { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .upload-col-left .upload-mode-tabs { min-height: 54px; margin-bottom: 12px; }
+    .upload-col-left .upload-mode-tabs .mode-tab { min-height: 0; }
+    .mode-panels-wrapper { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .mode-panels-inner { flex: 1; min-height: 0; }
+    .upload-col-left .dz,
+    .upload-col-left .ai-gen-panel { flex: 1; min-height: 0; }
+
     .ai-gen-panel {
       display: flex;
       flex-direction: column;
