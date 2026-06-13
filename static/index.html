@@ -1362,6 +1362,12 @@
     }
     #upload-section:has(.upload-cols.ai-step-chat) .card-header {
       flex-shrink: 0;
+      position: relative;
+      z-index: 12;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) .ai-close-btn,
+    #upload-section:has(.upload-cols.ai-step-chat) .upload-mode-btn {
+      z-index: 13;
     }
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
       flex-shrink: 0;
