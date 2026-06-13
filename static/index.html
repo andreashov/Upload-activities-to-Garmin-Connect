@@ -1316,15 +1316,91 @@
       flex-direction: column;
       height: 100%;
       min-height: 37px;
+      gap: 8px;
       box-sizing: border-box;
     }
     .ai-gen-row {
       display: flex;
       align-items: stretch;
       gap: 8px;
-      flex: 1;
-      min-height: 0;
     }
+
+    /* ── AI chat ─────────────────────────────────────────── */
+    .ai-chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .ai-chat-messages:empty { display: none; }
+    .ai-chat-msg {
+      max-width: 88%;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ai-chat-msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(0,212,170,0.28) 0%, rgba(123,47,255,0.28) 100%);
+      color: var(--t1);
+      border-bottom-right-radius: 4px;
+    }
+    .ai-chat-msg.assistant {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--t1);
+      border-bottom-left-radius: 4px;
+    }
+    .ai-chat-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(0,212,170,0.30);
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(0,212,170,0.10) 0%, rgba(123,47,255,0.05) 100%);
+      font-size: 12.5px;
+    }
+    .ai-chat-preview-text {
+      flex: 1;
+      min-width: 0;
+      color: var(--t1);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ai-chat-use-btn {
+      flex-shrink: 0;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 12px;
+      font: inherit; font-size: 12px; font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ai-chat-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .ai-chat-new-btn {
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.40);
+      font: inherit; font-size: 11.5px; font-weight: 600;
+      cursor: pointer;
+      padding: 2px 4px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ai-chat-new-btn:hover { color: rgba(255,255,255,0.65); }
     .ai-gen-row textarea {
       flex: 1;
       min-width: 0;
@@ -1998,12 +2074,20 @@
         <div class="mode-panels-wrapper" id="mode-panels-wrapper">
           <div class="mode-panels-inner" id="mode-panels-inner">
 
-            <!-- Panel 0: AI workout generation -->
+            <!-- Panel 0: AI workout chat -->
             <div class="mode-panel-slide" id="panel-ai">
               <div class="ai-gen-panel" id="ai-gen-panel">
+                <div class="ai-chat-preview" id="ai-chat-preview" style="display:none">
+                  <div class="ai-chat-preview-text" id="ai-chat-preview-text"></div>
+                  <button type="button" class="ai-chat-use-btn" id="ai-chat-use-btn" onclick="useAiWorkout()">Bruk denne økten →</button>
+                </div>
+                <div class="ai-chat-messages" id="ai-chat-messages"></div>
                 <div class="ai-gen-row">
                   <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
-                  <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()" aria-label="Generer økt" title="Generer økt">✨</button>
+                  <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="sendChatMessage()" aria-label="Send" title="Send">✨</button>
+                </div>
+                <div class="ai-chat-footer">
+                  <button type="button" class="ai-chat-new-btn" id="ai-chat-new-btn" onclick="resetAiChat()">Ny chat</button>
                 </div>
                 <div class="alert" id="ai-gen-alert"></div>
               </div>
@@ -2794,33 +2878,78 @@
     });
   }
 
-  async function generateWorkoutWithAI() {
+  let _aiChatMessages = [];
+  let _aiCurrentWorkout = null;
+
+  function _aiAppendMessage(role, text) {
+    const box = document.getElementById('ai-chat-messages');
+    const el = document.createElement('div');
+    el.className = 'ai-chat-msg ' + role;
+    el.textContent = text;
+    box.appendChild(el);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function _aiUpdatePreview() {
+    const wrap = document.getElementById('ai-chat-preview');
+    const text = document.getElementById('ai-chat-preview-text');
+    if (!_aiCurrentWorkout) { wrap.style.display = 'none'; return; }
+    const name = _aiCurrentWorkout.workoutName || 'Økt';
+    text.textContent = '✨ ' + name;
+    wrap.style.display = '';
+  }
+
+  async function sendChatMessage() {
     const desc = document.getElementById('ai-gen-desc').value.trim();
     if (!desc) return;
     const btn = document.getElementById('ai-gen-btn');
     const orig = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
     alert2('ai-gen-alert', '', '');
+
+    _aiAppendMessage('user', desc);
+    _aiChatMessages.push({ role: 'user', content: desc });
+    document.getElementById('ai-gen-desc').value = '';
+
     try {
       const fd = new FormData();
-      fd.append('description', desc);
-      const r = await fetch('/api/generate-workout', { method: 'POST', body: fd });
+      fd.append('messages', JSON.stringify(_aiChatMessages));
+      if (_aiCurrentWorkout) fd.append('current_workout', JSON.stringify(_aiCurrentWorkout));
+      const r = await fetch('/api/chat-workout', { method: 'POST', body: fd });
       const d = await r.json();
       if (r.ok) {
-        const json = JSON.stringify(d.workoutDef, null, 2);
-        const fileName = (d.workoutDef.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
-        const file = new File([json], fileName, { type: 'application/json' });
-        await setFile(file);
-        setUploadMode('file');
-        document.getElementById('ai-gen-desc').value = '';
+        _aiChatMessages.push({ role: 'assistant', content: d.reply });
+        _aiAppendMessage('assistant', d.reply);
+        if (d.workoutDef) {
+          _aiCurrentWorkout = d.workoutDef;
+          _aiUpdatePreview();
+        }
       } else {
-        alert2('ai-gen-alert', d.detail || 'Kunne ikke generere økt', 'error');
+        alert2('ai-gen-alert', d.detail || 'Kunne ikke generere svar', 'error');
       }
     } catch(e) {
       alert2('ai-gen-alert', 'Nettverksfeil', 'error');
     } finally {
       btn.disabled = false; btn.innerHTML = orig;
     }
+  }
+
+  async function useAiWorkout() {
+    if (!_aiCurrentWorkout) return;
+    const json = JSON.stringify(_aiCurrentWorkout, null, 2);
+    const fileName = (_aiCurrentWorkout.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
+    const file = new File([json], fileName, { type: 'application/json' });
+    await setFile(file);
+    setUploadMode('file');
+  }
+
+  function resetAiChat() {
+    _aiChatMessages = [];
+    _aiCurrentWorkout = null;
+    document.getElementById('ai-chat-messages').innerHTML = '';
+    document.getElementById('ai-gen-desc').value = '';
+    alert2('ai-gen-alert', '', '');
+    _aiUpdatePreview();
   }
 
   function onGroupToggle(cb) {
