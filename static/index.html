@@ -2772,13 +2772,14 @@
 
     const leftRect = colLeft.getBoundingClientRect();
     const rightRect = colRight.getBoundingClientRect();
+    const dzRect = dz.getBoundingClientRect();
     const stacked = rightRect.top >= leftRect.bottom - 1;
     const extra = stacked ? (rightRect.bottom - leftRect.bottom) : 0;
 
     if (wasChat) cols.classList.add('ai-step-chat');
     if (wasConfirm) cols.classList.add('ai-step-confirm');
 
-    panel.style.height = (dz.offsetHeight + Math.max(0, extra)) + 'px';
+    panel.style.height = Math.ceil(dzRect.height + Math.max(0, extra)) + 'px';
   }
 
   function setUploadMode(mode) {
