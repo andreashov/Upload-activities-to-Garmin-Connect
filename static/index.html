@@ -1364,12 +1364,29 @@
       -webkit-tap-highlight-color: transparent;
     }
     .ai-chat-show-btn {
-      background: rgba(255,255,255,0.10);
-      color: var(--t1);
-      border: 1px solid rgba(255,255,255,0.18) !important;
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.26) !important;
+      border-top-color: rgba(0,212,170,0.55) !important;
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.45),
+        inset 0 -1px 1px rgba(255,255,255,0.25),
+        inset 0 -6px 12px -6px rgba(255,255,255,0.18);
+      color: var(--teal);
     }
     .ai-chat-use-btn {
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
+      border: none;
+      box-shadow:
+        inset 0 1.5px 1px rgba(255,255,255,0.55),
+        inset 0 -1px 1px rgba(255,255,255,0.20),
+        inset 0 -8px 16px -8px rgba(255,255,255,0.15),
+        0 8px 28px rgba(123,47,255,0.3),
+        0 3px 10px rgba(0,212,170,0.2),
+        0 0 0 0.5px rgba(123,47,255,0.22);
       color: #fff;
     }
 
@@ -1377,7 +1394,26 @@
     .upload-cols.ai-step-chat { grid-template-columns: 1fr; }
     .upload-cols.ai-step-chat .upload-col-right { display: none; }
     .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
-    .upload-cols.ai-step-confirm .upload-col-left { display: none; }
+    .upload-cols.ai-step-confirm .upload-col-left {
+      flex: 0 0 auto;
+      display: flex;
+    }
+    .upload-cols.ai-step-confirm .upload-col-left .upload-mode-tabs,
+    .upload-cols.ai-step-confirm .upload-col-left #panel-ai {
+      display: none;
+    }
+    .upload-cols.ai-step-confirm .upload-col-left .mode-panels-wrapper,
+    .upload-cols.ai-step-confirm .upload-col-left .mode-panels-inner {
+      flex: 0 0 auto;
+      min-height: 0;
+      margin-bottom: 0;
+      width: 100%;
+      transform: none !important;
+    }
+    .upload-cols.ai-step-confirm .upload-col-left #panel-file {
+      flex: 0 0 auto;
+      width: 100%;
+    }
     .ai-close-btn {
       display: none;
       position: absolute;
@@ -2470,7 +2506,15 @@
         syncAiPanelHeight();
         window.addEventListener('resize', syncAiPanelHeight);
         const ta = document.getElementById('ai-gen-desc');
-        if (ta) ta.addEventListener('input', _resizeAiTextarea);
+        if (ta) {
+          ta.addEventListener('input', _resizeAiTextarea);
+          ta.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendChatMessage();
+            }
+          });
+        }
       }
     }).catch(() => {});
   }
@@ -3006,13 +3050,17 @@
     const fileName = (_aiCurrentWorkout.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
     const file = new File([json], fileName, { type: 'application/json' });
     await setFile(file);
-    document.getElementById('upload-cols').classList.remove('ai-step-chat');
-    document.getElementById('upload-cols').classList.add('ai-step-confirm');
+    const cols = document.getElementById('upload-cols');
+    cols.classList.remove('ai-step-chat');
+    cols.classList.add('ai-step-confirm');
+    cols.style.height = '';
   }
 
   function backToChat() {
-    document.getElementById('upload-cols').classList.remove('ai-step-confirm');
-    document.getElementById('upload-cols').classList.add('ai-step-chat');
+    const cols = document.getElementById('upload-cols');
+    cols.classList.remove('ai-step-confirm');
+    cols.classList.add('ai-step-chat');
+    syncAiPanelHeight();
   }
 
   function onGroupToggle(cb) {
