@@ -2076,7 +2076,7 @@
               <div class="ai-gen-panel" id="ai-gen-panel">
                 <div class="ai-chat-messages" id="ai-chat-messages"></div>
                 <div class="ai-gen-row">
-                  <textarea id="ai-gen-desc" placeholder="F.eks. «5x5 min hardt, 2 min jogg»"></textarea>
+                  <textarea id="ai-gen-desc" rows="1" placeholder="F.eks. «5x5 min hardt, 2 min jogg»"></textarea>
                   <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="sendChatMessage()" aria-label="Send" title="Send">✨</button>
                 </div>
                 <div class="alert" id="ai-gen-alert"></div>
@@ -2757,29 +2757,21 @@
   let _currentUploadMode = 'ai';
 
   function syncAiPanelHeight() {
-    const dz = document.getElementById('dz');
-    const panel = document.getElementById('ai-gen-panel');
     const cols = document.getElementById('upload-cols');
-    const colLeft = cols?.querySelector('.upload-col-left');
-    const colRight = cols?.querySelector('.upload-col-right');
-    if (!dz || !panel || !cols || !colLeft || !colRight) return;
+    if (!cols) return;
     if (_currentUploadMode !== 'ai') return;
 
     const wasChat = cols.classList.contains('ai-step-chat');
     const wasConfirm = cols.classList.contains('ai-step-confirm');
     cols.classList.remove('ai-step-chat', 'ai-step-confirm');
-    panel.style.height = '';
+    cols.style.height = '';
 
-    const leftRect = colLeft.getBoundingClientRect();
-    const rightRect = colRight.getBoundingClientRect();
-    const dzRect = dz.getBoundingClientRect();
-    const stacked = rightRect.top >= leftRect.bottom - 1;
-    const extra = stacked ? (rightRect.bottom - leftRect.bottom) : 0;
+    const rowHeight = cols.getBoundingClientRect().height;
 
     if (wasChat) cols.classList.add('ai-step-chat');
     if (wasConfirm) cols.classList.add('ai-step-confirm');
 
-    panel.style.height = Math.ceil(dzRect.height + Math.max(0, extra)) + 'px';
+    cols.style.height = Math.ceil(rowHeight) + 'px';
   }
 
   function setUploadMode(mode) {
@@ -2822,7 +2814,8 @@
     if (isAi) {
       syncAiPanelHeight();
     } else {
-      document.getElementById('ai-gen-panel').style.height = '';
+      const cols = document.getElementById('upload-cols');
+      if (cols) cols.style.height = '';
     }
   }
 
