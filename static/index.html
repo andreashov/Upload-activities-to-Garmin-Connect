@@ -1311,7 +1311,7 @@
       height: 100%;
       max-width: none;
       border-radius: 0;
-      display: flex;
+      display: flex !important;
       flex-direction: column;
       padding: max(72px, calc(env(safe-area-inset-top) + 60px)) 16px max(16px, env(safe-area-inset-bottom));
       box-sizing: border-box;
@@ -1331,6 +1331,9 @@
       display: flex;
       flex-direction: column;
     }
+    #upload-section:has(.upload-cols.ai-step-chat) #card-front {
+      position: relative;
+    }
     #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-wrapper {
       display: flex;
       flex-direction: column;
@@ -1338,6 +1341,10 @@
     }
     #upload-section:has(.upload-cols.ai-step-chat) .card-header {
       flex-shrink: 0;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) .upload-mode-btn {
+      top: 0;
+      right: 0;
     }
     .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
     .upload-cols.ai-step-confirm .upload-col-left {
