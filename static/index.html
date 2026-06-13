@@ -1367,9 +1367,11 @@
       flex-shrink: 0;
     }
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row textarea {
-      min-height: 41px;
-      max-height: 41px;
+      min-height: 41px !important;
+      max-height: 41px !important;
+      height: 41px !important;
       padding-bottom: 8px;
+      overflow-y: auto;
     }
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-btn {
       height: 41px;
