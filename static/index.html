@@ -2819,7 +2819,7 @@
     if (aiPanel)   aiPanel.inert   = !isAi;
 
     if (isAi) {
-      setTimeout(syncAiPanelHeight, 50);
+      syncAiPanelHeight();
     } else {
       document.getElementById('ai-gen-panel').style.height = '';
     }
