@@ -1366,18 +1366,6 @@
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
       flex-shrink: 0;
     }
-    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row textarea {
-      min-height: 41px !important;
-      max-height: 41px !important;
-      height: 41px !important;
-      padding-top: 9px;
-      padding-bottom: 9px;
-      line-height: 21px;
-      overflow: hidden;
-    }
-    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-btn {
-      height: 41px;
-    }
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -1440,14 +1428,13 @@
       color: var(--t1);
       border-bottom-left-radius: 4px;
     }
-    .ai-gen-row textarea {
+    .ai-gen-row input {
       flex: 1;
       min-width: 0;
-      min-height: 41px;
-      max-height: 110px;
-      overflow-y: auto;
+      height: 48px;
       box-sizing: border-box;
-      padding: 8px 14px;
+      padding: 0 16px;
+      margin: 0;
       background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
       backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
@@ -1460,13 +1447,13 @@
         inset 0 -1px 1px rgba(255,255,255,0.25),
         inset 0 -6px 12px -6px rgba(255,255,255,0.18),
         0 6px 18px rgba(0,0,0,0.25);
-      font: inherit; font-size: 15px; line-height: 1.4; color: var(--t1);
-      outline: none; resize: none;
+      font: inherit; font-size: 15px; line-height: normal; color: var(--t1);
+      outline: none;
       -webkit-appearance: none; appearance: none;
       transition: border-color .18s, background .18s, box-shadow .18s;
     }
-    .ai-gen-panel textarea::placeholder { color: rgba(255,255,255,0.40); }
-    .ai-gen-panel textarea:focus {
+    .ai-gen-panel input::placeholder { color: rgba(255,255,255,0.40); }
+    .ai-gen-panel input:focus {
       border-color: rgba(0,212,170,0.45);
       border-top-color: rgba(0,212,170,0.65);
       background: linear-gradient(160deg, rgba(0,212,170,0.06) 0%, rgba(0,212,170,0.02) 100%);
@@ -1479,9 +1466,9 @@
     .ai-gen-btn {
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      align-self: flex-end;
+      align-self: stretch;
       width: 72px;
-      height: 41px;
+      height: 48px;
       background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
       border: none; border-radius: 16px;
       color: #fff; font-size: 19px; line-height: 1;
@@ -2124,7 +2111,7 @@
               <div class="ai-gen-panel" id="ai-gen-panel">
                 <div class="ai-chat-messages" id="ai-chat-messages"></div>
                 <div class="ai-gen-row">
-                  <textarea id="ai-gen-desc" rows="1" placeholder="F.eks. «5x5 min hardt, 2 min jogg»"></textarea>
+                  <input type="text" id="ai-gen-desc" enterkeyhint="send" placeholder="F.eks. «5x5 min hardt, 2 min jogg»" />
                   <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="sendChatMessage()" aria-label="Send" title="Send">✨</button>
                 </div>
                 <div class="alert" id="ai-gen-alert"></div>
@@ -2497,9 +2484,8 @@
       if (d.aiWorkoutGenEnabled) {
         const ta = document.getElementById('ai-gen-desc');
         if (ta) {
-          ta.addEventListener('input', _resizeAiTextarea);
           ta.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter') {
               e.preventDefault();
               sendChatMessage();
             }
@@ -2837,10 +2823,6 @@
   let _aiCurrentWorkout = null;
 
   function _resizeAiTextarea() {
-    const ta = document.getElementById('ai-gen-desc');
-    if (!ta) return;
-    ta.style.height = 'auto';
-    ta.style.height = ta.scrollHeight + 'px';
     const box = document.getElementById('ai-chat-messages');
     if (box) box.scrollTop = box.scrollHeight;
   }
