@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import tempfile
+import time
 import uuid
 from datetime import datetime, date as date_type
 from pathlib import Path
@@ -232,45 +233,86 @@ def _ai_workout_recipe() -> str:
     return os.getenv("AI_WORKOUT_RECIPE", "").strip() or _DEFAULT_AI_WORKOUT_RECIPE
 
 
-def _ask_ai_for_workout_json(system_prompt: str, description: str) -> str:
+class _GroqRateLimit(RuntimeError):
+    """429 fra Groq. per_minute skiller forbigående per-minutt-grenser
+    (kan ventes ut automatisk) fra dags-grenser (må vente til i morgen)."""
+
+    def __init__(self, message: str, retry_after: float, per_minute: bool):
+        super().__init__(message)
+        self.retry_after = retry_after
+        self.per_minute = per_minute
+
+
+def _extract_json_object(text: str) -> str:
+    """Klipp ut selve JSON-objektet fra et svar som kan inneholde
+    kodeblokk-merker eller tekst før/etter objektet."""
+    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip(), flags=re.IGNORECASE).strip()
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        return text[start : end + 1]
+    return text
+
+
+def _ask_ai_for_workout_json(system_prompt: str, messages: list, force_json: bool = True) -> str:
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [{"role": "system", "content": system_prompt}] + messages,
+        "temperature": 0.1,
+    }
+    if force_json:
+        # Tvinger modellen til å returnere syntaktisk gyldig JSON — uten
+        # denne hender det at den glemmer komma/anførselstegn og svaret
+        # ikke lar seg parse (json.loads feiler med "Expecting ',' ...").
+        payload["response_format"] = {"type": "json_object"}
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
-        json={
-            "model": GROQ_MODEL,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": description.strip()},
-            ],
-            "temperature": 0.1,
-            # Tvinger modellen til å returnere syntaktisk gyldig JSON — uten
-            # denne hender det at den glemmer komma/anførselstegn og svaret
-            # ikke lar seg parse (json.loads feiler med "Expecting ',' ...").
-            "response_format": {"type": "json_object"},
-        },
+        json=payload,
         timeout=60,
     )
     if not resp.ok:
         try:
-            err = resp.json().get("error", {}).get("message", resp.text)
+            err_obj = resp.json().get("error", {})
+            err = err_obj.get("message", resp.text)
         except Exception:
-            err = resp.text
+            err_obj, err = {}, resp.text
+        # Groq svarer 400 "Failed to generate JSON" når json_object-modusen
+        # ikke godkjenner modellens svar — men legger ved selve teksten i
+        # failed_generation, som ofte er parsebar likevel.
+        if resp.status_code == 400 and err_obj.get("failed_generation"):
+            return _extract_json_object(err_obj["failed_generation"])
         if resp.status_code == 429:
-            wait = ""
-            m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
-            if m:
-                h, mi, s = (int(m.group(1) or 0), int(m.group(2) or 0), float(m.group(3) or 0))
-                total_min = h * 60 + mi + (1 if s else 0)
-                if total_min > 0:
+            logger.warning("Groq 429: %s", err)
+            retry_after = 0.0
+            try:
+                retry_after = float(resp.headers.get("retry-after", ""))
+            except ValueError:
+                m = re.search(r"try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?", err)
+                if m:
+                    retry_after = (
+                        int(m.group(1) or 0) * 3600
+                        + int(m.group(2) or 0) * 60
+                        + float(m.group(3) or 0)
+                    )
+            # Groq oppgir hvilken grense som er truffet: per-minutt (TPM/RPM)
+            # er forbigående og noe annet enn dags-grensene (TPD/RPD).
+            per_minute = "per minute" in err.lower()
+            if per_minute:
+                secs = int(retry_after) + 1 if retry_after else 0
+                msg = (
+                    "AI-tjenesten (Groq) har fått for mange forespørsler på kort tid."
+                    + (f" Prøv igjen om ca. {secs} sekunder." if secs else " Prøv igjen om litt.")
+                )
+            else:
+                wait = ""
+                if retry_after:
+                    total_min = max(1, round(retry_after / 60))
                     wait = f" Prøv igjen om ca. {total_min} minutt{'er' if total_min != 1 else ''}."
-            raise RuntimeError(
-                "AI-generatoren har nådd dagens grense for antall forespørsler hos Groq."
-                + wait
-            )
+                msg = "AI-generatoren har nådd dagens grense hos Groq." + wait
+            raise _GroqRateLimit(msg, retry_after, per_minute)
         raise RuntimeError(f"Groq API-feil ({resp.status_code}): {err}")
     data = resp.json()
-    text = data["choices"][0]["message"]["content"].strip()
-    return re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE).strip()
+    return _extract_json_object(data["choices"][0]["message"]["content"])
 
 
 def _generate_workout_with_ai(description: str) -> dict:
@@ -278,19 +320,83 @@ def _generate_workout_with_ai(description: str) -> dict:
         _WORKOUT_GEN_PROMPT
         + "\n"
         + _ai_workout_recipe()
-        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer."
+        + "\nSvar KUN med JSON-objektet for økten — ingen markdown, ingen forklaringer. "
+        "Skriv kompakt JSON uten innrykk og linjeskift (store økter blir ellers unødig lange)."
     )
     last_parse_error: Optional[Exception] = None
-    for attempt in range(2):
-        text = _ask_ai_for_workout_json(system_prompt, description)
+    messages = [{"role": "user", "content": description.strip()}]
+    # Forsøk 1 og 2 med tvungen JSON-modus; siste forsøk uten, siden Groq
+    # av og til avviser lange svar i json_object-modus ("Failed to generate
+    # JSON") selv om modellen kan levere parsebar JSON i fritekst-modus.
+    for attempt, force_json in enumerate([True, True, False]):
+        try:
+            text = _ask_ai_for_workout_json(system_prompt, messages, force_json=force_json)
+        except _GroqRateLimit as exc:
+            # Per-minutt-grense med kort ventetid: vent og prøv igjen i stedet
+            # for å avbryte — skjer lett når retry-forsøkene over kommer tett.
+            if not (exc.per_minute and 0 < exc.retry_after <= 30):
+                raise
+            logger.warning("Groq per-minutt-grense — venter %.1fs og prøver igjen", exc.retry_after)
+            time.sleep(exc.retry_after + 0.5)
+            text = _ask_ai_for_workout_json(system_prompt, messages, force_json=force_json)
         try:
             return json_module.loads(text)
         except json_module.JSONDecodeError as exc:
             last_parse_error = exc
-            logger.warning("AI returnerte ugyldig JSON (forsøk %d/2): %s", attempt + 1, exc)
+            logger.warning("AI returnerte ugyldig JSON (forsøk %d/3): %s", attempt + 1, exc)
     raise RuntimeError(
-        "AI-en svarte med ugyldig JSON og dette skjedde to ganger på rad — "
+        "AI-en svarte med ugyldig JSON tre ganger på rad — "
         "prøv igjen, eller omformuler beskrivelsen."
+    ) from last_parse_error
+
+
+_CHAT_RESPONSE_FORMAT_PROMPT = """
+Du kommuniserer med brukeren i en chat. Svar ALLTID med ett JSON-objekt med nøyaktig disse to feltene:
+{
+  "reply": "Kort svar til brukeren på norsk (1-3 setninger) - forklaring, oppsummering av endring, eller svar på et spørsmål",
+  "workoutDef": <økt-JSON som beskrevet over, eller null>
+}
+
+Sett "workoutDef" til null hvis brukeren kun stiller et spørsmål eller ber om en forklaring, uten å be om en ny eller endret økt.
+Hvis brukeren ber om en ny økt, eller en endring av en eksisterende økt, sett "workoutDef" til den FULLSTENDIGE oppdaterte økt-JSON-en (ikke bare endringene).
+Hvis det finnes en nåværende økt (vist under "Nåværende økt" lenger ned), bygg videre på den ved endringer — behold alt som ikke er bedt om å endres.
+"""
+
+
+def _chat_about_workout(messages: list, current_workout: Optional[dict]) -> dict:
+    system_prompt = (
+        _WORKOUT_GEN_PROMPT
+        + "\n"
+        + _ai_workout_recipe()
+        + "\n"
+        + _CHAT_RESPONSE_FORMAT_PROMPT
+        + "\nSvar KUN med JSON-objektet (reply + workoutDef) — ingen markdown, ingen kodeblokk-merker. "
+        "Skriv workoutDef kompakt uten innrykk og linjeskift når den er med."
+    )
+    if current_workout:
+        system_prompt += "\n\nNåværende økt:\n" + json_module.dumps(current_workout, ensure_ascii=False)
+
+    last_parse_error: Optional[Exception] = None
+    for attempt, force_json in enumerate([True, True, False]):
+        try:
+            text = _ask_ai_for_workout_json(system_prompt, messages, force_json=force_json)
+        except _GroqRateLimit as exc:
+            if not (exc.per_minute and 0 < exc.retry_after <= 30):
+                raise
+            logger.warning("Groq per-minutt-grense — venter %.1fs og prøver igjen", exc.retry_after)
+            time.sleep(exc.retry_after + 0.5)
+            text = _ask_ai_for_workout_json(system_prompt, messages, force_json=force_json)
+        try:
+            obj = json_module.loads(text)
+            if not isinstance(obj, dict) or "reply" not in obj:
+                raise ValueError("Svaret mangler 'reply'-feltet")
+            obj.setdefault("workoutDef", None)
+            return obj
+        except (json_module.JSONDecodeError, ValueError) as exc:
+            last_parse_error = exc
+            logger.warning("AI chat returnerte ugyldig svar (forsøk %d/3): %s", attempt + 1, exc)
+    raise RuntimeError(
+        "AI-en svarte med ugyldig format tre ganger på rad — prøv igjen, eller omformuler."
     ) from last_parse_error
 
 
@@ -517,6 +623,38 @@ async def generate_workout(request: Request, description: str = Form(...)):
         logger.exception("AI workout generation failed")
         raise HTTPException(status_code=500, detail=f"Kunne ikke generere økt: {exc}")
     return {"status": "ok", "workoutDef": workout_def}
+
+
+@app.post("/api/chat-workout")
+async def chat_workout(
+    request: Request,
+    messages: str = Form(...),
+    current_workout: str = Form(default=""),
+):
+    if not AI_WORKOUT_GEN_ENABLED:
+        raise HTTPException(status_code=404, detail="Funksjonen er ikke aktivert")
+    if _get_client(request) is None:
+        raise HTTPException(status_code=401, detail="Ikke innlogget")
+    try:
+        msgs = json_module.loads(messages)
+        if not isinstance(msgs, list) or not msgs:
+            raise ValueError("Tom meldingsliste")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Ugyldig meldingsliste")
+
+    cw: Optional[dict] = None
+    if current_workout.strip():
+        try:
+            cw = json_module.loads(current_workout)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Ugyldig nåværende økt")
+
+    try:
+        result = _chat_about_workout(msgs, cw)
+    except Exception as exc:
+        logger.exception("AI chat failed")
+        raise HTTPException(status_code=500, detail=f"Kunne ikke generere svar: {exc}")
+    return {"status": "ok", "reply": result["reply"], "workoutDef": result["workoutDef"]}
 
 
 # ── Upload ────────────────────────────────────────────────────────────────────

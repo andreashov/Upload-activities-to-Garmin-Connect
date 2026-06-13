@@ -233,8 +233,8 @@
       font-size: 13px; font-weight: 600; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: background .15s, box-shadow .15s;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       background: linear-gradient(160deg,
         rgba(255,255,255,0.10) 0%,
         rgba(255,255,255,0.03) 100%);
@@ -274,7 +274,7 @@
     .pill-badge {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 17px; height: 17px; padding: 0 4px;
-      border-radius: 9px;
+      border-radius: 10px;
       font-size: 11px; font-weight: 700; line-height: 1;
       background: rgba(255,255,255,0.18);
       color: rgba(255,255,255,0.9);
@@ -285,28 +285,22 @@
       color: rgba(0,0,0,0.75);
     }
 
-    /* Installer: round button, icon only — matches profile button size */
-    #install-btn {
-      width: 34px; height: 34px; padding: 0; gap: 0;
-      border-radius: 50%;
-      justify-content: center;
-      font-size: 20px; font-weight: 300; line-height: 1;
-    }
-
-    /* ── PWA install button — mobile only ───────────────────── */
+    /* ── PWA install menu item — mobile only ────────────────── */
     #install-btn { display: none; }
     @media (min-width: 680px) { #install-btn { display: none !important; } }
 
     /* ── Install tooltip ─────────────────────────────────────── */
     #install-tooltip {
       display: none;
-      position: fixed;
-      top: calc(max(16px, env(safe-area-inset-top)) + 52px);
-      right: 58px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 10px;
       z-index: 300;
-      width: 230px;
-      backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
-      -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
+      width: auto;
+      backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
+      -webkit-backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
       background: radial-gradient(130% 70% at 12% 0%,
         rgba(255,255,255,0.16) 0%,
         rgba(255,255,255,0.0) 55%),
@@ -316,7 +310,7 @@
       border: 1px solid rgba(255,255,255,0.30);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.35);
-      border-radius: 18px;
+      border-radius: 20px;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.50),
         inset 0 -1px 1px rgba(255,255,255,0.30),
@@ -332,11 +326,11 @@
       from { opacity: 0; transform: translateY(-8px) scale(0.96); }
       to   { opacity: 1; transform: translateY(0)   scale(1); }
     }
-    /* Arrow pointing up-right */
+    /* Arrow pointing up-left, toward the install button */
     #install-tooltip::before {
       content: '';
       position: absolute;
-      top: -7px; right: 16px;
+      top: -7px; left: 20px;
       width: 13px; height: 13px;
       background: linear-gradient(135deg,
         rgba(255,255,255,0.18) 0%,
@@ -386,8 +380,8 @@
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       background: linear-gradient(160deg,
         rgba(255,255,255,0.10) 0%,
         rgba(255,255,255,0.03) 100%);
@@ -432,8 +426,8 @@
       right: 14px;
       z-index: 300;
       width: 200px;
-      backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
-      -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
+      backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
+      -webkit-backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
       background: radial-gradient(130% 70% at 12% 0%,
         rgba(255,255,255,0.16) 0%,
         rgba(255,255,255,0.0) 55%),
@@ -443,7 +437,7 @@
       border: 1px solid rgba(255,255,255,0.30);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.35);
-      border-radius: 18px;
+      border-radius: 20px;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.50),
         inset 0 -1px 1px rgba(255,255,255,0.30),
@@ -480,7 +474,7 @@
       display: flex; align-items: center; gap: 9px;
       width: 100%;
       padding: 10px 12px;
-      border: none; border-radius: 10px;
+      border: none; border-radius: 12px;
       background: transparent;
       font: inherit; font-size: 13.5px; font-weight: 600;
       color: rgba(255,255,255,0.85);
@@ -538,13 +532,13 @@
     .back-close {
       display: flex; align-items: center; justify-content: center;
       width: 32px; height: 32px;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
       border: 1px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 10px;
+      border-radius: 12px;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.45),
         inset 0 -1px 1px rgba(255,255,255,0.25),
@@ -630,7 +624,7 @@
     /* Repeat group */
     .ws-repeat {
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
+      border-radius: 16px;
       overflow: hidden;
       margin: 6px 0;
     }
@@ -708,7 +702,7 @@
       }
       #upload-section .card-header .login-icon {
         width: 44px; height: 44px;
-        border-radius: 12px;
+        border-radius: 14px;
       }
       #upload-section .card-header .card-title { font-size: 20px; }
       #upload-section .card-header .card-title em { font-size: 14px; }
@@ -723,13 +717,6 @@
       .upload-col-left {
         display: flex;
         flex-direction: column;
-      }
-      .upload-col-left .upload-mode-tabs {
-        min-height: 54px;
-        margin-bottom: 12px;
-      }
-      .upload-col-left .upload-mode-tabs .mode-tab {
-        min-height: 0;
       }
       .upload-col-left .mode-panels-wrapper {
         flex: 1;
@@ -751,13 +738,15 @@
         flex: 1;
         min-height: 0;
       }
+      .upload-cols.ai-step-chat .ai-gen-panel {
+        min-height: 258px;
+      }
       .upload-col-right {
         display: flex;
         flex-direction: column;
       }
       .upload-col-right .field { margin-bottom: 12px; }
-      #upload-btn { margin-top: auto; }
-      .ai-gen-btn { margin-top: auto; }
+
 
       /* Login and PIN sections: stay narrow, centered */
       #login-section,
@@ -774,21 +763,22 @@
         rgba(255,255,255,0.08) 0%,
         rgba(255,255,255,0.02) 100%
       );
-      backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
-      -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
-      border-radius: 26px;
+      backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
+      -webkit-backdrop-filter: blur(24px) saturate(170%) brightness(1.06);
+      border-radius: 32px;
       border: 1px solid rgba(255,255,255,0.30);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.35);
-      padding: 28px 22px;
+      padding: 30px 24px;
       overflow: hidden;
       box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.50),
+        inset 0 1.5px 1px rgba(255,255,255,0.55),
         inset 0 -1px 1px rgba(255,255,255,0.30),
-        inset 0 -14px 28px -14px rgba(255,255,255,0.22),
-        inset 0 0 0 0.5px rgba(255,255,255,0.10),
-        0 24px 60px rgba(0,0,0,0.38),
-        0 4px 14px rgba(0,0,0,0.22);
+        inset 0 -16px 32px -14px rgba(255,255,255,0.24),
+        inset 0 0 0 0.5px rgba(255,255,255,0.12),
+        0 28px 70px rgba(0,0,0,0.40),
+        0 4px 14px rgba(0,0,0,0.22),
+        0 0 0 1px rgba(255,255,255,0.04);
     }
     .card::before {
       content: '';
@@ -814,16 +804,17 @@
     }
 
     .card-title {
-      font-size: clamp(20px, 5.5vw, 25px); font-weight: 800; letter-spacing: -0.5px;
-      line-height: 1.15;
+      font-size: clamp(21px, 5.5vw, 26px); font-weight: 800; letter-spacing: -0.6px;
+      line-height: 1.2;
       margin-bottom: clamp(10px, 2.5vh, 18px);
     }
     .card-title em {
       display: block;
       font-style: normal;
-      font-size: 17px; font-weight: 500; letter-spacing: -0.2px;
+      font-size: 17px; font-weight: 500; letter-spacing: -0.1px;
+      line-height: 1.4;
       color: rgba(255,255,255,0.38);
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
     /* All three cards: icon + centered text */
@@ -872,7 +863,7 @@
       border: 1px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 16px;
+      border-radius: 18px;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.45),
         inset 0 -1px 1px rgba(255,255,255,0.25),
@@ -896,7 +887,7 @@
       display: block;
       width: clamp(52px, 10vw, 72px); height: clamp(52px, 10vw, 72px);
       margin: 0 auto clamp(12px, 3vh, 20px);
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
       box-shadow:
         0 0 0 1px rgba(255,255,255,0.1),
@@ -958,12 +949,12 @@
       background: linear-gradient(160deg,
         rgba(255,255,255,0.06) 0%,
         rgba(255,255,255,0.01) 100%), rgba(0,0,0,0.10);
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       border: 1px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 13px;
+      border-radius: 14px;
       font-size: 16px; color: var(--t1);
       outline: none;
       -webkit-appearance: none; appearance: none;
@@ -990,8 +981,8 @@
       position: relative;
     }
     input[type="date"] {
-      min-height: 54px;
-      padding: 16px 14px;
+      height: 54px;
+      padding: 0 14px;
     }
     input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(.5); cursor: pointer; padding: 2px;
@@ -1027,16 +1018,21 @@
       gap: 10px;
     }
     .dp {
-      padding: clamp(10px, 2vh, 15px) 8px;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      height: 54px;
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       background: linear-gradient(160deg,
         rgba(255,255,255,0.10) 0%,
         rgba(255,255,255,0.03) 100%);
       border: 1px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 16px;
+      border-radius: 18px;
       font-size: 15px; font-weight: 700;
       color: var(--t1);
       cursor: pointer; text-align: center;
@@ -1049,16 +1045,16 @@
       transition: all .15s;
       line-height: 1.2;
     }
-    .dp span { display: block; font-size: 12px; font-weight: 400; color: var(--t2); margin-top: 3px; }
+    .dp span { display: block; font-size: 12px; font-weight: 400; color: var(--t2); margin-top: 2px; line-height: 1; }
     .dp:active, .dp.sel {
-      background: linear-gradient(160deg, rgba(0,212,170,0.20) 0%, rgba(0,212,170,0.07) 100%);
+      background: linear-gradient(160deg, rgba(0,212,170,0.14) 0%, rgba(0,212,170,0.05) 100%);
       border-color: rgba(0,212,170,0.45);
       border-top-color: rgba(0,212,170,0.65);
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.45),
         inset 0 -1px 1px rgba(255,255,255,0.25),
         inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        0 0 16px rgba(0,212,170,0.12);
+        0 0 12px rgba(0,212,170,0.10);
       color: var(--teal);
     }
     .dp.sel span { color: rgba(0,212,170,0.7); }
@@ -1082,12 +1078,14 @@
 
     /* ── Drop zone ───────────────────────────────────────── */
     .dz {
-      border: 1.5px dashed rgba(255,255,255,0.20);
-      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.28);
+      border-top-color: rgba(255,255,255,0.55);
+      border-bottom-color: rgba(255,255,255,0.30);
+      border-radius: 20px;
       padding: clamp(14px, 4vh, 28px) 16px;
       text-align: center; cursor: pointer;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       background: linear-gradient(160deg,
         rgba(255,255,255,0.10) 0%,
         rgba(255,255,255,0.03) 100%);
@@ -1099,7 +1097,7 @@
       transition: border-color .22s, background .22s, box-shadow .22s;
       -webkit-tap-highlight-color: transparent;
       position: relative;
-      min-height: 156px;
+      min-height: 37px;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
       box-sizing: border-box;
     }
@@ -1143,7 +1141,7 @@
     .dz-badge {
       flex-shrink: 0;
       padding: 5px 9px;
-      border-radius: 7px;
+      border-radius: 8px;
       font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
       text-transform: uppercase;
       background: rgba(6,255,165,0.15);
@@ -1163,7 +1161,7 @@
       width: 100%;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 10px 12px;
       font-size: 16px; font-weight: 600; /* 16px prevents iOS zoom-on-focus */
       color: var(--t1);
@@ -1177,21 +1175,21 @@
       background: rgba(0,212,170,0.04);
       box-shadow: 0 0 0 3px rgba(0,212,170,0.08);
     }
-    .dz-name-input::placeholder { color: var(--t3); font-weight: 400; }
+    .dz-name-input::placeholder { color: var(--t2); font-weight: 400; }
     .dz-preview-link {
       display: none;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      background: rgba(0,212,170,0.1);
-      border: 1px solid rgba(0,212,170,0.26);
-      border-top-color: rgba(0,212,170,0.55);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      background: rgba(0,0,0,0.16);
+      border: 1px solid rgba(0,212,170,0.40);
+      border-top-color: rgba(0,212,170,0.65);
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.45),
         inset 0 -1px 1px rgba(255,255,255,0.25),
         inset 0 -6px 12px -6px rgba(255,255,255,0.18);
-      color: var(--teal);
+      color: #fff;
       font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
-      padding: 7px 14px; border-radius: 10px;
+      padding: 7px 14px; border-radius: 12px;
       cursor: pointer; align-items: center; gap: 6px;
       -webkit-tap-highlight-color: transparent;
       transition: background .15s;
@@ -1205,134 +1203,263 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'%3E%3Crect x='1' y='1' width='12' height='12' rx='2.5' stroke='%2300d4aa' stroke-width='1.3'/%3E%3Cline x1='3.5' y1='4.5' x2='10.5' y2='4.5' stroke='%2300d4aa' stroke-width='1.1' stroke-linecap='round'/%3E%3Cline x1='3.5' y1='7' x2='10.5' y2='7' stroke='%2300d4aa' stroke-width='1.1' stroke-linecap='round'/%3E%3Cline x1='3.5' y1='9.5' x2='7.5' y2='9.5' stroke='%2300d4aa' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E");
       background-size: contain; background-repeat: no-repeat;
     }
-    .dz-preview-link:active { background: rgba(0,212,170,0.2); }
+    .dz-preview-link:active { background: rgba(0,0,0,0.28); }
     .dz-preview-link.visible { display: flex; }
 
-    /* ── AI workout generation (TEST) ──────────────────────── */
-    .upload-mode-tabs {
-      display: none;
-      gap: 5px;
-      padding: 4px;
-      margin-bottom: 10px;
-      background: linear-gradient(160deg,
-        rgba(255,255,255,0.06) 0%,
-        rgba(255,255,255,0.01) 100%), rgba(0,0,0,0.10);
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      border: 1px solid rgba(255,255,255,0.28);
-      border-top-color: rgba(255,255,255,0.55);
-      border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 14px;
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        0 6px 18px rgba(0,0,0,0.25);
-      position: relative;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .upload-mode-tabs.visible { display: flex; }
-    .tab-pill {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      height: calc(100% - 8px);
-      border-radius: 9px;
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
-      pointer-events: none;
-      will-change: transform;
-      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                  background 0.32s;
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        inset 0 0 0 1px rgba(255,255,255,0.20),
-        0 1px 3px rgba(0,0,0,0.25);
-    }
-    .tab-pill.ai-active {
-      background: linear-gradient(135deg, rgba(0,212,170,0.26) 0%, rgba(123,47,255,0.26) 100%);
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        inset 0 0 0 1px rgba(255,255,255,0.20),
-        0 1px 3px rgba(0,0,0,0.25),
-        0 0 12px rgba(123,47,255,0.2);
-    }
-    .mode-tab {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      min-height: 36px;
-      border: none; border-radius: 10px;
-      background: transparent;
-      color: var(--t3);
-      font: inherit; font-size: 12.5px; font-weight: 700;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: color .22s;
-      position: relative;
-      z-index: 1;
-    }
-    .mode-tab.active {
-      color: var(--t1);
-    }
-    .mode-tab.active.ai {
-      color: #fff;
-    }
-
+    /* ── AI workout generation ──────────────────────────────── */
     /* Sliding panels */
     .mode-panels-wrapper {
       overflow: hidden;
-      margin-bottom: 14px;
+      margin: 0 -8px 14px;
     }
     .mode-panels-inner {
       display: flex;
+      align-items: stretch;
       width: 200%;
       will-change: transform;
       transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .mode-panel-slide {
       width: 50%;
+      padding: 0 8px;
       min-width: 0;
+      min-height: 0;
       box-sizing: border-box;
     }
+
+    @media (max-width: 679px) {
+      .upload-cols { display: flex; flex-direction: column; }
+    }
+    .upload-col-left, .upload-col-right { display: flex; flex-direction: column; }
 
     .ai-gen-panel {
       display: flex;
       flex-direction: column;
-      min-height: 156px;
+      height: 100%;
+      min-height: 37px;
+      gap: 8px;
       box-sizing: border-box;
     }
-    .ai-gen-panel textarea {
-      width: 100%;
+    .ai-gen-row {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    /* ── AI chat ─────────────────────────────────────────── */
+    .ai-chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       flex: 1;
-      min-height: 76px;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .ai-chat-msg-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .ai-chat-msg-actions button {
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font: inherit; font-size: 11.5px; font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ai-chat-show-btn {
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.26) !important;
+      border-top-color: rgba(0,212,170,0.55) !important;
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.45),
+        inset 0 -1px 1px rgba(255,255,255,0.25),
+        inset 0 -6px 12px -6px rgba(255,255,255,0.18);
+      color: var(--teal);
+    }
+    .ai-chat-use-btn {
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
+      border: none;
+      box-shadow:
+        inset 0 1.5px 1px rgba(255,255,255,0.55),
+        inset 0 -1px 1px rgba(255,255,255,0.20),
+        inset 0 -8px 16px -8px rgba(255,255,255,0.15),
+        0 8px 28px rgba(123,47,255,0.3),
+        0 3px 10px rgba(0,212,170,0.2),
+        0 0 0 0.5px rgba(123,47,255,0.22);
+      color: #fff;
+    }
+
+    /* ── AI two-step layout: chat first, then date/upload ──── */
+    .upload-cols.ai-step-chat { grid-template-columns: 1fr; }
+    .upload-cols.ai-step-chat .upload-col-right { display: none; }
+    #card-front:not(:has(.upload-cols.ai-step-chat)) .card-header {
+      display: none;
+    }
+
+    /* ── AI chat: take over the full screen ─────────────────── */
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100dvh;
+      max-width: none;
+      border-radius: 0;
+      display: flex !important;
+      flex-direction: column;
+      padding: max(72px, calc(env(safe-area-inset-top) + 60px)) 16px 0;
       box-sizing: border-box;
-      padding: 13px 14px;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible))::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; height: 120px;
+      background: linear-gradient(to bottom, #000 0%, transparent 100%);
+      z-index: 11;
+      pointer-events: none;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible))::after {
+      content: '';
+      position: fixed;
+      bottom: 0; left: 0; right: 0; height: 160px;
+      background: linear-gradient(to top, transparent 0%, transparent 45%, #000 100%);
+      z-index: 11;
+      pointer-events: none;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) #card-front,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-cols,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-col-left,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panels-wrapper,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panels-inner,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-gen-panel {
+      flex: 1;
+      min-height: 0;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) #card-front,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-cols,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panel-slide {
+      display: flex;
+      flex-direction: column;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) #card-front {
+      position: relative;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .mode-panels-wrapper {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .card-header {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 12;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-close-btn,
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-mode-btn {
+      z-index: 13;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-gen-row {
+      flex-shrink: 0;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .ai-gen-row {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    #upload-section:has(.upload-cols.ai-step-chat):not(:has(#card-back.visible)) .upload-mode-btn {
+      top: 0;
+      right: 0;
+    }
+    .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
+    .upload-cols.ai-step-confirm .upload-col-left {
+      flex: 0 0 auto;
+      display: flex;
+    }
+    .upload-cols.ai-step-confirm .upload-col-left #panel-ai {
+      display: none;
+    }
+    .upload-cols.ai-step-confirm .upload-col-left .mode-panels-wrapper,
+    .upload-cols.ai-step-confirm .upload-col-left .mode-panels-inner {
+      flex: 0 0 auto;
+      min-height: 0;
+      margin-bottom: 0;
+      width: 100%;
+      transform: none !important;
+    }
+    .upload-cols.ai-step-confirm .upload-col-left #panel-file {
+      flex: 0 0 auto;
+      width: 100%;
+    }
+    .ai-close-btn, .upload-mode-btn {
+      display: none;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
+    }
+    #card-front:has(.upload-cols.ai-step-chat) .upload-mode-btn {
+      display: flex;
+    }
+    #card-front:not(:has(.upload-cols.ai-step-chat)) .ai-close-btn {
+      display: flex;
+    }
+    .ai-chat-msg {
+      max-width: 88%;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ai-chat-msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(0,212,170,0.28) 0%, rgba(123,47,255,0.28) 100%);
+      color: var(--t1);
+      border-bottom-right-radius: 4px;
+    }
+    .ai-chat-msg.assistant {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--t1);
+      border-bottom-left-radius: 4px;
+    }
+    .ai-gen-row input {
+      flex: 1;
+      min-width: 0;
+      height: 48px;
+      box-sizing: border-box;
+      padding: 0 16px;
+      margin: 0;
       background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       border: 1px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 18px;
+      border-radius: 20px;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.45),
         inset 0 -1px 1px rgba(255,255,255,0.25),
         inset 0 -6px 12px -6px rgba(255,255,255,0.18),
         0 6px 18px rgba(0,0,0,0.25);
-      font: inherit; font-size: 15px; color: var(--t1);
-      outline: none; resize: none;
+      font: inherit; font-size: 15px; line-height: normal; color: var(--t1);
+      outline: none;
       -webkit-appearance: none; appearance: none;
       transition: border-color .18s, background .18s, box-shadow .18s;
     }
-    .ai-gen-panel textarea::placeholder { color: rgba(255,255,255,0.28); }
-    .ai-gen-panel textarea:focus {
+    .ai-gen-panel input::placeholder { color: rgba(255,255,255,0.40); }
+    .ai-gen-panel input:focus {
       border-color: rgba(0,212,170,0.45);
       border-top-color: rgba(0,212,170,0.65);
       background: linear-gradient(160deg, rgba(0,212,170,0.06) 0%, rgba(0,212,170,0.02) 100%);
@@ -1343,11 +1470,14 @@
         0 0 0 3px rgba(0,212,170,0.10);
     }
     .ai-gen-btn {
-      display: flex; align-items: center; justify-content: center; gap: 7px;
-      width: 100%; min-height: 52px; margin-top: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      align-self: stretch;
+      width: 72px;
+      height: 48px;
       background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
       border: none; border-radius: 16px;
-      color: #fff; font-size: 15px; font-weight: 700; letter-spacing: -0.15px;
+      color: #fff; font-size: 19px; line-height: 1;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       position: relative; overflow: hidden;
@@ -1360,6 +1490,7 @@
         0 0 0 0.5px rgba(123,47,255,0.22);
       transition: transform .12s, box-shadow .12s, opacity .15s;
     }
+    .ai-gen-btn .spinner { margin-right: 0; }
     .ai-gen-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
     .ai-gen-btn:active:not(:disabled) {
       transform: scale(0.975);
@@ -1369,7 +1500,7 @@
     /* ── Button ──────────────────────────────────────────── */
     .btn {
       width: 100%; min-height: 52px;
-      border: none; border-radius: 16px;
+      border: none; border-radius: 18px;
       font-size: 15px; font-weight: 700; letter-spacing: -0.15px;
       color: #fff; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -1405,22 +1536,193 @@
       transform: scale(0.975);
       box-shadow: 0 2px 12px rgba(0,212,170,0.2);
     }
-    .btn:disabled { opacity: .28; cursor: not-allowed; box-shadow: none; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Slide to confirm (iOS "slide to answer" style) ─────── */
+    .slide-confirm {
+      position: relative;
+      width: 100%; height: 76px; margin-top: 18px;
+      border-radius: 32px;
+      overflow: hidden;
+      background: linear-gradient(160deg, rgba(18,24,38,0.65) 0%, rgba(8,11,20,0.6) 100%);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-top-color: rgba(255,255,255,0.16);
+      border-bottom-color: rgba(0,0,0,0.30);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.06),
+        inset 0 -12px 22px -12px rgba(0,0,0,0.55),
+        0 6px 18px rgba(0,0,0,0.25);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      transition: opacity .2s;
+    }
+    .slide-confirm.disabled { opacity: .45; pointer-events: none; }
+    .slide-confirm-fill {
+      position: absolute; top: 0; left: 0; bottom: 0;
+      width: 60px;
+      overflow: hidden;
+      background: linear-gradient(90deg, rgba(0,212,170,0.30) 0%, rgba(58,134,255,0.08) 100%);
+      border-radius: 28px;
+      transition: width .45s cubic-bezier(0.22,1,0.36,1), background .25s;
+      pointer-events: none;
+    }
+    .slide-confirm.btn-group .slide-confirm-fill {
+      background: linear-gradient(90deg, rgba(6,255,165,0.30) 0%, rgba(0,179,122,0.08) 100%);
+    }
+    .slide-confirm.dragging .slide-confirm-fill {
+      transition: background .25s;
+    }
+    .slide-confirm-fill::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%);
+      background-size: 200% 100%;
+      background-position: 200% 0;
+      opacity: 0;
+    }
+    .slide-confirm.busy .slide-confirm-fill::after {
+      opacity: 1;
+      animation: slide-fill-sweep 1.5s ease-in-out infinite;
+    }
+    @keyframes slide-fill-sweep {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .slide-confirm-label {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; letter-spacing: -0.1px;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity .15s;
+      background: linear-gradient(90deg,
+        var(--t2) 0%, var(--t2) 35%, #fff 50%, var(--t2) 65%, var(--t2) 100%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      animation: slide-shimmer 6s linear infinite;
+      mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+    }
+    @keyframes slide-shimmer {
+      0%   { background-position: 250% 0; }
+      100% { background-position: -250% 0; }
+    }
+    .slide-confirm-thumb {
+      position: absolute; top: 4px; left: 4px;
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, rgba(255,255,255,0.98) 0%, rgba(222,228,240,0.94) 100%);
+      color: var(--blue);
+      box-shadow:
+        inset 0 1.5px 1px rgba(255,255,255,0.9),
+        inset 0 -2px 3px rgba(0,0,0,0.06),
+        0 3px 10px rgba(0,0,0,0.30),
+        0 1px 2px rgba(0,0,0,0.20);
+      cursor: grab;
+      z-index: 2;
+      transform: translateX(0);
+      will-change: transform;
+      transition: transform .45s cubic-bezier(0.22,1,0.36,1), color .25s, box-shadow .15s;
+    }
+    .slide-confirm-icon {
+      width: 26px; height: 26px;
+      display: block;
+      transition: opacity .25s, transform .25s;
+    }
+    .slide-confirm.btn-group .slide-confirm-thumb {
+      color: var(--green);
+    }
+    .slide-confirm-thumb.dragging {
+      transition: color .25s, box-shadow .15s;
+      cursor: grabbing;
+      box-shadow:
+        inset 0 1.5px 1px rgba(255,255,255,0.9),
+        inset 0 -2px 3px rgba(0,0,0,0.06),
+        0 6px 18px rgba(0,0,0,0.40);
+    }
+    .slide-confirm.busy .slide-confirm-thumb {
+      cursor: default;
+    }
+    .slide-confirm.busy .slide-confirm-icon {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    .slide-confirm-spinner {
+      position: absolute;
+      inset: 0; margin: auto;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 3px solid rgba(58,134,255,0.18);
+      border-top-color: var(--blue);
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+    }
+    .slide-confirm.btn-group .slide-confirm-spinner {
+      border-color: rgba(6,255,165,0.18);
+      border-top-color: var(--green);
+    }
+    .slide-confirm.busy .slide-confirm-spinner {
+      opacity: 1;
+      animation: slide-spinner-spin .8s linear infinite;
+    }
+    @keyframes slide-spinner-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
 
     /* ── Alerts ──────────────────────────────────────────── */
     .alert {
-      display: none;
-      padding: 12px 14px; border-radius: 11px;
-      margin-top: 12px;
-      font-size: 13px; line-height: 1.5;
-      border: 1px solid;
-      white-space: pre-line;
+      display: flex;
+      align-items: center; justify-content: center;
+      position: absolute; inset: 0;
+      z-index: 50;
+      padding: 24px;
+      background: rgba(8,10,20,0.45);
+      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      border-radius: 32px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      cursor: pointer;
+      transition: opacity .25s ease, visibility .25s;
     }
-    .alert .alert-line1 { font-weight: 700; }
-    .alert .alert-line2 { opacity: 0.8; font-weight: 500; }
-    .alert-success { background: rgba(6,255,165,0.07); border-color: rgba(6,255,165,0.22); color: #06ffa5; }
-    .alert-error   { background: rgba(255,0,110,0.07); border-color: rgba(255,0,110,0.22); color: #ff4d8d; }
-    .alert-warning { background: rgba(255,190,0,0.07); border-color: rgba(255,190,0,0.22); color: #ffbe00; }
+    .alert.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .alert-box {
+      max-width: 100%;
+      padding: 16px 20px;
+      border-radius: 20px;
+      font-size: 13px; line-height: 1.5;
+      text-align: center;
+      white-space: pre-line;
+      background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
+      backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-top-color: rgba(255,255,255,0.55);
+      border-bottom-color: rgba(255,255,255,0.30);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.45),
+        inset 0 -1px 1px rgba(255,255,255,0.25),
+        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
+        0 12px 32px rgba(0,0,0,0.35);
+      transform: scale(0.9) translateY(6px);
+      transition: transform .3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .alert.show .alert-box { transform: scale(1) translateY(0); }
+    .alert-box .alert-line1 { font-weight: 700; }
+    .alert-box .alert-line2 { opacity: 0.8; font-weight: 500; }
+    .alert-box.alert-success { color: #06ffa5; border-top-color: rgba(6,255,165,0.45); }
+    .alert-box.alert-error   { color: #ff4d8d; border-top-color: rgba(255,77,141,0.45); }
+    .alert-box.alert-warning { color: #ffbe00; border-top-color: rgba(255,190,0,0.45); }
 
     .spinner {
       display: inline-block; width: 13px; height: 13px;
@@ -1441,12 +1743,12 @@
     .pin-box {
       width: 88px; height: 76px;
       background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       border: 1.5px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 16px;
+      border-radius: 18px;
       font-size: 30px; font-weight: 700; letter-spacing: 6px;
       color: #fff; text-align: center;
       -webkit-appearance: none; appearance: none;
@@ -1510,64 +1812,6 @@
       margin-top: 5px; letter-spacing: 0.05em;
     }
 
-    /* ── ECG heartbeat ───────────────────────────────────── */
-    .ecg {
-      --ecg-dur: 3.4s;
-      display: block;
-      width: 100%;
-      height: 40px;
-      margin-top: 16px;
-      overflow: visible;
-      pointer-events: none;
-      opacity: 0.75;
-      filter:
-        drop-shadow(0 0 4px rgba(0,255,200,0.45))
-        drop-shadow(0 0 11px rgba(120,140,255,0.28));
-    }
-    /* On mobile, extend ECG edge-to-edge */
-    @media (max-width: 679px) {
-      .ecg {
-        width: calc(100% + 32px);
-        margin-left: -16px; margin-right: -16px;
-      }
-    }
-    /* Larger / landscape screens: the same SVG path is stretched over more
-       physical pixels, so slow the animation down to keep the perceived
-       speed consistent and unhurried. */
-    @media (min-width: 900px) {
-      .ecg { --ecg-dur: 5.6s; }
-    }
-    .ecg-path {
-      stroke-dasharray: 800, 9999;
-      stroke-dashoffset: 800;
-      animation: ecg-draw var(--ecg-dur) cubic-bezier(0.45,0.05,0.25,1) infinite;
-    }
-    .ecg-blip {
-      offset-path: path("M0,24 L12,24 L16,20 L19,24 L21,24 L23,4 L25,44 L27,24 L34,28 L46,24 L84,24 L96,24 L100,20 L103,24 L105,24 L107,4 L109,44 L111,24 L118,28 L130,24 L168,24 L180,24 L184,20 L187,24 L189,24 L191,4 L193,44 L195,24 L202,28 L214,24 L252,24 L264,24 L268,20 L271,24 L273,24 L275,4 L277,44 L279,24 L286,28 L298,24 L336,24 L348,24 L352,20 L355,24 L357,24 L359,4 L361,44 L363,24 L370,28 L382,24 L400,24");
-      offset-distance: 0%;
-      offset-rotate: 0deg;
-      animation: ecg-blip-move var(--ecg-dur) cubic-bezier(0.45,0.05,0.25,1) infinite;
-      filter:
-        drop-shadow(0 0 3px rgba(255,255,255,0.95))
-        drop-shadow(0 0 7px rgba(120,190,255,0.7))
-        drop-shadow(0 0 14px rgba(167,139,250,0.4));
-    }
-    @keyframes ecg-draw {
-      0%   { stroke-dashoffset: 800; opacity: 0; }
-      6%   { stroke-dashoffset: 800; opacity: 1; }
-      75%  { stroke-dashoffset: 0;   opacity: 1; }
-      90%  { stroke-dashoffset: 0;   opacity: 0; }
-      100% { stroke-dashoffset: 800; opacity: 0; }
-    }
-    @keyframes ecg-blip-move {
-      0%   { offset-distance: 0%;   opacity: 0; }
-      6%   { offset-distance: 0%;   opacity: 1; }
-      75%  { offset-distance: 100%; opacity: 1; }
-      90%  { offset-distance: 100%; opacity: 0; }
-      100% { offset-distance: 0%;   opacity: 0; }
-    }
-
-
     /* Fade aurora til svart i bunnen — speiler ::before-vignettet øverst */
     #bottom-vignette {
       position: fixed;
@@ -1592,12 +1836,12 @@
       display: flex; align-items: center; justify-content: center; gap: 7px;
       width: 100%; padding: 11px; margin-top: 8px;
       background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
-      backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
-      -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08);
+      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
       border: 1px solid rgba(255,255,255,0.28);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 14px;
+      border-radius: 16px;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.45),
         inset 0 -1px 1px rgba(255,255,255,0.25),
@@ -1638,6 +1882,10 @@
       font-size: 13px; color: var(--t2); line-height: 1.5;
     }
 
+    #gw-toggle-wrap {
+      margin-top: 6px;
+      margin-bottom: 0 !important;
+    }
     .gw-check-label {
       display: flex; align-items: center; justify-content: center; gap: 10px;
       width: 100%; box-sizing: border-box;
@@ -1648,7 +1896,7 @@
     }
     .gw-check-label input[type="checkbox"] { display: none; }
     .gw-check-box {
-      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      width: 20px; height: 20px; border-radius: 8px; flex-shrink: 0;
       border: 1.5px solid rgba(255,255,255,0.32);
       border-top-color: rgba(255,255,255,0.55);
       border-bottom-color: rgba(255,255,255,0.30);
@@ -1682,7 +1930,7 @@
       main {
         padding: max(env(safe-area-inset-top), 56px) 16px max(env(safe-area-inset-bottom), 16px);
       }
-      .card { padding: 18px 16px; border-radius: 20px; }
+      .card { padding: 18px 16px; border-radius: 24px; }
       #pin-section,
       #login-section,
       #upload-section { padding-top: clamp(8px, 2vh, 16px); }
@@ -1691,7 +1939,7 @@
         width: clamp(44px, 8vw, 56px);
         height: clamp(44px, 8vw, 56px);
         margin-bottom: clamp(8px, 2vh, 14px);
-        border-radius: 14px;
+        border-radius: 16px;
       }
       .card-title {
         font-size: clamp(19px, 5vw, 24px);
@@ -1716,9 +1964,9 @@
       .dz-icon { font-size: 28px; margin-bottom: 4px; }
       .dz-main { font-size: 13px; }
 
-      input[type="date"] { min-height: 46px; padding: 12px 12px; }
+      input[type="date"] { height: 46px; padding: 0 12px; }
 
-      .dp { padding: clamp(7px, 1.5vh, 11px) 6px; font-size: 13px; }
+      .dp { height: 46px; padding: 0 6px; font-size: 13px; }
       .dp span { font-size: 11px; }
       .date-pills { margin-top: 8px; }
       .dp-row { gap: 8px; }
@@ -1726,9 +1974,7 @@
       .field { margin-bottom: clamp(6px, 1.5vh, 12px); }
       .btn { min-height: 46px; font-size: 14px; margin-top: 6px; }
 
-      .alert { margin-top: 8px; padding: 10px 12px; font-size: 12px; }
-
-      .ecg { height: 34px; margin-top: 10px; }
+      .alert-box { padding: 12px 16px; font-size: 12px; }
 
       .pin-box { width: 76px; height: 64px; font-size: 26px; }
     }
@@ -1746,7 +1992,6 @@
       input[type="email"],
       input[type="password"] { padding: 9px 10px; }
       .btn { min-height: 42px; }
-      .ecg { display: none; }
     }
   </style>
 </head>
@@ -1768,23 +2013,25 @@
 <header>
   <div id="user-info">
     <button class="pill" id="group-btn" onclick="document.getElementById('group-btn').classList.contains('open') ? closePreview() : showGroupSection()">De Grønnes økt<span class="pill-badge" id="group-badge">+</span></button>
-    <button class="pill" id="install-btn" onclick="installPWA()" title="Legg til på Hjem-skjermen">+</button>
-    <div id="install-tooltip" role="tooltip">
-      <div class="tip-title">For å installere som app</div>
-      <div class="tip-step">
-        <div class="tip-num">1</div>
-        <div class="tip-text">Trykk <b>Del</b>-knappen 📤 nederst i Safari</div>
-      </div>
-      <div class="tip-step">
-        <div class="tip-num">2</div>
-        <div class="tip-text">Velg <b>Legg til på Hjem-skjermen</b></div>
-      </div>
-    </div>
     <button id="profile-btn" onclick="toggleProfileMenu(event)" aria-label="Profil og innstillinger">
       <span id="profile-initial"></span>
     </button>
     <div id="profile-menu" role="menu">
       <div class="profile-menu-name" id="profile-menu-name"></div>
+      <button class="profile-menu-item" id="install-btn" role="menuitem" onclick="installPWA()">
+        <span class="profile-menu-icon">+</span> Installer app
+      </button>
+      <div id="install-tooltip" role="tooltip">
+        <div class="tip-title">For å installere som app</div>
+        <div class="tip-step">
+          <div class="tip-num">1</div>
+          <div class="tip-text">Trykk <b>Del</b>-knappen 📤 nederst i Safari</div>
+        </div>
+        <div class="tip-step">
+          <div class="tip-num">2</div>
+          <div class="tip-text">Velg <b>Legg til på Hjem-skjermen</b></div>
+        </div>
+      </div>
       <button class="profile-menu-item" role="menuitem" onclick="logout()">
         <span class="profile-menu-icon">↪</span> Logg ut
       </button>
@@ -1856,24 +2103,23 @@
         <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
       </div>
 
-      <div class="upload-cols">
-      <div class="upload-col-left">
-        <!-- Upload-mode tabs (TEST: file vs. AI) -->
-        <div class="upload-mode-tabs" id="upload-mode-tabs">
-          <div class="tab-pill" id="tab-pill"></div>
-          <button type="button" class="mode-tab ai active" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Lag med AI</button>
-          <button type="button" class="mode-tab" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
-        </div>
+      <button type="button" class="back-close ai-close-btn" id="ai-close-btn" onclick="backToChat()" aria-label="Lukk">✕</button>
+      <button type="button" class="back-close upload-mode-btn" id="file-mode-btn" onclick="setUploadMode('file')" aria-label="Last opp fil" title="Last opp fil">+</button>
 
+      <div class="upload-cols ai-step-chat" id="upload-cols">
+      <div class="upload-col-left">
         <!-- Sliding panels: File and AI side by side -->
         <div class="mode-panels-wrapper" id="mode-panels-wrapper">
           <div class="mode-panels-inner" id="mode-panels-inner">
 
-            <!-- Panel 0: AI workout generation -->
+            <!-- Panel 0: AI workout chat -->
             <div class="mode-panel-slide" id="panel-ai">
               <div class="ai-gen-panel" id="ai-gen-panel">
-                <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
-                <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="generateWorkoutWithAI()">✨ Generer økt</button>
+                <div class="ai-chat-messages" id="ai-chat-messages"></div>
+                <div class="ai-gen-row">
+                  <input type="text" id="ai-gen-desc" enterkeyhint="send" placeholder="F.eks. «5x5 min hardt, 2 min jogg»" />
+                  <button type="button" class="ai-gen-btn" id="ai-gen-btn" onclick="sendChatMessage()" aria-label="Send" title="Send">✨</button>
+                </div>
                 <div class="alert" id="ai-gen-alert"></div>
               </div>
             </div>
@@ -1937,34 +2183,19 @@
             <span>Sett som De Grønnes økt</span>
           </label>
         </div>
-        <button class="btn" id="upload-btn" onclick="doUpload()" disabled>
-          Last opp til Garmin
-        </button>
+        <div class="slide-confirm disabled" id="upload-slide">
+          <div class="slide-confirm-fill" id="slide-confirm-fill"></div>
+          <span class="slide-confirm-label" id="slide-confirm-label">Skyv for å laste opp</span>
+          <div class="slide-confirm-thumb" id="slide-confirm-thumb">
+            <svg class="slide-confirm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="slide-confirm-spinner"></div>
+          </div>
+        </div>
         <div class="alert" id="upload-alert"></div>
       </div>
       </div><!-- /.upload-cols -->
-
-      <!-- ECG heartbeat line — spans full width below both columns -->
-      <svg class="ecg" viewBox="0 0 400 48" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="ecg-grad" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="rgba(180,255,235,0.12)"/>
-            <stop offset="20%"  stop-color="#00ffcc"/>
-            <stop offset="45%"  stop-color="#38bdf8"/>
-            <stop offset="70%"  stop-color="#a78bfa"/>
-            <stop offset="92%"  stop-color="#00ffcc"/>
-            <stop offset="100%" stop-color="rgba(180,255,235,0.12)"/>
-          </linearGradient>
-        </defs>
-        <path id="ecg-line" class="ecg-path" fill="none" stroke="url(#ecg-grad)" stroke-width="2.2"
-          stroke-linecap="round" stroke-linejoin="round"
-          d="M0,24 L12,24 L16,20 L19,24 L21,24 L23,4 L25,44 L27,24 L34,28 L46,24 L84,24
-             L96,24 L100,20 L103,24 L105,24 L107,4 L109,44 L111,24 L118,28 L130,24 L168,24
-             L180,24 L184,20 L187,24 L189,24 L191,4 L193,44 L195,24 L202,28 L214,24 L252,24
-             L264,24 L268,20 L271,24 L273,24 L275,4 L277,44 L279,24 L286,28 L298,24 L336,24
-             L348,24 L352,20 L355,24 L357,24 L359,4 L361,44 L363,24 L370,28 L382,24 L400,24"/>
-        <circle class="ecg-blip" r="3.2" fill="#ffffff"/>
-      </svg>
     </div><!-- /#card-front -->
 
     <!-- ── Back face (workout details) ── -->
@@ -2061,7 +2292,7 @@
       <div class="gw-date-line">${meta}</div>
       <button class="btn" id="claim-btn" onclick="claimGroupWorkout()">Legg til i min Garmin</button>
       ${shareUrl ? `<button class="gw-share-btn" id="share-btn" data-url="${shareUrl}" onclick="copyShareLink(this)">${shareSvg} Del lenke</button>` : ''}
-      <div class="alert" id="group-alert" style="margin-top:8px;display:none"></div>
+      <div class="alert" id="group-alert"></div>
       <div style="margin-top:20px">${_renderWorkout(data.workoutDef)}</div>`;
   }
 
@@ -2154,11 +2385,16 @@
     _qEls().forEach(e => e.classList.remove('visible'));
   }
 
-  // ── Confetti ──────────────────────────────────────────────
+  // ── Success burst ─────────────────────────────────────────
+  // Elegant "finish line" effect: an expanding glow ring plus
+  // streaking motion lines that shoot outward and decelerate,
+  // evoking a sprint finish rather than a confetti shower.
   function launchConfetti() {
     const W = window.innerWidth, H = window.innerHeight;
+    const cx = W / 2, cy = H * 0.42;
+    const dpr = window.devicePixelRatio || 1;
     const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
+    canvas.width = W * dpr; canvas.height = H * dpr;
     Object.assign(canvas.style, {
       position: 'fixed', top: 0, left: 0,
       width: '100%', height: '100%',
@@ -2166,38 +2402,68 @@
     });
     document.body.appendChild(canvas);
     const ctx = canvas.getContext('2d');
-    const COLORS = ['#00d4aa','#7b2fff','#3a86ff','#06ffa5','#ff006e','#ffbe00','#ffffff'];
+    ctx.scale(dpr, dpr);
+    const COLORS = ['#00d4aa', '#7b2fff', '#3a86ff', '#06ffa5'];
 
-    const pieces = Array.from({ length: 100 }, () => ({
-      x: W * 0.2 + Math.random() * W * 0.6,
-      y: H * 0.55,
-      vx: (Math.random() - 0.5) * 16,
-      vy: -(Math.random() * 20 + 8),
-      g: 0.55,
-      rot: Math.random() * 360,
-      rs: (Math.random() - 0.5) * 9,
-      w: Math.random() * 10 + 5,
-      h: Math.random() * 5 + 3,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    }));
+    const streaks = Array.from({ length: 28 }, () => {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 9 + 5;
+      return {
+        x: cx, y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        len: Math.random() * 22 + 14,
+        width: Math.random() * 2 + 1.5,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      };
+    });
 
     const start = performance.now();
-    const dur = 2600;
+    const dur = 1100;
 
     (function frame(now) {
-      const t = (now - start) / dur;
+      const t = Math.min(1, (now - start) / dur);
+      const ease = 1 - Math.pow(1 - t, 3);
       ctx.clearRect(0, 0, W, H);
-      pieces.forEach(p => {
-        p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.rs;
-        const alpha = Math.max(0, 1 - Math.max(0, t - 0.45) * 2.2);
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot * Math.PI / 180);
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        ctx.restore();
+      ctx.globalCompositeOperation = 'lighter';
+
+      // Expanding ring
+      const ringR = ease * Math.max(W, H) * 0.38;
+      const ringAlpha = (1 - t) * 0.5;
+      if (ringAlpha > 0) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = `rgba(6,255,165,${ringAlpha})`;
+        ctx.shadowColor = 'rgba(6,255,165,0.8)';
+        ctx.shadowBlur = 16;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      // Sprint streaks
+      const fade = Math.max(0, 1 - Math.max(0, t - 0.35) / 0.65);
+      streaks.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.965; p.vy *= 0.965;
+        const dirLen = Math.hypot(p.vx, p.vy) || 1;
+        const ux = p.vx / dirLen, uy = p.vy / dirLen;
+        const tailLen = p.len * (0.6 + ease * 0.4);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - ux * tailLen, p.y - uy * tailLen);
+        ctx.lineWidth = p.width;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = fade;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 8;
+        ctx.stroke();
       });
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+
       t < 1 ? requestAnimationFrame(frame) : canvas.remove();
     })(start);
   }
@@ -2222,8 +2488,15 @@
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
     fetch('/api/status').then(r => r.json()).then(d => {
       if (d.aiWorkoutGenEnabled) {
-        document.getElementById('upload-mode-tabs').classList.add('visible');
-        initTabPill();
+        const ta = document.getElementById('ai-gen-desc');
+        if (ta) {
+          ta.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              sendChatMessage();
+            }
+          });
+        }
       }
     }).catch(() => {});
   }
@@ -2375,7 +2648,8 @@
     document.getElementById('dz').classList.remove('has-file');
     document.getElementById('activity-name').value = '';
     document.getElementById('preview-btn-row').classList.remove('visible');
-    document.getElementById('upload-btn').disabled = true;
+    setSlideEnabled(false);
+    resetSlide();
     alert2('upload-alert', '', '');
     document.getElementById('user-info').style.display = 'none';
     cancelMfa();
@@ -2519,7 +2793,7 @@
     document.getElementById('activity-name').placeholder = parsedName ? 'Rediger navn…' : f.name;
     document.getElementById('preview-btn-row').classList.toggle('visible', !!_parsedJson);
     document.getElementById('dz').classList.add('has-file');
-    document.getElementById('upload-btn').disabled = false;
+    setSlideEnabled(true);
     // gw-toggle-wrap is always visible
     alert2('upload-alert', '', '');
   }
@@ -2532,25 +2806,17 @@
     const isAi = mode === 'ai';
     _currentUploadMode = mode;
 
-    document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
-    document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
-
-    // Slide pill: AI=left (0), File=right (pillOffset)
-    const pill = document.getElementById('tab-pill');
-    const tabs = document.getElementById('upload-mode-tabs');
-    if (pill && tabs) {
-      const pillW = parseFloat(tabs.style.getPropertyValue('--pill-w')) || (tabs.offsetWidth - 14) / 2;
-      pill.style.transition = '';
-      pill.style.transform = isAi ? 'translateX(0px)' : `translateX(${pillW + 6}px)`;
-      pill.classList.toggle('ai-active', isAi);
+    const cols = document.getElementById('upload-cols');
+    if (isAi) {
+      cols.classList.remove('ai-step-confirm');
+      cols.classList.add('ai-step-chat');
+    } else {
+      cols.classList.remove('ai-step-chat', 'ai-step-confirm');
     }
 
     // Slide content panels: AI=panel 0 (translateX 0), File=panel 1 (translateX -50%)
     const inner = document.getElementById('mode-panels-inner');
-    if (inner) {
-      inner.style.transition = '';
-      inner.style.transform = isAi ? 'translateX(0)' : 'translateX(-50%)';
-    }
+    if (inner) inner.style.transform = isAi ? 'translateX(0)' : 'translateX(-50%)';
 
     // Inert for accessibility: disable interaction with off-screen panel
     const filePanel = document.getElementById('panel-file');
@@ -2559,110 +2825,71 @@
     if (aiPanel)   aiPanel.inert   = !isAi;
   }
 
-  // Initialise pill width and drag behaviour
-  let _tabDrag = null;
+  let _aiChatMessages = [];
+  let _aiCurrentWorkout = null;
 
-  function initTabPill() {
-    const tabs = document.getElementById('upload-mode-tabs');
-    const pill = document.getElementById('tab-pill');
-    if (!tabs || !pill) return;
-
-    function sizePill() {
-      const pillW = Math.round((tabs.offsetWidth - 14) / 2);
-      tabs.style.setProperty('--pill-w', pillW + 'px');
-      pill.style.width = pillW + 'px';
-      const isAi = _currentUploadMode === 'ai';
-      pill.style.transition = 'none';
-      pill.style.transform = isAi ? 'translateX(0px)' : `translateX(${pillW + 6}px)`;
-      requestAnimationFrame(() => { pill.style.transition = ''; });
-    }
-
-    sizePill();
-    window.addEventListener('resize', sizePill);
-
-    // ── Drag the tab toggle ──
-    // ratio=0 → AI (left), ratio=1 → File (right)
-    tabs.addEventListener('pointerdown', e => {
-      if (e.button !== 0) return;
-
-      const pillW = parseFloat(pill.style.width) || (tabs.offsetWidth - 14) / 2;
-      const pillOffset = pillW + 6;
-      const wrapperW = document.getElementById('mode-panels-wrapper').offsetWidth;
-
-      _tabDrag = {
-        startX: e.clientX,
-        baseTranslate: _currentUploadMode === 'ai' ? 0 : pillOffset,
-        pillOffset,
-        wrapperW,
-        moved: false,
-        pointerId: e.pointerId
-      };
-
-      function onMove(ev) {
-        if (!_tabDrag || ev.pointerId !== _tabDrag.pointerId) return;
-        const dx = ev.clientX - _tabDrag.startX;
-        if (Math.abs(dx) < 4 && !_tabDrag.moved) return;
-        _tabDrag.moved = true;
-        ev.preventDefault();
-
-        const raw = _tabDrag.baseTranslate + dx;
-        const clamped = Math.max(0, Math.min(_tabDrag.pillOffset, raw));
-        const ratio = clamped / _tabDrag.pillOffset;
-
-        pill.style.transition = 'none';
-        pill.style.transform = `translateX(${clamped}px)`;
-        pill.classList.toggle('ai-active', ratio < 0.5);
-
-        const inner = document.getElementById('mode-panels-inner');
-        inner.style.transition = 'none';
-        inner.style.transform = `translateX(${-_tabDrag.wrapperW * ratio}px)`;
-      }
-
-      function onUp(ev) {
-        document.removeEventListener('pointermove', onMove);
-        document.removeEventListener('pointerup',   onUp);
-        document.removeEventListener('pointercancel', onUp);
-
-        if (!_tabDrag || !_tabDrag.moved) { _tabDrag = null; return; }
-        const { pillOffset } = _tabDrag;
-        _tabDrag = null;
-
-        const m = pill.style.transform.match(/translateX\(([^)]+)px\)/);
-        const curX = m ? parseFloat(m[1]) : 0;
-        const ratio = curX / pillOffset;
-
-        pill.style.transition = '';
-        document.getElementById('mode-panels-inner').style.transition = '';
-        setUploadMode(ratio >= 0.5 ? 'file' : 'ai');
-      }
-
-      document.addEventListener('pointermove', onMove, { passive: false });
-      document.addEventListener('pointerup',   onUp);
-      document.addEventListener('pointercancel', onUp);
-    });
+  function _resizeAiTextarea() {
+    const box = document.getElementById('ai-chat-messages');
+    if (box) box.scrollTop = box.scrollHeight;
   }
 
-  async function generateWorkoutWithAI() {
+  function _aiAppendMessage(role, text, workoutDef) {
+    const box = document.getElementById('ai-chat-messages');
+    const el = document.createElement('div');
+    el.className = 'ai-chat-msg ' + role;
+    el.textContent = text;
+    box.appendChild(el);
+    if (workoutDef) {
+      const actions = document.createElement('div');
+      actions.className = 'ai-chat-msg-actions';
+      const showBtn = document.createElement('button');
+      showBtn.type = 'button';
+      showBtn.className = 'ai-chat-show-btn';
+      showBtn.textContent = 'Vis økt';
+      showBtn.onclick = () => showAiWorkout(workoutDef);
+      const useBtn = document.createElement('button');
+      useBtn.type = 'button';
+      useBtn.className = 'ai-chat-use-btn';
+      useBtn.textContent = 'Bruk denne økten →';
+      useBtn.onclick = () => useAiWorkout(workoutDef);
+      actions.appendChild(showBtn);
+      actions.appendChild(useBtn);
+      box.appendChild(actions);
+    }
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function showAiWorkout(workoutDef) {
+    _parsedJson = workoutDef;
+    document.getElementById('back-title').textContent = workoutDef.workoutName || '';
+    openPreview();
+  }
+
+  async function sendChatMessage() {
     const desc = document.getElementById('ai-gen-desc').value.trim();
     if (!desc) return;
     const btn = document.getElementById('ai-gen-btn');
     const orig = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Genererer…';
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
     alert2('ai-gen-alert', '', '');
+
+    _aiAppendMessage('user', desc);
+    _aiChatMessages.push({ role: 'user', content: desc });
+    document.getElementById('ai-gen-desc').value = '';
+    _resizeAiTextarea();
+
     try {
       const fd = new FormData();
-      fd.append('description', desc);
-      const r = await fetch('/api/generate-workout', { method: 'POST', body: fd });
+      fd.append('messages', JSON.stringify(_aiChatMessages));
+      if (_aiCurrentWorkout) fd.append('current_workout', JSON.stringify(_aiCurrentWorkout));
+      const r = await fetch('/api/chat-workout', { method: 'POST', body: fd });
       const d = await r.json();
       if (r.ok) {
-        const json = JSON.stringify(d.workoutDef, null, 2);
-        const fileName = (d.workoutDef.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
-        const file = new File([json], fileName, { type: 'application/json' });
-        await setFile(file);
-        setUploadMode('file');
-        document.getElementById('ai-gen-desc').value = '';
+        _aiChatMessages.push({ role: 'assistant', content: d.reply });
+        if (d.workoutDef) _aiCurrentWorkout = d.workoutDef;
+        _aiAppendMessage('assistant', d.reply, d.workoutDef || null);
       } else {
-        alert2('ai-gen-alert', d.detail || 'Kunne ikke generere økt', 'error');
+        alert2('ai-gen-alert', d.detail || 'Kunne ikke generere svar', 'error');
       }
     } catch(e) {
       alert2('ai-gen-alert', 'Nettverksfeil', 'error');
@@ -2671,23 +2898,109 @@
     }
   }
 
-  function onGroupToggle(cb) {
-    const btn = document.getElementById('upload-btn');
-    btn.textContent = cb.checked ? 'Del som De Grønnes økt' : 'Last opp til Garmin';
-    btn.classList.toggle('btn-group', cb.checked);
+  async function useAiWorkout(workoutDef) {
+    _aiCurrentWorkout = workoutDef || _aiCurrentWorkout;
+    if (!_aiCurrentWorkout) return;
+    const json = JSON.stringify(_aiCurrentWorkout, null, 2);
+    const fileName = (_aiCurrentWorkout.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
+    const file = new File([json], fileName, { type: 'application/json' });
+    await setFile(file);
+    const cols = document.getElementById('upload-cols');
+    cols.classList.remove('ai-step-chat');
+    cols.classList.add('ai-step-confirm');
   }
 
+  function backToChat() {
+    setUploadMode('ai');
+  }
+
+  function onGroupToggle(cb) {
+    const slide = document.getElementById('upload-slide');
+    setSlideLabel(cb.checked ? 'Skyv for å dele' : 'Skyv for å laste opp');
+    slide.classList.toggle('btn-group', cb.checked);
+  }
+
+  // ── Slide to confirm (iOS "slide to answer" style) ─────────
+  function setSlideLabel(text) {
+    document.getElementById('slide-confirm-label').textContent = text;
+  }
+
+  function setSlideEnabled(enabled) {
+    document.getElementById('upload-slide').classList.toggle('disabled', !enabled);
+  }
+
+  function resetSlide() {
+    const slide = document.getElementById('upload-slide');
+    const thumb = document.getElementById('slide-confirm-thumb');
+    const fill = document.getElementById('slide-confirm-fill');
+    slide.classList.remove('busy');
+    thumb.style.transform = 'translateX(0px)';
+    fill.style.width = (thumb.offsetWidth + 4) + 'px';
+    thumb.dataset.dx = '0';
+    document.getElementById('slide-confirm-label').style.opacity = '1';
+  }
+
+  (function initSlideConfirm() {
+    const slide = document.getElementById('upload-slide');
+    const thumb = document.getElementById('slide-confirm-thumb');
+    const fill = document.getElementById('slide-confirm-fill');
+    const label = document.getElementById('slide-confirm-label');
+    let dragging = false, startX = 0, startDx = 0, maxDx = 0;
+
+    thumb.addEventListener('pointerdown', (e) => {
+      if (slide.classList.contains('disabled') || slide.classList.contains('busy')) return;
+      dragging = true;
+      startX = e.clientX;
+      startDx = parseFloat(thumb.dataset.dx) || 0;
+      maxDx = slide.offsetWidth - thumb.offsetWidth - 8;
+      slide.classList.add('dragging');
+      thumb.classList.add('dragging');
+      thumb.setPointerCapture(e.pointerId);
+    });
+
+    thumb.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      let dx = startDx + (e.clientX - startX);
+      dx = Math.max(0, Math.min(maxDx, dx));
+      thumb.dataset.dx = String(dx);
+      thumb.style.transform = `translateX(${dx}px)`;
+      fill.style.width = (thumb.offsetWidth + 4 + dx) + 'px';
+      const ratio = dx / Math.max(1, maxDx);
+      label.style.opacity = String(Math.max(0, 1 - ratio * 1.4));
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      slide.classList.remove('dragging');
+      thumb.classList.remove('dragging');
+      const dx = parseFloat(thumb.dataset.dx) || 0;
+      const ratio = dx / Math.max(1, maxDx);
+      if (ratio > 0.72) {
+        thumb.dataset.dx = String(maxDx);
+        thumb.style.transform = `translateX(${maxDx}px)`;
+        fill.style.width = '100%';
+        label.style.opacity = '0';
+        slide.classList.add('busy');
+        doUpload();
+      } else {
+        resetSlide();
+      }
+    }
+
+    thumb.addEventListener('pointerup', endDrag);
+    thumb.addEventListener('pointercancel', endDrag);
+  })();
+
   async function doUpload() {
-    if (!sel) return;
+    if (!sel) { resetSlide(); return; }
     const isGroup = document.getElementById('set-as-group').checked;
     if (isGroup && !dateInput.value) {
       alert2('upload-alert', 'Du må velge dato for å dele som De Grønnes økt', 'error');
+      resetSlide();
       return;
     }
-    const b = document.getElementById('upload-btn');
     const dv = dateInput.value;
-    const origLabel = b.textContent;
-    b.disabled = true; b.innerHTML = '<span class="spinner"></span>' + (isGroup ? 'Deler…' : 'Laster opp…');
     alert2('upload-alert', '', '');
     try {
       const fd = new FormData();
@@ -2700,7 +3013,7 @@
           alert2('upload-alert', d.message + '\nHusk: trykk på «De Grønnes økt» og legg den til i din egen Garmin.', 'success');
           document.getElementById('group-badge').textContent = '1';
           launchConfetti(); reset();
-        } else alert2('upload-alert', d.detail || 'Deling feilet', 'error');
+        } else { alert2('upload-alert', d.detail || 'Deling feilet', 'error'); resetSlide(); }
       } else {
         const actName = document.getElementById('activity-name')?.value?.trim();
         if (actName) fd.append('activity_name', actName);
@@ -2709,13 +3022,13 @@
         if (r.ok) {
           alert2('upload-alert', d.message, d.scheduled ? 'success' : 'warning');
           if (d.scheduled) { launchConfetti(); reset(); }
-          else launchConfetti();
+          else { launchConfetti(); resetSlide(); }
         } else {
           alert2('upload-alert', d.detail || 'Opplasting feilet', 'error');
+          resetSlide();
         }
       }
-    } catch(e) { alert2('upload-alert', 'Nettverksfeil', 'error'); }
-    finally { b.disabled = !sel; b.textContent = origLabel; }
+    } catch(e) { alert2('upload-alert', 'Nettverksfeil', 'error'); resetSlide(); }
   }
 
   // ── Card flip ─────────────────────────────────────────────
@@ -2785,11 +3098,18 @@
     if (key === 'cooldown') return '#7b2fff';
     if (key === 'recovery' || key === 'rest') return 'rgba(255,255,255,0.22)';
     const hr = step.targetValueOne;
-    if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr) {
-      if (hr < 155) return '#00d4aa';
-      if (hr < 165) return '#ffbe00';
-      if (hr < 175) return '#ff8c42';
-      return '#ff4d6d';
+    if (step.targetType?.workoutTargetTypeKey === 'heart.rate.zone') {
+      if (hr) {
+        if (hr < 155) return '#00d4aa';
+        if (hr < 165) return '#ffbe00';
+        if (hr < 175) return '#ff8c42';
+        return '#ff4d6d';
+      }
+      const zone = step.zoneNumber;
+      if (zone) {
+        const colors = ['#00d4aa', '#00d4aa', '#ffbe00', '#ff8c42', '#ff4d6d', '#ff4d6d'];
+        return colors[zone - 1] || '#00d4aa';
+      }
     }
     // short = all-out
     if ((step.endConditionValue || 999) <= 30) return '#ff4d6d';
@@ -2808,8 +3128,10 @@
     const label  = _stepLabel(step);
     const dur    = _fmtDur(step.endConditionValue, step.endCondition?.conditionTypeKey);
     const hr1    = step.targetValueOne, hr2 = step.targetValueTwo;
-    const hasHR  = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone' && hr1;
-    const target = hasHR ? `${hr1}–${hr2} bpm` : '';
+    const isHR   = step.targetType?.workoutTargetTypeKey === 'heart.rate.zone';
+    const target = isHR
+      ? (hr1 ? `${hr1}–${hr2} bpm` : (step.zoneNumber ? `Pulssone ${step.zoneNumber}` : ''))
+      : '';
     const desc   = step.description || '';
     return `<div class="ws-step">
       <div class="ws-bar" style="background:${color}"></div>
@@ -2924,27 +3246,34 @@
     dateInput.value = '';
     dateWrap.classList.remove('has-date');
     document.querySelectorAll('.dp').forEach(p => p.classList.remove('sel'));
-    document.getElementById('upload-btn').disabled = true;
+    setSlideEnabled(false);
+    resetSlide();
     // gw-toggle-wrap stays visible
     const cb = document.getElementById('set-as-group');
     cb.checked = false;
-    document.getElementById('upload-btn').textContent = 'Last opp til Garmin';
+    document.getElementById('upload-slide').classList.remove('btn-group');
+    setSlideLabel('Skyv for å laste opp');
     refreshDateDisplay();
   }
 
   function alert2(id, msg, type) {
     const el = document.getElementById(id);
-    if (!msg) { el.style.display = 'none'; return; }
+    if (!msg) { el.classList.remove('show'); return; }
     const lines = msg.split('\n');
+    let html;
     if (lines.length > 1) {
-      el.innerHTML = `<span class="alert-line1">${_escHtml(lines[0])}</span>\n` +
+      html = `<span class="alert-line1">${_escHtml(lines[0])}</span>\n` +
         lines.slice(1).map(l => `<span class="alert-line2">${_escHtml(l)}</span>`).join('\n');
     } else {
-      el.textContent = msg;
+      html = _escHtml(msg);
     }
-    el.className = 'alert alert-' + type;
-    el.style.display = 'block';
+    el.innerHTML = `<div class="alert-box alert-${type}">${html}</div>`;
+    el.classList.add('show');
   }
+
+  document.addEventListener('pointerdown', () => {
+    document.querySelectorAll('.alert.show').forEach(el => el.classList.remove('show'));
+  });
 
   function _escHtml(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -3004,21 +3333,18 @@
     const b = document.getElementById('claim-btn');
     if (!b) return;
     b.disabled = true; b.innerHTML = '<span class="spinner"></span>Legger til…';
-    const alertEl = document.getElementById('group-alert');
-    alertEl.style.display = 'none';
+    alert2('group-alert', '', '');
     try {
       const r = await fetch('/api/group-workout/claim', { method: 'POST' });
       const d = await r.json();
       if (r.ok) {
-        alertEl.textContent = d.message || 'Lagt til i Garmin!';
-        alertEl.className = 'alert alert-success'; alertEl.style.display = 'block';
+        alert2('group-alert', d.message || 'Lagt til i Garmin!', 'success');
         launchConfetti();
       } else {
-        alertEl.textContent = d.detail || 'Noe gikk galt';
-        alertEl.className = 'alert alert-error'; alertEl.style.display = 'block';
+        alert2('group-alert', d.detail || 'Noe gikk galt', 'error');
       }
     } catch(e) {
-      alertEl.textContent = 'Nettverksfeil'; alertEl.className = 'alert alert-error'; alertEl.style.display = 'block';
+      alert2('group-alert', 'Nettverksfeil', 'error');
     } finally { b.disabled = false; b.innerHTML = 'Legg til i min Garmin'; }
   }
 </script>
