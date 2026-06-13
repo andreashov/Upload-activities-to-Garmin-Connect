@@ -1305,6 +1305,9 @@
     /* ── AI two-step layout: chat first, then date/upload ──── */
     .upload-cols.ai-step-chat { grid-template-columns: 1fr; }
     .upload-cols.ai-step-chat .upload-col-right { display: none; }
+    #card-front:not(:has(.upload-cols.ai-step-chat)) .card-header .login-icon {
+      visibility: hidden;
+    }
     .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
     .upload-cols.ai-step-confirm .upload-col-left {
       flex: 0 0 auto;
