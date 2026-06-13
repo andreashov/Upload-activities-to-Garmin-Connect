@@ -1330,10 +1330,51 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 220px;
+      max-height: 360px;
       overflow-y: auto;
       padding-right: 2px;
     }
+    .ai-chat-msg-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .ai-chat-msg-actions button {
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font: inherit; font-size: 11.5px; font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ai-chat-show-btn {
+      background: rgba(255,255,255,0.10);
+      color: var(--t1);
+      border: 1px solid rgba(255,255,255,0.18) !important;
+    }
+    .ai-chat-use-btn {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
+      color: #fff;
+    }
+
+    /* ── AI two-step layout: chat first, then date/upload ──── */
+    .upload-cols.ai-step-chat { grid-template-columns: 1fr; }
+    .upload-cols.ai-step-chat .upload-col-right { display: none; }
+    .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
+    .upload-cols.ai-step-confirm .upload-col-left { display: none; }
+    .ai-back-btn {
+      display: none;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.45);
+      font: inherit; font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      padding: 0 0 10px;
+      -webkit-tap-highlight-color: transparent;
+      text-align: left;
+    }
+    .ai-back-btn:hover { color: rgba(255,255,255,0.70); }
+    .upload-cols.ai-step-confirm .ai-back-btn { display: block; }
     .ai-chat-messages:empty { display: none; }
     .ai-chat-msg {
       max-width: 88%;
@@ -1356,36 +1397,6 @@
       border: 1px solid rgba(255,255,255,0.10);
       color: var(--t1);
       border-bottom-left-radius: 4px;
-    }
-    .ai-chat-preview {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid rgba(0,212,170,0.30);
-      border-radius: 14px;
-      background: linear-gradient(160deg, rgba(0,212,170,0.10) 0%, rgba(123,47,255,0.05) 100%);
-      font-size: 12.5px;
-    }
-    .ai-chat-preview-text {
-      flex: 1;
-      min-width: 0;
-      color: var(--t1);
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .ai-chat-use-btn {
-      flex-shrink: 0;
-      border: none;
-      border-radius: 10px;
-      padding: 6px 12px;
-      font: inherit; font-size: 12px; font-weight: 700;
-      color: #fff;
-      background: linear-gradient(135deg, var(--teal) 0%, var(--violet) 100%);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
     }
     .ai-chat-footer {
       display: flex;
@@ -2061,7 +2072,7 @@
         <div class="card-title">Last opp økt<em>til Garmin Connect</em></div>
       </div>
 
-      <div class="upload-cols">
+      <div class="upload-cols ai-step-chat" id="upload-cols">
       <div class="upload-col-left">
         <!-- Upload-mode tabs (TEST: file vs. AI) -->
         <div class="upload-mode-tabs" id="upload-mode-tabs">
@@ -2077,10 +2088,6 @@
             <!-- Panel 0: AI workout chat -->
             <div class="mode-panel-slide" id="panel-ai">
               <div class="ai-gen-panel" id="ai-gen-panel">
-                <div class="ai-chat-preview" id="ai-chat-preview" style="display:none">
-                  <div class="ai-chat-preview-text" id="ai-chat-preview-text"></div>
-                  <button type="button" class="ai-chat-use-btn" id="ai-chat-use-btn" onclick="useAiWorkout()">Bruk denne økten →</button>
-                </div>
                 <div class="ai-chat-messages" id="ai-chat-messages"></div>
                 <div class="ai-gen-row">
                   <textarea id="ai-gen-desc" placeholder="F.eks. «5 x 5 min intervaller i høy fart med 2 min rolig jogg mellom, pluss oppvarming og nedjogg»"></textarea>
@@ -2131,6 +2138,7 @@
       </div>
 
       <div class="upload-col-right">
+        <button type="button" class="ai-back-btn" id="ai-back-btn" onclick="backToChat()">← Tilbake til chat</button>
         <!-- Date picker -->
         <div class="field">
           <div class="date-wrap" id="date-wrap">
@@ -2771,6 +2779,13 @@
     document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
     document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
 
+    const cols = document.getElementById('upload-cols');
+    if (isAi) {
+      if (!cols.classList.contains('ai-step-confirm')) cols.classList.add('ai-step-chat');
+    } else {
+      cols.classList.remove('ai-step-chat', 'ai-step-confirm');
+    }
+
     // Slide pill: AI=left (0), File=right (pillOffset)
     const pill = document.getElementById('tab-pill');
     const tabs = document.getElementById('upload-mode-tabs');
@@ -2881,22 +2896,36 @@
   let _aiChatMessages = [];
   let _aiCurrentWorkout = null;
 
-  function _aiAppendMessage(role, text) {
+  function _aiAppendMessage(role, text, workoutDef) {
     const box = document.getElementById('ai-chat-messages');
     const el = document.createElement('div');
     el.className = 'ai-chat-msg ' + role;
     el.textContent = text;
     box.appendChild(el);
+    if (workoutDef) {
+      const actions = document.createElement('div');
+      actions.className = 'ai-chat-msg-actions';
+      const showBtn = document.createElement('button');
+      showBtn.type = 'button';
+      showBtn.className = 'ai-chat-show-btn';
+      showBtn.textContent = 'Vis økt';
+      showBtn.onclick = () => showAiWorkout(workoutDef);
+      const useBtn = document.createElement('button');
+      useBtn.type = 'button';
+      useBtn.className = 'ai-chat-use-btn';
+      useBtn.textContent = 'Bruk denne økten →';
+      useBtn.onclick = () => useAiWorkout(workoutDef);
+      actions.appendChild(showBtn);
+      actions.appendChild(useBtn);
+      box.appendChild(actions);
+    }
     box.scrollTop = box.scrollHeight;
   }
 
-  function _aiUpdatePreview() {
-    const wrap = document.getElementById('ai-chat-preview');
-    const text = document.getElementById('ai-chat-preview-text');
-    if (!_aiCurrentWorkout) { wrap.style.display = 'none'; return; }
-    const name = _aiCurrentWorkout.workoutName || 'Økt';
-    text.textContent = '✨ ' + name;
-    wrap.style.display = '';
+  function showAiWorkout(workoutDef) {
+    _parsedJson = workoutDef;
+    document.getElementById('back-title').textContent = workoutDef.workoutName || '';
+    openPreview();
   }
 
   async function sendChatMessage() {
@@ -2919,11 +2948,8 @@
       const d = await r.json();
       if (r.ok) {
         _aiChatMessages.push({ role: 'assistant', content: d.reply });
-        _aiAppendMessage('assistant', d.reply);
-        if (d.workoutDef) {
-          _aiCurrentWorkout = d.workoutDef;
-          _aiUpdatePreview();
-        }
+        if (d.workoutDef) _aiCurrentWorkout = d.workoutDef;
+        _aiAppendMessage('assistant', d.reply, d.workoutDef || null);
       } else {
         alert2('ai-gen-alert', d.detail || 'Kunne ikke generere svar', 'error');
       }
@@ -2934,13 +2960,20 @@
     }
   }
 
-  async function useAiWorkout() {
+  async function useAiWorkout(workoutDef) {
+    _aiCurrentWorkout = workoutDef || _aiCurrentWorkout;
     if (!_aiCurrentWorkout) return;
     const json = JSON.stringify(_aiCurrentWorkout, null, 2);
     const fileName = (_aiCurrentWorkout.workoutName || 'ai-generert-okt').replace(/[^\w æøåÆØÅ-]+/g, '_') + '.json';
     const file = new File([json], fileName, { type: 'application/json' });
     await setFile(file);
-    setUploadMode('file');
+    document.getElementById('upload-cols').classList.remove('ai-step-chat');
+    document.getElementById('upload-cols').classList.add('ai-step-confirm');
+  }
+
+  function backToChat() {
+    document.getElementById('upload-cols').classList.remove('ai-step-confirm');
+    document.getElementById('upload-cols').classList.add('ai-step-chat');
   }
 
   function resetAiChat() {
@@ -2949,7 +2982,7 @@
     document.getElementById('ai-chat-messages').innerHTML = '';
     document.getElementById('ai-gen-desc').value = '';
     alert2('ai-gen-alert', '', '');
-    _aiUpdatePreview();
+    backToChat();
   }
 
   function onGroupToggle(cb) {
