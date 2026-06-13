@@ -724,13 +724,6 @@
         display: flex;
         flex-direction: column;
       }
-      .upload-col-left .upload-mode-tabs {
-        min-height: 54px;
-        margin-bottom: 12px;
-      }
-      .upload-col-left .upload-mode-tabs .mode-tab {
-        min-height: 0;
-      }
       .upload-col-left .mode-panels-wrapper {
         flex: 1;
         min-height: 0;
@@ -1216,83 +1209,7 @@
     .dz-preview-link:active { background: rgba(0,0,0,0.28); }
     .dz-preview-link.visible { display: flex; }
 
-    /* ── AI workout generation (TEST) ──────────────────────── */
-    .upload-mode-tabs {
-      display: none;
-      gap: 5px;
-      padding: 4px;
-      margin-bottom: 10px;
-      background: linear-gradient(160deg,
-        rgba(255,255,255,0.06) 0%,
-        rgba(255,255,255,0.01) 100%), rgba(0,0,0,0.10);
-      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
-      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
-      border: 1px solid rgba(255,255,255,0.28);
-      border-top-color: rgba(255,255,255,0.55);
-      border-bottom-color: rgba(255,255,255,0.30);
-      border-radius: 16px;
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        0 6px 18px rgba(0,0,0,0.25);
-      position: relative;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .upload-mode-tabs.visible { display: flex; }
-    .tab-pill {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      height: calc(100% - 8px);
-      border-radius: 10px;
-      backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
-      -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(1.08);
-      background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
-      pointer-events: none;
-      will-change: transform;
-      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                  background 0.32s;
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        inset 0 0 0 1px rgba(255,255,255,0.20),
-        0 1px 3px rgba(0,0,0,0.25);
-    }
-    .tab-pill.ai-active {
-      background: linear-gradient(135deg, rgba(0,212,170,0.26) 0%, rgba(123,47,255,0.26) 100%);
-      box-shadow:
-        inset 0 1px 1px rgba(255,255,255,0.45),
-        inset 0 -1px 1px rgba(255,255,255,0.25),
-        inset 0 -6px 12px -6px rgba(255,255,255,0.18),
-        inset 0 0 0 1px rgba(255,255,255,0.20),
-        0 1px 3px rgba(0,0,0,0.25),
-        0 0 12px rgba(123,47,255,0.2);
-    }
-    .mode-tab {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      min-height: 36px;
-      border: none; border-radius: 12px;
-      background: transparent;
-      color: var(--t2);
-      font: inherit; font-size: 12.5px; font-weight: 700;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: color .22s;
-      position: relative;
-      z-index: 1;
-    }
-    .mode-tab.active {
-      color: var(--t1);
-    }
-    .mode-tab.active.ai {
-      color: #fff;
-    }
-
+    /* ── AI workout generation ──────────────────────────────── */
     /* Sliding panels */
     .mode-panels-wrapper {
       overflow: hidden;
@@ -1313,18 +1230,10 @@
       box-sizing: border-box;
     }
 
-    /* Flex chain so AI panel content can stretch to fill .upload-cols
-       height on all screen sizes, not just the desktop two-column layout */
     @media (max-width: 679px) {
       .upload-cols { display: flex; flex-direction: column; }
     }
-    .upload-col-left, .upload-col-right { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-    .upload-col-left .upload-mode-tabs { min-height: 54px; margin-bottom: 12px; }
-    .upload-col-left .upload-mode-tabs .mode-tab { min-height: 0; }
-    .mode-panels-wrapper { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-    .mode-panels-inner { flex: 1; min-height: 0; }
-    .upload-col-left .dz,
-    .upload-col-left .ai-gen-panel { flex: 1; min-height: 0; }
+    .upload-col-left, .upload-col-right { display: flex; flex-direction: column; }
 
     .ai-gen-panel {
       display: flex;
@@ -1398,7 +1307,6 @@
       flex: 0 0 auto;
       display: flex;
     }
-    .upload-cols.ai-step-confirm .upload-col-left .upload-mode-tabs,
     .upload-cols.ai-step-confirm .upload-col-left #panel-ai {
       display: none;
     }
@@ -1414,14 +1322,17 @@
       flex: 0 0 auto;
       width: 100%;
     }
-    .ai-close-btn {
+    .ai-close-btn, .upload-mode-btn {
       display: none;
       position: absolute;
       top: 20px;
       right: 20px;
       z-index: 2;
     }
-    #card-front:has(.upload-cols.ai-step-confirm) .ai-close-btn {
+    #card-front:has(.upload-cols.ai-step-chat) .upload-mode-btn {
+      display: flex;
+    }
+    #card-front:not(:has(.upload-cols.ai-step-chat)) .ai-close-btn {
       display: flex;
     }
     .ai-chat-msg {
@@ -2115,16 +2026,10 @@
       </div>
 
       <button type="button" class="back-close ai-close-btn" id="ai-close-btn" onclick="backToChat()" aria-label="Lukk">✕</button>
+      <button type="button" class="back-close upload-mode-btn" id="file-mode-btn" onclick="setUploadMode('file')" aria-label="Last opp fil" title="Last opp fil">📂</button>
 
       <div class="upload-cols ai-step-chat" id="upload-cols">
       <div class="upload-col-left">
-        <!-- Upload-mode tabs (TEST: file vs. AI) -->
-        <div class="upload-mode-tabs" id="upload-mode-tabs">
-          <div class="tab-pill" id="tab-pill"></div>
-          <button type="button" class="mode-tab ai active" id="mode-tab-ai" onclick="setUploadMode('ai')">✨ Lag med AI</button>
-          <button type="button" class="mode-tab" id="mode-tab-file" onclick="setUploadMode('file')">📂 Last opp fil</button>
-        </div>
-
         <!-- Sliding panels: File and AI side by side -->
         <div class="mode-panels-wrapper" id="mode-panels-wrapper">
           <div class="mode-panels-inner" id="mode-panels-inner">
@@ -2505,10 +2410,6 @@
     if (_pendingShareId) { _openShareView(_pendingShareId); _pendingShareId = null; }
     fetch('/api/status').then(r => r.json()).then(d => {
       if (d.aiWorkoutGenEnabled) {
-        document.getElementById('upload-mode-tabs').classList.add('visible');
-        initTabPill();
-        syncAiPanelHeight();
-        window.addEventListener('resize', syncAiPanelHeight);
         const ta = document.getElementById('ai-gen-desc');
         if (ta) {
           ta.addEventListener('input', _resizeAiTextarea);
@@ -2824,150 +2725,27 @@
   // AI is the default/left mode; file upload is right
   let _currentUploadMode = 'ai';
 
-  function syncAiPanelHeight() {
-    const cols = document.getElementById('upload-cols');
-    if (!cols) return;
-    if (_currentUploadMode !== 'ai') return;
-
-    const wasChat = cols.classList.contains('ai-step-chat');
-    const wasConfirm = cols.classList.contains('ai-step-confirm');
-    cols.classList.remove('ai-step-chat', 'ai-step-confirm');
-    cols.style.height = '';
-
-    const rowHeight = cols.getBoundingClientRect().height;
-
-    if (wasChat) cols.classList.add('ai-step-chat');
-    if (wasConfirm) cols.classList.add('ai-step-confirm');
-
-    cols.style.height = Math.ceil(rowHeight) + 'px';
-  }
-
   function setUploadMode(mode) {
     const isAi = mode === 'ai';
     _currentUploadMode = mode;
 
-    document.getElementById('mode-tab-file').classList.toggle('active', !isAi);
-    document.getElementById('mode-tab-ai').classList.toggle('active', isAi);
-
     const cols = document.getElementById('upload-cols');
     if (isAi) {
-      if (!cols.classList.contains('ai-step-confirm')) cols.classList.add('ai-step-chat');
+      cols.classList.remove('ai-step-confirm');
+      cols.classList.add('ai-step-chat');
     } else {
       cols.classList.remove('ai-step-chat', 'ai-step-confirm');
     }
 
-    // Slide pill: AI=left (0), File=right (pillOffset)
-    const pill = document.getElementById('tab-pill');
-    const tabs = document.getElementById('upload-mode-tabs');
-    if (pill && tabs) {
-      const pillW = parseFloat(tabs.style.getPropertyValue('--pill-w')) || (tabs.offsetWidth - 14) / 2;
-      pill.style.transition = '';
-      pill.style.transform = isAi ? 'translateX(0px)' : `translateX(${pillW + 6}px)`;
-      pill.classList.toggle('ai-active', isAi);
-    }
-
     // Slide content panels: AI=panel 0 (translateX 0), File=panel 1 (translateX -50%)
     const inner = document.getElementById('mode-panels-inner');
-    if (inner) {
-      inner.style.transition = '';
-      inner.style.transform = isAi ? 'translateX(0)' : 'translateX(-50%)';
-    }
+    if (inner) inner.style.transform = isAi ? 'translateX(0)' : 'translateX(-50%)';
 
     // Inert for accessibility: disable interaction with off-screen panel
     const filePanel = document.getElementById('panel-file');
     const aiPanel   = document.getElementById('panel-ai');
     if (filePanel) filePanel.inert = isAi;
     if (aiPanel)   aiPanel.inert   = !isAi;
-
-    if (isAi) {
-      syncAiPanelHeight();
-    } else {
-      const cols = document.getElementById('upload-cols');
-      if (cols) cols.style.height = '';
-    }
-  }
-
-  // Initialise pill width and drag behaviour
-  let _tabDrag = null;
-
-  function initTabPill() {
-    const tabs = document.getElementById('upload-mode-tabs');
-    const pill = document.getElementById('tab-pill');
-    if (!tabs || !pill) return;
-
-    function sizePill() {
-      const pillW = Math.round((tabs.offsetWidth - 14) / 2);
-      tabs.style.setProperty('--pill-w', pillW + 'px');
-      pill.style.width = pillW + 'px';
-      const isAi = _currentUploadMode === 'ai';
-      pill.style.transition = 'none';
-      pill.style.transform = isAi ? 'translateX(0px)' : `translateX(${pillW + 6}px)`;
-      requestAnimationFrame(() => { pill.style.transition = ''; });
-    }
-
-    sizePill();
-    window.addEventListener('resize', sizePill);
-
-    // ── Drag the tab toggle ──
-    // ratio=0 → AI (left), ratio=1 → File (right)
-    tabs.addEventListener('pointerdown', e => {
-      if (e.button !== 0) return;
-
-      const pillW = parseFloat(pill.style.width) || (tabs.offsetWidth - 14) / 2;
-      const pillOffset = pillW + 6;
-      const wrapperW = document.getElementById('mode-panels-wrapper').offsetWidth;
-
-      _tabDrag = {
-        startX: e.clientX,
-        baseTranslate: _currentUploadMode === 'ai' ? 0 : pillOffset,
-        pillOffset,
-        wrapperW,
-        moved: false,
-        pointerId: e.pointerId
-      };
-
-      function onMove(ev) {
-        if (!_tabDrag || ev.pointerId !== _tabDrag.pointerId) return;
-        const dx = ev.clientX - _tabDrag.startX;
-        if (Math.abs(dx) < 4 && !_tabDrag.moved) return;
-        _tabDrag.moved = true;
-        ev.preventDefault();
-
-        const raw = _tabDrag.baseTranslate + dx;
-        const clamped = Math.max(0, Math.min(_tabDrag.pillOffset, raw));
-        const ratio = clamped / _tabDrag.pillOffset;
-
-        pill.style.transition = 'none';
-        pill.style.transform = `translateX(${clamped}px)`;
-        pill.classList.toggle('ai-active', ratio < 0.5);
-
-        const inner = document.getElementById('mode-panels-inner');
-        inner.style.transition = 'none';
-        inner.style.transform = `translateX(${-_tabDrag.wrapperW * ratio}px)`;
-      }
-
-      function onUp(ev) {
-        document.removeEventListener('pointermove', onMove);
-        document.removeEventListener('pointerup',   onUp);
-        document.removeEventListener('pointercancel', onUp);
-
-        if (!_tabDrag || !_tabDrag.moved) { _tabDrag = null; return; }
-        const { pillOffset } = _tabDrag;
-        _tabDrag = null;
-
-        const m = pill.style.transform.match(/translateX\(([^)]+)px\)/);
-        const curX = m ? parseFloat(m[1]) : 0;
-        const ratio = curX / pillOffset;
-
-        pill.style.transition = '';
-        document.getElementById('mode-panels-inner').style.transition = '';
-        setUploadMode(ratio >= 0.5 ? 'file' : 'ai');
-      }
-
-      document.addEventListener('pointermove', onMove, { passive: false });
-      document.addEventListener('pointerup',   onUp);
-      document.addEventListener('pointercancel', onUp);
-    });
   }
 
   let _aiChatMessages = [];
@@ -3057,14 +2835,12 @@
     const cols = document.getElementById('upload-cols');
     cols.classList.remove('ai-step-chat');
     cols.classList.add('ai-step-confirm');
-    cols.style.height = '';
   }
 
   function backToChat() {
     const cols = document.getElementById('upload-cols');
     cols.classList.remove('ai-step-confirm');
     cols.classList.add('ai-step-chat');
-    syncAiPanelHeight();
   }
 
   function onGroupToggle(cb) {
