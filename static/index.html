@@ -1302,6 +1302,43 @@
     #card-front:not(:has(.upload-cols.ai-step-chat)) .card-header {
       display: none;
     }
+
+    /* ── AI chat: take over the full screen ─────────────────── */
+    #upload-section:has(.upload-cols.ai-step-chat) {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+      padding: max(72px, calc(env(safe-area-inset-top) + 60px)) 16px max(16px, env(safe-area-inset-bottom));
+      box-sizing: border-box;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) #card-front,
+    #upload-section:has(.upload-cols.ai-step-chat) .upload-cols,
+    #upload-section:has(.upload-cols.ai-step-chat) .upload-col-left,
+    #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-wrapper,
+    #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-inner,
+    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-panel {
+      flex: 1;
+      min-height: 0;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) #card-front,
+    #upload-section:has(.upload-cols.ai-step-chat) .upload-cols,
+    #upload-section:has(.upload-cols.ai-step-chat) .mode-panel-slide {
+      display: flex;
+      flex-direction: column;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) .mode-panels-wrapper {
+      display: flex;
+      flex-direction: column;
+      margin: 0 0 14px;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) .card-header {
+      flex-shrink: 0;
+    }
     .upload-cols.ai-step-confirm { grid-template-columns: 1fr; }
     .upload-cols.ai-step-confirm .upload-col-left {
       flex: 0 0 auto;
