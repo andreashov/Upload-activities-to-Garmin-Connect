@@ -1367,11 +1367,15 @@
       flex-shrink: 0;
     }
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row textarea {
-      min-height: calc(41px + env(safe-area-inset-bottom) + 24px);
-      padding-bottom: calc(8px + env(safe-area-inset-bottom) + 24px);
+      min-height: 41px;
+      max-height: 41px;
+      padding-bottom: 8px;
     }
     #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-btn {
-      height: calc(41px + env(safe-area-inset-bottom) + 24px);
+      height: 41px;
+    }
+    #upload-section:has(.upload-cols.ai-step-chat) .ai-gen-row {
+      padding-bottom: env(safe-area-inset-bottom);
     }
     #upload-section:has(.upload-cols.ai-step-chat) .upload-mode-btn {
       top: 0;
