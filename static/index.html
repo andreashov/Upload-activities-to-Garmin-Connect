@@ -744,6 +744,9 @@
         flex: 1;
         min-height: 0;
       }
+      .upload-cols.ai-step-chat .ai-gen-panel {
+        min-height: 258px;
+      }
       .upload-col-right {
         display: flex;
         flex-direction: column;
@@ -2026,7 +2029,7 @@
       </div>
 
       <button type="button" class="back-close ai-close-btn" id="ai-close-btn" onclick="backToChat()" aria-label="Lukk">✕</button>
-      <button type="button" class="back-close upload-mode-btn" id="file-mode-btn" onclick="setUploadMode('file')" aria-label="Last opp fil" title="Last opp fil">📂</button>
+      <button type="button" class="back-close upload-mode-btn" id="file-mode-btn" onclick="setUploadMode('file')" aria-label="Last opp fil" title="Last opp fil">+</button>
 
       <div class="upload-cols ai-step-chat" id="upload-cols">
       <div class="upload-col-left">
@@ -2838,9 +2841,7 @@
   }
 
   function backToChat() {
-    const cols = document.getElementById('upload-cols');
-    cols.classList.remove('ai-step-confirm');
-    cols.classList.add('ai-step-chat');
+    setUploadMode('ai');
   }
 
   function onGroupToggle(cb) {
